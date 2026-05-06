@@ -71,7 +71,7 @@ void distruggiRichiesta(Richiesta* richiestaTarget) {
 }
 
 /*Funzioni getter*/
-const char* geCodiceRichiesta(const Richiesta* richiestaTarget){
+const char* getCodiceRichiesta(const Richiesta* richiestaTarget){
     if(richiestaTarget == NULL) return NULL;
     return richiestaTarget->codice;
 }
