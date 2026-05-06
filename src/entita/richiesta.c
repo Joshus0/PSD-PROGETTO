@@ -69,3 +69,88 @@ void distruggiRichiesta(Richiesta* richiestaTarget) {
  
     free(richiestaTarget);
 }
+
+/*Funzioni getter*/
+const char* geCodiceRichiesta(const Richiesta* richiestaTarget){
+    if(richiestaTarget == NULL) return NULL;
+    return richiestaTarget->codice;
+}
+
+const char* getAppartamentoRichiesta(const Richiesta* richiestaTarget){
+    if(richiestaTarget == NULL) return NULL;
+    return richiestaTarget->appartamento;
+}
+
+const char* getTipologiaProblemaRichiesta(const Richiesta* richiestaTarget){
+    if(richiestaTarget == NULL) return NULL;
+    return richiestaTarget->tipologia;
+}
+
+const char* getDescrizioneRichiesta(const Richiesta* richiestaTarget){
+    if(richiestaTarget == NULL) return NULL;
+    return richiestaTarget->descrizione;
+}
+
+const char* getDataRichiesta(const Richiesta* richiestaTarget){
+    if(richiestaTarget == NULL) return NULL;
+    return richiestaTarget->data;
+}
+
+int getLivelloUrgenzaRichiesta(const Richiesta* richiestaTarget) {
+    if (richiestaTarget == NULL) return -1;
+    return richiestaTarget->urgenza;
+}
+
+StatoRichiesta getStatoRichiesta(const Richiesta* richiestaTarget){
+    if(richiestaTarget == NULL) return ANNULLATA;
+    return richiestaTarget->stato;
+}
+
+const char* getCodiceTecnicoAssegnatoRichiesta(const Richiesta* richiestaTarget){
+    if(richiestaTarget == NULL) return NULL;
+    return richiestaTarget->codiceTecnicoAssegnato;
+}
+
+const char* getDataInizioLavorazioneRichiesta(const Richiesta* richiestaTarget){
+    if(richiestaTarget == NULL) return NULL;
+    return richiestaTarget->dataInizioLavorazione;
+}
+
+const char* getDataChiusuraRichiesta(const Richiesta* richiestaTarget){
+    if(richiestaTarget == NULL) return NULL;
+    return richiestaTarget->dataChiusura;
+}
+
+int isValidaInHeapRichiesta(const Richiesta* richiestaTarget) {
+    if (richiestaTarget == NULL) return 0;
+    return richiestaTarget->isValidaInHeap;
+}
+
+/* FUNZIONI SETTER */
+void setStatoRichiesta(Richiesta* richiestaTarget, StatoRichiesta nuovoStato) {
+    if (richiestaTarget == NULL) return;
+    richiestaTarget->stato = nuovoStato;
+}
+ 
+void setCodiceTecnicoAssegnatoRichiesta(Richiesta* richiestaTarget, const char* nuovoCodice) {
+    if (richiestaTarget == NULL) return;
+    free(richiestaTarget->codiceTecnicoAssegnato);
+    richiestaTarget->codiceTecnicoAssegnato = duplicaStringa(nuovoCodice);
+}
+ 
+void setDataInizioLavorazioneRichiesta(Richiesta* richiestaTarget, const char* nuovaData) {
+    if (richiestaTarget == NULL) return;
+    free(richiestaTarget->dataInizioLavorazione);
+    richiestaTarget->dataInizioLavorazione = duplicaStringa(nuovaData);
+}
+ 
+void setDataChiusuraRichiesta(Richiesta* richiestaTarget, const char* nuovaData) {
+    if (richiestaTarget == NULL) return;
+    free(richiestaTarget->dataChiusura);
+    richiestaTarget->dataChiusura = duplicaStringa(nuovaData);
+}
+ 
+void setValidaInHeapRichiesta(Richiesta* richiestaTarget, int flagValidita) {
+    if (richiestaTarget == NULL) return;
+    richiestaTarget->isValidaInHeap = flagValidita;
+}
