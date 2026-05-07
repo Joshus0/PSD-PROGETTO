@@ -1,4 +1,4 @@
-#include "../include/codaPriorita.h"
+#include "codaPriorita.h"
 #include <stdlib.h>
 
 struct CodaPriorita {

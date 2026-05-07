@@ -1,4 +1,4 @@
-#include "../../include/entita/tecnico.h"
+#include "entita/tecnico.h"
 #include "main/utilita.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +9,7 @@ struct Tecnico {
     char* nome;
     char* specializzazione;
     int disponibile;
+    AgendaTecnico* agenda;
 };
 
 Tecnico* creaTecnico(const char* codice, const char* nome, const char* specializzazione) {
@@ -19,12 +20,15 @@ Tecnico* creaTecnico(const char* codice, const char* nome, const char* specializ
     nuovo->nome = duplicaStringa(nome);
     nuovo->specializzazione = duplicaStringa(specializzazione);
     nuovo->disponibile = 1;
+    nuovo->agenda = creaAgendaTecnico();
 
     return nuovo;
 }
 
 void distruggiTecnico(Tecnico* tecnicoTarget) {
     if (tecnicoTarget == NULL) return;
+
+    if (tecnicoTarget->agenda != NULL) distruggiAgendaTecnico(tecnicoTarget->agenda);
 
     free(tecnicoTarget->codice);
     free(tecnicoTarget->nome);
@@ -62,4 +66,8 @@ void setSpecializzazioneTecnico(Tecnico* tecnicoTarget, const char* nuovaSpecial
     if (tecnicoTarget == NULL) return;
     free(tecnicoTarget->specializzazione);
     tecnicoTarget->specializzazione = duplicaStringa(nuovaSpecializzazione);
+}
+AgendaTecnico* getAgendaTecnico(const Tecnico* tecnicoTarget) {
+    if (tecnicoTarget == NULL) return NULL;
+    return tecnicoTarget->agenda;
 }
