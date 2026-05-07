@@ -1,5 +1,5 @@
 #include "../../include/entita/tecnico.h"
-#include "utilita.h"
+#include "main/utilita.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
