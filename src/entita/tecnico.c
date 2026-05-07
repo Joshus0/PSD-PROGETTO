@@ -1,4 +1,5 @@
 #include "../../include/entita/tecnico.h"
+#include "utilita.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,16 +10,6 @@ struct Tecnico {
     char* specializzazione;
     int disponibile;
 };
-
-static char* duplicaStringa(const char* src) {
-    char* copia;
-    if (src == NULL) return NULL;
-    copia = (char*)malloc(strlen(src) + 1);
-    if (copia != NULL) {
-        strcpy(copia, src);
-    }
-    return copia;
-}
 
 Tecnico* creaTecnico(const char* codice, const char* nome, const char* specializzazione) {
     Tecnico* nuovo = (Tecnico*)malloc(sizeof(Tecnico));

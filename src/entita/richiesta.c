@@ -1,4 +1,5 @@
 #include "entita/richiesta.h"
+#include "utilita.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,17 +18,6 @@ struct Richiesta {
     char* dataChiusura;             /* Data di chiusura (NULL se non conclusa) */
     int isValidaInHeap;           /* Flag: 1 se la richiesta e' valida nell'heap, 0 se e' stata rimossa logicamente */
 };
- 
-/* FUNZIONE INTERNA DI SUPPORTO */
-static char* duplicaStringa(const char* src) {
-    char* copia;
-    if (src == NULL) return NULL;
-    copia = (char*)malloc(strlen(src) + 1);
-    if (copia != NULL) {
-        strcpy(copia, src);
-    }
-    return copia;
-}
  
 /* CREAZIONE E DISTRUZIONE DELLE RICHIESTE*/
 /* Alloca e inizializza una nuova Richiesta con i campi forniti.*/

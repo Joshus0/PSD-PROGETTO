@@ -20,5 +20,8 @@ NodoAlberoTecnici* getFiglioSinistroTecnici(const NodoAlberoTecnici* nodoCorrent
 NodoAlberoTecnici* getFiglioDestroTecnici(const NodoAlberoTecnici* nodoCorrente);
 Tecnico* getTecnicoDalNodoAlbero(const NodoAlberoTecnici* nodoCorrente);
 
+/* Visita tutti i tecnici in ordine applicando la funzione visitatore a ciascuno.*/
+
+void visitaAlberoTecnici(const AlberoTecnici* alberoTarget, void (*visitatore)(Tecnico*));
 #endif
 //Chiusura di #ifndef ALBERO_TECNICI_H

@@ -1,4 +1,5 @@
 #include "../include/alberoTecnici.h"
+#include "entita/tecnico.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -144,4 +145,17 @@ Tecnico* getTecnicoDalNodoAlbero(const NodoAlberoTecnici* nodoCorrente) {
     } else {
         return NULL;
     }
+}
+
+/* Altre funzioni aggiunte in alberoTecnici.h*/
+static void visitaRicorsivo(NodoAlberoTecnici* nodo, void (*visitatore)(Tecnico*)) {
+    if (nodo == NULL) return;
+    visitaRicorsivo(nodo->sinistro, visitatore);
+    visitatore(nodo->dato);
+    visitaRicorsivo(nodo->destro, visitatore);
+}
+
+void visitaAlberoTecnici(const AlberoTecnici* alberoTarget, void (*visitatore)(Tecnico*)) {
+    if (alberoTarget == NULL || visitatore == NULL) return;
+    visitaRicorsivo(alberoTarget->radice, visitatore);
 }
