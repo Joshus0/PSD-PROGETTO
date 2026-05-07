@@ -1,4 +1,4 @@
-#include "../include/archivioRichieste.h"
+#include "archivioRichieste.h"
 #include <stdlib.h>
 
 

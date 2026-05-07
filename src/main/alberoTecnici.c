@@ -1,4 +1,4 @@
-#include "../include/alberoTecnici.h"
+#include "alberoTecnici.h"
 #include "entita/tecnico.h"
 #include <stdlib.h>
 #include <string.h>
