@@ -19,5 +19,11 @@ int isCodaPrioritaVuota(const CodaPriorita* codaTarget);
 int getDimensioneCodaPriorita(const CodaPriorita* codaTarget);
 void stampaCodaPriorita(const CodaPriorita* codaTarget);
 
+void stampaRichiestePerStato(const CodaPriorita* codaTarget, StatoRichiesta stato);
+void stampaRichiestePerUrgenza(const CodaPriorita* codaTarget, int urgenza);
+void stampaRichiestePerTipologia(const CodaPriorita* codaTarget, const char* tipologia);
+void stampaRichiestePerAppartamento(const CodaPriorita* codaTarget, const char* appartamento);
+void stampaRichiestePerTecnico(const CodaPriorita* codaTarget, const char* codiceTecnico);
+
 #endif
 //Chiusura di #ifndef CODA_PRIORITA_H
