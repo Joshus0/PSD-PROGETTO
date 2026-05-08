@@ -1,4 +1,5 @@
 #include "codaPriorita.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 struct CodaPriorita {
@@ -81,8 +82,8 @@ void inserisciInCodaPriorita(CodaPriorita* codaTarget, Richiesta* richiestaDaAcc
     }
 
     codaTarget->array[codaTarget->dimensione] = richiestaDaAccodare;
-    heapifyUp(codaTarget, codaTarget->dimensione);
     codaTarget->dimensione++;
+    heapifyUp(codaTarget, codaTarget->dimensione - 1);
 }
 
 Richiesta* estraiMaxDaCodaPriorita(CodaPriorita* codaTarget) {
@@ -107,4 +108,28 @@ int isCodaPrioritaVuota(const CodaPriorita* codaTarget) {
 
 int getDimensioneCodaPriorita(const CodaPriorita* codaTarget) {
     return (codaTarget != NULL) ? codaTarget->dimensione : 0;
+}
+
+void stampaCodaPriorita(const CodaPriorita* codaTarget) {
+    if (codaTarget == NULL) {
+        printf("Coda di priorita' non inizializzata.\n");
+        return;
+    }
+
+    if (codaTarget->dimensione == 0) {
+        printf("Nessuna richiesta in coda.\n");
+        return;
+    }
+
+    printf("Richieste in coda (heap, ordine interno):\n");
+    for (int i = 0; i < codaTarget->dimensione; i++) {
+        Richiesta* richiesta = codaTarget->array[i];
+        if (richiesta == NULL) continue;
+        printf("[%d] Codice: %s, Appartamento: %s, Tipologia: %s, Urgenza: %d\n",
+               i + 1,
+               getCodiceRichiesta(richiesta),
+               getAppartamentoRichiesta(richiesta),
+               getTipologiaProblemaRichiesta(richiesta),
+               getLivelloUrgenzaRichiesta(richiesta));
+    }
 }

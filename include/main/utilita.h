@@ -5,4 +5,6 @@
    oppure NULL se src è NULL o se malloc fallisce */
 char* duplicaStringa(const char* src);
 
+int validaData(const char* data);
+
 #endif

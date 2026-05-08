@@ -17,6 +17,7 @@ Richiesta* estraiMaxDaCodaPriorita(CodaPriorita* codaTarget);
 //Funzioni per accedere alle informazioni sulla coda di priorità
 int isCodaPrioritaVuota(const CodaPriorita* codaTarget);
 int getDimensioneCodaPriorita(const CodaPriorita* codaTarget);
+void stampaCodaPriorita(const CodaPriorita* codaTarget);
 
 #endif
 //Chiusura di #ifndef CODA_PRIORITA_H
