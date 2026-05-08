@@ -1,6 +1,6 @@
 #include "archivioRichieste.h"
 #include <stdlib.h>
-
+#include <string.h>
 
 struct NodoLista 
 {
@@ -111,4 +111,22 @@ Richiesta* getRichiestaDalNodoLista(const NodoLista* nodoCorrente) {
 
 int getDimensioneArchivio(const ArchivioRichieste* archivioTarget) {
     return (archivioTarget != NULL) ? archivioTarget->dimensione : 0;
+}
+Richiesta* cercaRichiestaPerCodice(const ArchivioRichieste* archivioTarget, const char* codiceDaCercare) {
+    if (archivioTarget == NULL || codiceDaCercare == NULL) {
+        return NULL;
+    }
+
+    NodoLista* nodoCorrente = archivioTarget->testa;
+    
+    while (nodoCorrente != NULL) {
+        Richiesta* req = nodoCorrente->dato;
+
+        if (strcmp(getCodiceRichiesta(req), codiceDaCercare) == 0) {
+            return req;
+        }
+        nodoCorrente = nodoCorrente->next;
+    }
+    
+    return NULL;
 }

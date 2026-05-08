@@ -24,5 +24,8 @@ NodoLista* getPrevNodoLista(const NodoLista* nodoCorrente);
 Richiesta* getRichiestaDalNodoLista(const NodoLista* nodoCorrente);
 int getDimensioneArchivio(const ArchivioRichieste* archivioTarget);
 
+// Funzione per cercare una richiesta specifica tramite il suo codice
+Richiesta* cercaRichiestaPerCodice(const ArchivioRichieste* archivioTarget, const char* codiceDaCercare);
+
 #endif
 //Chiusura di #ifndef ARCHIVIO_RICHIESTE_H

@@ -121,15 +121,27 @@ void stampaCodaPriorita(const CodaPriorita* codaTarget) {
         return;
     }
 
+    int richiesteStampate = 0;
+    
     printf("Richieste in coda (heap, ordine interno):\n");
     for (int i = 0; i < codaTarget->dimensione; i++) {
         Richiesta* richiesta = codaTarget->array[i];
-        if (richiesta == NULL) continue;
+        
+        if (richiesta == NULL || isValidaInHeapRichiesta(richiesta) == 0) {
+            continue;
+        }
+
         printf("[%d] Codice: %s, Appartamento: %s, Tipologia: %s, Urgenza: %d\n",
-               i + 1,
+               richiesteStampate + 1,
                getCodiceRichiesta(richiesta),
                getAppartamentoRichiesta(richiesta),
                getTipologiaProblemaRichiesta(richiesta),
                getLivelloUrgenzaRichiesta(richiesta));
+               
+        richiesteStampate++;
+    }
+
+    if (richiesteStampate == 0) {
+        printf("Tutte le richieste presenti sono gia' state gestite o annullate.\n");
     }
 }

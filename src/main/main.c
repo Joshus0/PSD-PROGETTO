@@ -52,6 +52,7 @@ int main() {
         printf("3. Assegna Richiesta Prioritaria (Logica Automatica)\n");
         printf("4. Visualizza Elenco Tecnici\n");
         printf("5. Visualizza Coda di Attesa (Heap)\n");
+        printf("6. Aggiornamento Stato Richiesta\n");
         printf("0. Esci dal Programma\n");
         printf(BOLD "Seleziona un'opzione: " RESET);
 
@@ -153,20 +154,25 @@ int main() {
                 break;
             }
 
-            case 3: {
+case 3: {
                 pulisciSchermo();
                 printf(CYAN BOLD "\n-- ASSEGNAZIONE AUTOMATICA --\n" RESET);
 
-                if (isCodaPrioritaVuota(codaAttesa)) {
-                    printf(YELLOW "Nessuna richiesta in coda di priorita'.\n" RESET);
-                    pausaSchermo();
-                    break;
+                Richiesta* richiestaDaAssegnare = NULL;
+                
+                while (isCodaPrioritaVuota(codaAttesa) == 0) {
+                    
+                    richiestaDaAssegnare = estraiMaxDaCodaPriorita(codaAttesa);
+                    
+                    if (richiestaDaAssegnare != NULL && isValidaInHeapRichiesta(richiestaDaAssegnare) == 1) {
+                        break; 
+                    }
+                    
+                    richiestaDaAssegnare = NULL;
                 }
 
-                Richiesta* richiestaDaAssegnare = estraiMaxDaCodaPriorita(codaAttesa);
-                
                 if (richiestaDaAssegnare == NULL) {
-                    printf(RED "Errore nell'estrazione della richiesta.\n" RESET);
+                    printf(YELLOW "Nessuna richiesta valida in coda di priorita'.\n" RESET);
                     pausaSchermo();
                     break;
                 }
@@ -212,6 +218,69 @@ int main() {
                 printf(CYAN BOLD "\n-- CODA DI ATTESA (PRIORITA' MAX) --\n" RESET);
                 stampaCodaPriorita(codaAttesa);
                 
+                pausaSchermo();
+                break;
+            }
+
+ case 6: {
+                pulisciSchermo();
+                printf(CYAN BOLD "\n-- AGGIORNAMENTO STATO RICHIESTA --\n" RESET);
+
+                char bufferCodiceCerca[50];
+                acquisisciStringa("Inserisci il codice della richiesta da aggiornare: ", bufferCodiceCerca, sizeof(bufferCodiceCerca));
+
+                Richiesta* richiestaTrovata = cercaRichiestaPerCodice(archivioStorico, bufferCodiceCerca);
+
+                if (richiestaTrovata == NULL) {
+                    printf(RED BOLD "\n[ERRORE]" RESET RED " Richiesta non trovata nell'archivio.\n" RESET);
+                } else {
+                    StatoRichiesta statoAttuale = getStatoRichiesta(richiestaTrovata);
+                    
+                    if (statoAttuale == CONCLUSA || statoAttuale == ANNULLATA) {
+                        printf(YELLOW "\n[ATTENZIONE]" RESET YELLOW " Questa richiesta e' %s e non puo' piu' essere modificata.\n" RESET, 
+                               statoAttuale == CONCLUSA ? "CONCLUSA" : "ANNULLATA");
+                    } else {
+                        printf("\nRichiesta trovata:\n");
+                        stampaRichiesta(richiestaTrovata);
+
+                        printf("\nSeleziona il nuovo stato:\n");
+                        printf("0. APERTA\n");
+                        printf("1. PIANIFICATA\n");
+                        printf("2. IN_LAVORAZIONE\n");
+                        printf("3. CONCLUSA\n");
+                        printf("4. ANNULLATA\n");
+                        
+                        int nuovoStatoInt = -1;
+                        while (nuovoStatoInt < 0 || nuovoStatoInt > 4) {
+                            printf(BOLD "Scelta (0-4): " RESET);
+                            if (scanf("%d", &nuovoStatoInt) != 1) {
+                                pulisciBuffer();
+                                nuovoStatoInt = -1;
+                                continue;
+                            }
+                            pulisciBuffer();
+                        }
+
+                        StatoRichiesta nuovoStato = (StatoRichiesta)nuovoStatoInt;
+                        setStatoRichiesta(richiestaTrovata, nuovoStato);
+
+                        if (nuovoStato == ANNULLATA || nuovoStato == CONCLUSA || nuovoStato == IN_LAVORAZIONE) {
+                            setValidaInHeapRichiesta(richiestaTrovata, 0);
+                        }
+
+                        if (nuovoStato == CONCLUSA) {
+                            char bufferDataChiusura[50];
+                            do {
+                                acquisisciStringa("Inserisci data di chiusura (DD/MM/YYYY): ", bufferDataChiusura, sizeof(bufferDataChiusura));
+                            } while (validaData(bufferDataChiusura) == 0);
+                            
+                            setDataChiusuraRichiesta(richiestaTrovata, bufferDataChiusura);
+                        }
+
+                        printf(GREEN BOLD "\n[OK]" RESET GREEN " Stato aggiornato.\n" RESET);
+                    }
+                }
+
                 pausaSchermo();
                 break;
             }
