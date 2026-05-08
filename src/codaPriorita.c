@@ -1,7 +1,8 @@
 #include "codaPriorita.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h> 
+#include "main/utilita.h"
 struct CodaPriorita {
     Richiesta** array;
     int capacita;
@@ -132,4 +133,98 @@ void stampaCodaPriorita(const CodaPriorita* codaTarget) {
                getTipologiaProblemaRichiesta(richiesta),
                getLivelloUrgenzaRichiesta(richiesta));
     }
+}
+
+
+void stampaRichiestePerStato(const CodaPriorita* codaTarget, StatoRichiesta stato) {
+    if (codaTarget == NULL || codaTarget->dimensione == 0) {
+        printf("Nessuna richiesta in coda.\n");
+        return;
+    }
+    
+    int trovate = 0;
+    for (int i = 0; i < codaTarget->dimensione; i++) {
+        Richiesta* richiesta = codaTarget->array[i];
+        if (richiesta != NULL && getStatoRichiesta(richiesta) == stato) {
+            stampaRichiesta(richiesta); // Richiama la funzione di utilita.c
+            trovate++;
+        }
+    }
+    
+    if (trovate == 0) printf("Nessuna richiesta trovata per questo stato.\n");
+}
+
+void stampaRichiestePerUrgenza(const CodaPriorita* codaTarget, int urgenza) {
+    if (codaTarget == NULL || codaTarget->dimensione == 0) {
+        printf("Nessuna richiesta in coda.\n");
+        return;
+    }
+    
+    int trovate = 0;
+    for (int i = 0; i < codaTarget->dimensione; i++) {
+        Richiesta* richiesta = codaTarget->array[i];
+        if (richiesta != NULL && getLivelloUrgenzaRichiesta(richiesta) == urgenza) {
+            stampaRichiesta(richiesta);
+            trovate++;
+        }
+    }
+    
+    if (trovate == 0) printf("Nessuna richiesta trovata con urgenza %d.\n", urgenza);
+}
+
+void stampaRichiestePerTipologia(const CodaPriorita* codaTarget, const char* tipologia) {
+    if (codaTarget == NULL || codaTarget->dimensione == 0) {
+        printf("Nessuna richiesta in coda.\n");
+        return;
+    }
+    
+    int trovate = 0;
+    for (int i = 0; i < codaTarget->dimensione; i++) {
+        Richiesta* richiesta = codaTarget->array[i];
+        if (richiesta != NULL && strcmp(getTipologiaProblemaRichiesta(richiesta), tipologia) == 0) {
+            stampaRichiesta(richiesta);
+            trovate++;
+        }
+    }
+    
+    if (trovate == 0) printf("Nessuna richiesta trovata per la tipologia: %s\n", tipologia);
+}
+
+void stampaRichiestePerAppartamento(const CodaPriorita* codaTarget, const char* appartamento) {
+    if (codaTarget == NULL || codaTarget->dimensione == 0) {
+        printf("Nessuna richiesta in coda.\n");
+        return;
+    }
+    
+    int trovate = 0;
+    for (int i = 0; i < codaTarget->dimensione; i++) {
+        Richiesta* richiesta = codaTarget->array[i];
+        if (richiesta != NULL && strcmp(getAppartamentoRichiesta(richiesta), appartamento) == 0) {
+            stampaRichiesta(richiesta);
+            trovate++;
+        }
+    }
+    
+    if (trovate == 0) printf("Nessuna richiesta trovata per l'appartamento: %s\n", appartamento);
+}
+
+void stampaRichiestePerTecnico(const CodaPriorita* codaTarget, const char* codiceTecnico) {
+    if (codaTarget == NULL || codaTarget->dimensione == 0) {
+        printf("Nessuna richiesta in coda.\n");
+        return;
+    }
+    
+    int trovate = 0;
+    for (int i = 0; i < codaTarget->dimensione; i++) {
+        Richiesta* richiesta = codaTarget->array[i];
+        if (richiesta != NULL) {
+            const char* tecnicoAssegnato = getCodiceTecnicoAssegnatoRichiesta(richiesta);
+            if (tecnicoAssegnato != NULL && strcmp(tecnicoAssegnato, codiceTecnico) == 0) {
+                stampaRichiesta(richiesta);
+                trovate++;
+            }
+        }
+    }
+    
+    if (trovate == 0) printf("Nessuna richiesta trovata assegnata al tecnico: %s\n", codiceTecnico);
 }

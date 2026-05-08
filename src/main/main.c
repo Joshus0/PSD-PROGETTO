@@ -51,7 +51,7 @@ int main() {
         printf("2. Inserisci Nuova Richiesta\n");
         printf("3. Assegna Richiesta Prioritaria (Logica Automatica)\n");
         printf("4. Visualizza Elenco Tecnici\n");
-        printf("5. Visualizza Coda di Attesa (Heap)\n");
+        printf("5. Visualizza Richieste\n");
         printf("0. Esci dal Programma\n");
         printf(BOLD "Seleziona un'opzione: " RESET);
 
@@ -208,11 +208,103 @@ int main() {
             }
 
             case 5: {
-                pulisciSchermo();
-                printf(CYAN BOLD "\n-- CODA DI ATTESA (PRIORITA' MAX) --\n" RESET);
-                stampaCodaPriorita(codaAttesa);
+                int sceltaVisualizzazione = 0;
                 
-                pausaSchermo();
+                do {
+                    pulisciSchermo();
+                    printf(CYAN BOLD "\n-- VISUALIZZAZIONE DELLE RICHIESTE --\n" RESET);
+                    printf("1. Per stato\n");
+                    printf("2. Per urgenza\n");
+                    printf("3. Per tipologia\n");
+                    printf("4. Per appartamento\n");
+                    printf("5. Per tecnico\n");
+                    printf("0. Torna indietro\n");
+                    printf("\nScegli un'opzione: ");
+                    
+                    if (scanf("%d", &sceltaVisualizzazione) != 1) {
+                        sceltaVisualizzazione = -1; // Gestione errore se l'utente inserisce una lettera
+                    }
+                    pulisciBuffer(); 
+
+                    switch (sceltaVisualizzazione) {
+                        case 1: {
+                            int statoInput;
+                            pulisciSchermo();
+                            printf(CYAN BOLD "\n-- RICHIESTE PER STATO --\n" RESET);
+                            printf("Stati disponibili:\n");
+                            printf("0 = APERTA\n1 = PIANIFICATA\n2 = IN_LAVORAZIONE\n3 = CONCLUSA\n4 = ANNULLATA\n");
+                            printf("\nInserisci il numero dello stato da cercare: ");
+                            
+                            scanf("%d", &statoInput);
+                            pulisciBuffer();
+                            
+                            printf("\n");
+                            stampaRichiestePerStato(codaAttesa, (StatoRichiesta)statoInput);
+                            
+                            pausaSchermo();
+                            break;
+                        }
+                        case 2: {
+                            int urgenzaInput;
+                            pulisciSchermo();
+                            printf(CYAN BOLD "\n-- RICHIESTE PER URGENZA --\n" RESET);
+                            printf("Inserisci il livello di urgenza da cercare (numero): ");
+                            
+                            scanf("%d", &urgenzaInput);
+                            pulisciBuffer();
+                            
+                            printf("\n");
+                            stampaRichiestePerUrgenza(codaAttesa, urgenzaInput);
+                            
+                            pausaSchermo();
+                            break;
+                        }
+                        case 3: {
+                            char tipoInput[50];
+                            pulisciSchermo();
+                            printf(CYAN BOLD "\n-- RICHIESTE PER TIPOLOGIA --\n" RESET);
+                            acquisisciStringa("Inserisci la tipologia (es. Elettrico, Idraulico): ", tipoInput, 50);
+                            
+                            printf("\n");
+                            stampaRichiestePerTipologia(codaAttesa, tipoInput);
+                            
+                            pausaSchermo();
+                            break;
+                        }
+                        case 4: {
+                            char appInput[50];
+                            pulisciSchermo();
+                            printf(CYAN BOLD "\n-- RICHIESTE PER APPARTAMENTO --\n" RESET);
+                            acquisisciStringa("Inserisci il codice/nome dell'appartamento: ", appInput, 50);
+                            
+                            printf("\n");
+                            stampaRichiestePerAppartamento(codaAttesa, appInput);
+                            
+                            pausaSchermo();
+                            break;
+                        }
+                        case 5: {
+                            char tecnicoInput[50];
+                            pulisciSchermo();
+                            printf(CYAN BOLD "\n-- RICHIESTE PER TECNICO --\n" RESET);
+                            acquisisciStringa("Inserisci il codice del tecnico assegnato: ", tecnicoInput, 50);
+                            
+                            printf("\n");
+                            stampaRichiestePerTecnico(codaAttesa, tecnicoInput);
+                            
+                            pausaSchermo();
+                            break;
+                        }
+                        case 0:
+                            // Torna al menu principale
+                            break;
+                        default:
+                            printf("\nScelta non valida. Riprova.\n");
+                            pausaSchermo();
+                            break;
+                    }
+                } while (sceltaVisualizzazione != 0);
+                
                 break;
             }
 
