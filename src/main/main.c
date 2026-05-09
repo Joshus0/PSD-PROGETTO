@@ -33,9 +33,9 @@ int main() {
     int urgenza = -1;
 
     pulisciSchermo();
-    printf(CYAN BOLD "\n╔══════════════════════════════════════════════════╗\n");
-    printf("║                " RESET BOLD "BENVENUTO" CYAN BOLD "                         ║\n");
-    printf("╚══════════════════════════════════════════════════╝\n" RESET);
+    printf(CYAN BOLD "\n____________________________________________________\n");
+    printf("|                " RESET BOLD "BENVENUTO" CYAN BOLD "                         |\n");
+    printf("|__________________________________________________|\n" RESET);
     printf(BOLD "\nPremi INVIO per entrare nel sistema..." RESET);
     getchar();
 
@@ -44,16 +44,16 @@ int main() {
         pulisciSchermo();
 
         /* --- NUOVA INTERFACCIA A PANNELLO (DASHBOARD) --- */
-        printf(CYAN BOLD "\n╔══════════════════════════════════════════════════════════════╗\n");
-        printf("║                 " RESET BOLD "PANNELLO DI CONTROLLO GENERALE" CYAN BOLD "               ║\n");
-        printf("╠══════════════════════════════╦═══════════════════════════════╣\n");
-        printf("║ " RESET " [1] Nuovo Tecnico          " CYAN BOLD " ║" RESET "  [7] Pianifica Intervento     " CYAN BOLD "║\n");
-        printf("║ " RESET " [2] Nuova Richiesta        " CYAN BOLD " ║" RESET "  [8] Ricerca Avanzata         " CYAN BOLD "║\n");
-        printf("║ " RESET " [3] Assegnazione Auto      " CYAN BOLD " ║" RESET "  [9] Storico Conclusi         " CYAN BOLD "║\n");
-        printf("║ " RESET " [4] Elenco Tecnici         " CYAN BOLD " ║" RESET " [10] Statistiche Sistema      " CYAN BOLD "║\n");
-        printf("║ " RESET " [5] Coda Attesa (Heap)     " CYAN BOLD " ║" RESET " [11] Agenda Tecnico           " CYAN BOLD "║\n");
-        printf("║ " RESET " [6] Aggiorna Stato         " CYAN BOLD " ║" YELLOW BOLD "  [0] Esci dal Programma       " CYAN BOLD "║\n");
-        printf("╚══════════════════════════════╩═══════════════════════════════╝\n" RESET);
+        printf(CYAN BOLD "\n________________________________________________________________\n");
+        printf("|                 " RESET BOLD "PANNELLO DI CONTROLLO GENERALE" CYAN BOLD "               |\n");
+        printf("|_____________________________|________________________________|\n");
+        printf("| " RESET " [1] Nuovo Tecnico          " CYAN BOLD "|" RESET "  [7] Pianifica Intervento     " CYAN BOLD " |\n");
+        printf("| " RESET " [2] Nuova Richiesta        " CYAN BOLD "|" RESET "  [8] Ricerca Avanzata         " CYAN BOLD " |\n");
+        printf("| " RESET " [3] Assegnazione Auto      " CYAN BOLD "|" RESET "  [9] Storico Conclusi         " CYAN BOLD " |\n");
+        printf("| " RESET " [4] Elenco Tecnici         " CYAN BOLD "|" RESET " [10] Statistiche Sistema      " CYAN BOLD " |\n");
+        printf("| " RESET " [5] Coda Attesa (Heap)     " CYAN BOLD "|" RESET " [11] Agenda Tecnico           " CYAN BOLD " |\n");
+        printf("| " RESET " [6] Aggiorna Stato         " CYAN BOLD "|" YELLOW BOLD "  [0] Esci dal Programma       " CYAN BOLD " |\n");
+        printf("|_____________________________|________________________________|\n" RESET);
         printf(BOLD YELLOW "\n>> Inserisci comando: " RESET);
 
         if (scanf("%d", &scelta) != 1) {
@@ -118,7 +118,7 @@ int main() {
                 acquisisciStringa("Breve Descrizione      : ", bDesc, sizeof(bDesc));
 
                 do {
-                    acquisisciStringa("Data (YYYY-MM-DD)      : ", bData, sizeof(bData));
+                    acquisisciStringa("Data (GG/MM/AAAA))      : ", bData, sizeof(bData));
                     if (validaData(bData) == 0) printf(RED "  >> Formato data errato. Riprova.\n" RESET);
                 } while (validaData(bData) == 0);
 
@@ -237,7 +237,7 @@ int main() {
 
                         if (nStato == CONCLUSA) {
                             do {
-                                acquisisciStringa("Inserisci data chiusura effettiva (GG-MM-AAAA): ", bData, sizeof(bData));
+                                acquisisciStringa("Inserisci data chiusura effettiva (GG/MM/AAAA): ", bData, sizeof(bData));
                             } while (validaData(bData) == 0);
                             setDataChiusuraRichiesta(rTrovata, bData);
                         }
