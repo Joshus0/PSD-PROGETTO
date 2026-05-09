@@ -166,3 +166,166 @@ Tecnico* trovaTecnicoDisponibilePerSpecializzazione(const AlberoTecnici* albero,
     
     return trovaTecnicoDisponibilePerSpecializzazioneRic(getRadiceAlberoTecnici(albero), specializzazione);
 }
+
+/* Pianificazione intervento con verifica conflitti orari */
+int pianificaIntervento(Richiesta* richiesta, Tecnico* tecnico, const char* data, const char* fasciaOraria) {
+    if (richiesta == NULL || tecnico == NULL || data == NULL || fasciaOraria == NULL) {
+        return 0;
+    }
+    
+    AgendaTecnico* agendaTecnico = getAgendaTecnico(tecnico);
+    if (agendaTecnico == NULL) {
+        return 0;
+    }
+    
+    /* Verifica se la fascia oraria è disponibile (nessun conflitto) */
+    if (inserisciInterventoInAgenda(agendaTecnico, data, fasciaOraria, getCodiceRichiesta(richiesta)) == 0) {
+        return 0; /* Conflitto di orario */
+    }
+    
+    /* Aggiornamento della richiesta */
+    setCodiceTecnicoAssegnatoRichiesta(richiesta, getCodiceTecnico(tecnico));
+    setStatoRichiesta(richiesta, PIANIFICATA);
+    setDataInizioLavorazioneRichiesta(richiesta, data);
+    
+    return 1; /* Pianificazione riuscita */
+}
+
+/* Visualizza storico interventi conclusi */
+void stampaStoricoInterventi(const ArchivioRichieste* archivio) {
+    if (archivio == NULL) {
+        printf("Archivio non inizializzato.\n");
+        return;
+    }
+    
+    NodoLista* nodoCorrente = getTestaArchivio(archivio);
+    int interventiConclusI = 0;
+    
+    if (nodoCorrente == NULL) {
+        printf("Archivio vuoto.\n");
+        return;
+    }
+    
+    printf("\n=== STORICO INTERVENTI CONCLUSI ===\n\n");
+    
+    while (nodoCorrente != NULL) {
+        Richiesta* richiesta = getRichiestaDalNodoLista(nodoCorrente);
+        if (richiesta != NULL && getStatoRichiesta(richiesta) == CONCLUSA) {
+            printf("[%d] ", interventiConclusI + 1);
+            stampaRichiesta(richiesta);
+            if (getDataChiusuraRichiesta(richiesta) != NULL) {
+                printf("    Data Chiusura: %s\n", getDataChiusuraRichiesta(richiesta));
+            }
+            interventiConclusI++;
+        }
+        nodoCorrente = getNextNodoLista(nodoCorrente);
+    }
+    
+    if (interventiConclusI == 0) {
+        printf("Nessun intervento concluso nel sistema.\n");
+    } else {
+        printf("\nTotale interventi conclusi: %d\n", interventiConclusI);
+    }
+}
+
+/* Genera statistiche sui interventi */
+void stampaReportStatistiche(const ArchivioRichieste* archivio, const AlberoTecnici* albero) {
+    if (archivio == NULL || albero == NULL) {
+        printf("Archivio o Albero non inizializzato.\n");
+        return;
+    }
+    
+    NodoLista* nodoCorrente = getTestaArchivio(archivio);
+    int totaleRichieste = getDimensioneArchivio(archivio);
+    int aperte = 0, pianificate = 0, inLavorazione = 0, concluse = 0, annullate = 0;
+    int idrauliciCount = 0, elettriciCount = 0, altrCount = 0;
+    
+    printf("\n========== REPORT STATISTICHE ==========\n\n");
+    
+    /* Conteggio per stato */
+    while (nodoCorrente != NULL) {
+        Richiesta* richiesta = getRichiestaDalNodoLista(nodoCorrente);
+        if (richiesta != NULL) {
+            switch (getStatoRichiesta(richiesta)) {
+                case APERTA: aperte++; break;
+                case PIANIFICATA: pianificate++; break;
+                case IN_LAVORAZIONE: inLavorazione++; break;
+                case CONCLUSA: concluse++; break;
+                case ANNULLATA: annullate++; break;
+            }
+            
+            /* Conteggio per tipologia */
+            const char* tipologia = getTipologiaProblemaRichiesta(richiesta);
+            if (strcmp(tipologia, "Idraulico") == 0) idrauliciCount++;
+            else if (strcmp(tipologia, "Elettrico") == 0) elettriciCount++;
+            else altrCount++;
+        }
+        nodoCorrente = getNextNodoLista(nodoCorrente);
+    }
+    
+    printf("--- STATISTICHE GENERALI ---\n");
+    printf("Totale richieste: %d\n", totaleRichieste);
+    printf("Richieste APERTE: %d\n", aperte);
+    printf("Richieste PIANIFICATE: %d\n", pianificate);
+    printf("Richieste IN LAVORAZIONE: %d\n", inLavorazione);
+    printf("Richieste CONCLUSE: %d\n", concluse);
+    printf("Richieste ANNULLATE: %d\n", annullate);
+    
+    printf("\n--- INTERVENTI PER TIPOLOGIA ---\n");
+    printf("Idraulici: %d\n", idrauliciCount);
+    printf("Elettrici: %d\n", elettriciCount);
+    printf("Altre tipologie: %d\n", altrCount);
+    
+    printf("\n--- PERCENTUALI ---\n");
+    if (totaleRichieste > 0) {
+        printf("Percentuale completamento: %.1f%%\n", (concluse * 100.0) / totaleRichieste);
+        printf("Percentuale aperte: %.1f%%\n", (aperte * 100.0) / totaleRichieste);
+    }
+    
+    printf("\n=========================================\n\n");
+}
+
+/* Helper ricorsiva per visita in-order dell'agenda */
+static void visitaAgendaInOrder(NodoAgenda* nodo, int* numero) {
+    if (nodo != NULL) {
+        visitaAgendaInOrder(getFiglioSinistroAgenda(nodo), numero);
+        printf("%-3d %-12s %-15s %-15s\n", 
+               *numero, 
+               getDataIntervento(nodo),
+               getFasciaOrariaIntervento(nodo),
+               getCodiceRichiestaInAgenda(nodo));
+        (*numero)++;
+        visitaAgendaInOrder(getFiglioDestroAgenda(nodo), numero);
+    }
+}
+
+/* Stampa l'agenda di un tecnico */
+void stampaAgendaTecnico(Tecnico* tecnico) {
+    if (tecnico == NULL) {
+        printf("Tecnico non valido.\n");
+        return;
+    }
+    
+    printf("\n=== AGENDA TECNICO: %s (%s) ===\n\n", getNomeTecnico(tecnico), getCodiceTecnico(tecnico));
+    
+    AgendaTecnico* agenda = getAgendaTecnico(tecnico);
+    if (agenda == NULL) {
+        printf("Agenda non inizializzata.\n");
+        return;
+    }
+    
+    NodoAgenda* nodo = getRadiceAgenda(agenda);
+    if (nodo == NULL) {
+        printf("Nessun intervento pianificato.\n");
+        return;
+    }
+    
+    /* Visita in-order dell'albero dell'agenda */
+    int numero = 1;
+    printf("Interventi pianificati:\n");
+    printf("%-3s %-12s %-15s %-15s\n", "#", "Data", "Fascia Oraria", "Codice Richiesta");
+    printf("%-3s %-12s %-15s %-15s\n", "-", "----", "-------------", "----------------");
+    
+    visitaAgendaInOrder(nodo, &numero);
+    printf("\n");
+}

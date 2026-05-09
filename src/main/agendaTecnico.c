@@ -16,10 +16,30 @@ struct AgendaTecnico {
 };
 
 static int confrontaAppuntamenti(const char* data1, const char* ora1, const char* data2, const char* ora2) {
-    int cmpData = strcmp(data1, data2);
-    if (cmpData != 0) {
-        return cmpData;
+    int g1, m1, a1;
+    int g2, m2, a2;
+
+    /* Estraiamo giorno, mese e anno dalle due stringhe */
+    sscanf(data1, "%d/%d/%d", &g1, &m1, &a1);
+    sscanf(data2, "%d/%d/%d", &g2, &m2, &a2);
+
+    /* 1. Confrontiamo prima gli anni */
+    if (a1 != a2) {
+        return a1 - a2;
     }
+    
+    /* 2. Se gli anni sono identici, confrontiamo i mesi */
+    if (m1 != m2) {
+        return m1 - m2;
+    }
+    
+    /* 3. Se anni e mesi sono identici, confrontiamo i giorni */
+    if (g1 != g2) {
+        return g1 - g2;
+    }
+
+    /* 4. Se la data è esattamente la stessa, usiamo strcmp per l'orario 
+       (es. "09:00" vs "14:00" funziona perfettamente con strcmp) */
     return strcmp(ora1, ora2);
 }
 

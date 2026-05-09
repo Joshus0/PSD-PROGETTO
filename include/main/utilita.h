@@ -5,6 +5,9 @@
 #include "entita/richiesta.h"
 #include "entita/tecnico.h"
 #include "alberoTecnici.h"
+#include "agendaTecnico.h"
+#include "codaPriorita.h"
+#include "archivioRichieste.h"
 #define BOLD "\033[1m"
 #define RESET "\033[0m"
 
@@ -24,5 +27,11 @@ const char* statoRichiestaToString(StatoRichiesta stato);
 void stampaTecnico(Tecnico* tecnico);
 void stampaRichiesta(const Richiesta* richiesta);
 Tecnico* trovaTecnicoDisponibilePerSpecializzazione(const AlberoTecnici* albero, const char* specializzazione);
+
+/* Nuove funzioni per pianificazione, ricerca e reportistica */
+int pianificaIntervento(Richiesta* richiesta, Tecnico* tecnico, const char* data, const char* fasciaOraria);
+void stampaStoricoInterventi(const ArchivioRichieste* archivio);
+void stampaReportStatistiche(const ArchivioRichieste* archivio, const AlberoTecnici* albero);
+void stampaAgendaTecnico(Tecnico* tecnico);
 
 #endif

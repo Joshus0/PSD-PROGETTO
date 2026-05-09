@@ -13,11 +13,13 @@ Il progetto consiste in un'applicazione a linea di comando sviluppata in linguag
 Il sistema permette di amministrare l'intero ciclo di vita di una richiesta di intervento: dalla segnalazione del problema all'assegnazione a un tecnico specializzato, fino alla pianificazione e al tracciamento dello stato di risoluzione. Il software è progettato per garantire l'assenza di conflitti di orario nell'agenda dei tecnici.
 
 ## Funzionalità Implementate
-* Gestione Richieste: inserimento di nuove segnalazioni, aggiornamento dello stato (Aperta, Pianificata, In lavorazione, Conclusa, Annullata) e monitoraggio dei livelli di urgenza.
-* Anagrafica Tecnici: registrazione del personale con relative specializzazioni, disponibilità e codici identificativi.
-* Pianificazione: associazione tra richieste e tecnici compatibili, con controlli logici per evitare sovrapposizioni nelle fasce orarie.
-* Ricerca e Filtri: interrogazione del sistema per stato, urgenza, tipologia del problema, appartamento o tecnico specifico.
-* Reportistica: generazione di statistiche su tempi medi di completamento, carico di lavoro dei tecnici (tecnico più attivo) e storicizzazione degli interventi completati.
+* **Gestione Richieste**: inserimento di nuove segnalazioni, aggiornamento dello stato (Aperta, Pianificata, In lavorazione, Conclusa, Annullata) e monitoraggio dei livelli di urgenza.
+* **Anagrafica Tecnici**: registrazione del personale con relative specializzazioni, disponibilità e codici identificativi.
+* **Pianificazione interventi**: associazione tra richieste e tecnici compatibili con verifica automatica di conflitti orari.
+* **Ricerca Avanzata**: interrogazione del sistema per stato, urgenza, tipologia del problema, appartamento o tecnico specifico.
+* **Storico Interventi**: visualizzazione di tutti gli interventi conclusi con relativa documentazione.
+* **Reportistica**: generazione di statistiche su tempi di completamento, carico di lavoro dei tecnici e distribuzione dei problemi.
+* **Agenda Tecnico**: visualizzazione degli interventi pianificati per ogni tecnico, con verifica dei conflitti orari.
 
 ## Requisiti di Sistema
 * Compilatore C compatibile con lo standard C89/C99 (es. GCC).
@@ -33,9 +35,8 @@ Per compilare l'applicazione principale:
 Per avviare il sistema:
     ./bin/condominio_app
 
-Per compilare ed eseguire i casi di test:
+Per compilare ed eseguire i casi di test (49 test case):
     make test
-    ./bin/test_runner
 
 Per ripulire l'ambiente (rimozione file oggetto ed eseguibili):
     make clean
@@ -47,5 +48,18 @@ Per ripulire l'ambiente (rimozione file oggetto ed eseguibili):
 * docs/ : Contiene il report formale in PDF con l'architettura del sistema e la specifica degli ADT.
 * build/ : Cartella temporanea per i file oggetto compilati (ignorata da git).
 * bin/ : Cartella di destinazione per i file eseguibili finali (ignorata da git).
+
+## Menu Principale dell'Applicazione
+1. **Registra Nuovo Tecnico** - Aggiunge un nuovo tecnico al database con codice, nome e specializzazione
+2. **Inserisci Nuova Richiesta** - Crea una nuova richiesta di intervento con tutti i dettagli
+3. **Assegna Richiesta Prioritaria** - Assegna automaticamente la richiesta più urgente a un tecnico disponibile
+4. **Visualizza Elenco Tecnici** - Mostra tutti i tecnici registrati in ordine alfabetico
+5. **Visualizza Coda di Attesa** - Visualizza la coda di priorità dei richieste (heap)
+6. **Aggiornamento Stato Richiesta** - Modifica lo stato di una richiesta esistente
+7. **Pianifica Intervento** - Assegna data e fascia oraria, con verifica automatica dei conflitti
+8. **Ricerca Avanzata** - Filtra le richieste per urgenza, tipologia, appartamento, tecnico o stato
+9. **Visualizza Storico Interventi Conclusi** - Mostra tutti gli interventi già completati
+10. **Genera Report Statistiche** - Produce statistiche globali sull'andamento del sistema
+11. **Visualizza Agenda Tecnico** - Mostra gli interventi pianificati per un tecnico specifico
 
 ---
