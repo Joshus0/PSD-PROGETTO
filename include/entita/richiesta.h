@@ -29,6 +29,7 @@ StatoRichiesta getStatoRichiesta(const Richiesta* richiestaTarget);
 const char* getCodiceTecnicoAssegnatoRichiesta(const Richiesta* richiestaTarget);
 const char* getDataInizioLavorazioneRichiesta(const Richiesta* richiestaTarget);
 const char* getDataChiusuraRichiesta(const Richiesta* richiestaTarget);
+const char* getFasciaOrariaRichiesta(const Richiesta* r);
 int isValidaInHeapRichiesta(const Richiesta* richiestaTarget);
 
 
@@ -38,6 +39,7 @@ void setCodiceTecnicoAssegnatoRichiesta(Richiesta* richiestaTarget, const char* 
 void setDataInizioLavorazioneRichiesta(Richiesta* richiestaTarget, const char* nuovaData);
 void setDataChiusuraRichiesta(Richiesta* richiestaTarget, const char* nuovaData);
 void setValidaInHeapRichiesta(Richiesta* richiestaTarget, int flagValidita);
+void setFasciaOrariaRichiesta(Richiesta* r, const char* fascia);
 
 #endif
 //Chiusura di #ifndef RICHIESTA_H

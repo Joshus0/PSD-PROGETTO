@@ -22,5 +22,7 @@ const char* getDataIntervento(const NodoAgenda* nodoCorrente);
 const char* getFasciaOrariaIntervento(const NodoAgenda* nodoCorrente);
 const char* getCodiceRichiestaInAgenda(const NodoAgenda* nodoCorrente);
 
+void rimuoviInterventoDaAgenda(AgendaTecnico* agenda, const char* data, const char* fascia);
+
 #endif
 //Chiusura di #ifndef AGENDA_TECNICO_H

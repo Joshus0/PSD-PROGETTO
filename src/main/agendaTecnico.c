@@ -144,3 +144,40 @@ const char* getCodiceRichiestaInAgenda(const NodoAgenda* nodoCorrente) {
     if (nodoCorrente == NULL) return NULL;
     return nodoCorrente->codiceRichiesta;
 }
+
+static NodoAgenda* eliminaNodoRicorsivo(NodoAgenda* radice, const char* data, const char* fascia) {
+    if (radice == NULL) return NULL;
+    int cmp = confrontaAppuntamenti(data, fascia, radice->data, radice->fasciaOraria);
+    if (cmp < 0) {
+        radice->sinistro = eliminaNodoRicorsivo(radice->sinistro, data, fascia);
+    } else if (cmp > 0) {
+        radice->destro = eliminaNodoRicorsivo(radice->destro, data, fascia);
+    } else {
+        // nodo trovato: caso con 0 o 1 figlio
+        if (radice->sinistro == NULL) {
+            NodoAgenda* tmp = radice->destro;
+            free(radice->data); free(radice->fasciaOraria);
+            free(radice->codiceRichiesta); free(radice);
+            return tmp;
+        } else if (radice->destro == NULL) {
+            NodoAgenda* tmp = radice->sinistro;
+            free(radice->data); free(radice->fasciaOraria);
+            free(radice->codiceRichiesta); free(radice);
+            return tmp;
+        }
+        // 2 figli: sostituisci col successore in-order (minimo del sottoalbero destro)
+        NodoAgenda* succ = radice->destro;
+        while (succ->sinistro != NULL) succ = succ->sinistro;
+        free(radice->data); free(radice->fasciaOraria); free(radice->codiceRichiesta);
+        radice->data = strdup(succ->data);
+        radice->fasciaOraria = strdup(succ->fasciaOraria);
+        radice->codiceRichiesta = strdup(succ->codiceRichiesta);
+        radice->destro = eliminaNodoRicorsivo(radice->destro, succ->data, succ->fasciaOraria);
+    }
+    return radice;
+}
+
+void rimuoviInterventoDaAgenda(AgendaTecnico* agenda, const char* data, const char* fascia) {
+    if (agenda == NULL) return;
+    agenda->radice = eliminaNodoRicorsivo(agenda->radice, data, fascia);
+}

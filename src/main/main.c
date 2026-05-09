@@ -238,14 +238,29 @@ int main() {
                         if (nStato == CONCLUSA) {
                             do {
                                 acquisisciStringa("Inserisci data chiusura effettiva (GG/MM/AAAA): ", bData, sizeof(bData));
-                            } while (validaData(bData) == 0);
-                            setDataChiusuraRichiesta(rTrovata, bData);
+                                } while (validaData(bData) == 0);
+                                setDataChiusuraRichiesta(rTrovata, bData);
+
+                            const char* codiceTecnico = getCodiceTecnicoAssegnatoRichiesta(rTrovata);
+                            if (codiceTecnico != NULL) {
+                                Tecnico* tConcluso = cercaTecnicoInAlbero(databaseTecnici, codiceTecnico);
+                                if (tConcluso != NULL) {
+                                    rimuoviInterventoDaAgenda(
+                                        getAgendaTecnico(tConcluso),
+                                        getDataInizioLavorazioneRichiesta(rTrovata),
+                                        getFasciaOrariaRichiesta(rTrovata)
+                                    );
+                                }
+                            }
                         }
-                        printf(GREEN BOLD "\n [ OK ]" RESET GREEN " Sistema aggiornato.\n" RESET);
+
                     }
+                        
+                        printf(GREEN BOLD "\n [ OK ]" RESET GREEN " Sistema aggiornato.\n" RESET);
                 }
-                pausaSchermo();
-                break;
+            
+            pausaSchermo();
+            break;
             }
 
             case 7: {
@@ -260,7 +275,10 @@ int main() {
                     printf(RED BOLD "\n [ ERRORE ]" RESET RED " Richiesta non trovata.\n" RESET);
                 } else if (getCodiceTecnicoAssegnatoRichiesta(rPianif) == NULL) {
                     printf(YELLOW "\n [ ATTENZIONE ]" RESET YELLOW " Assegna prima un tecnico alla richiesta (Opzione 3).\n" RESET);
-                } else {
+                }  else if (getStatoRichiesta(rPianif) == CONCLUSA || getStatoRichiesta(rPianif) == ANNULLATA) {
+                    printf(RED BOLD "\n [ ERRORE ]" RESET RED " Impossibile pianificare: richiesta %s.\n" RESET,
+                    getStatoRichiesta(rPianif) == CONCLUSA ? "CONCLUSA" : "ANNULLATA");
+                    }else {
                     Tecnico* tAss = cercaTecnicoInAlbero(databaseTecnici, getCodiceTecnicoAssegnatoRichiesta(rPianif));
                     if (tAss != NULL) {
                         printf("\n");
@@ -293,9 +311,9 @@ int main() {
                     pulisciBuffer(); 
 
                     switch (sRicerca) {
-                        case 1: 
+                        case 1:
                             printf("Stato (0=Aperta, 1=Pianificata, 2=In Lav., 3=Conclusa, 4=Annullata): ");
-                            if (scanf("%d", &urgenza) == 1) { pulisciBuffer(); printf("\n"); stampaRichiestePerStato(codaAttesa, (StatoRichiesta)urgenza); }
+                            if (scanf("%d", &urgenza) == 1) { pulisciBuffer(); printf("\n"); stampaRichiesteArchivioPerStato(archivioStorico, (StatoRichiesta)urgenza); }
                             pausaSchermo(); break;
                         case 2:
                             printf("Urgenza (0-4): ");

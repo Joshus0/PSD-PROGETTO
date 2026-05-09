@@ -11,6 +11,8 @@
 #define BOLD "\033[1m"
 #define RESET "\033[0m"
 
+typedef struct ArchivioRichieste ArchivioRichieste;
+typedef struct AlberoTecnici AlberoTecnici;
 /* Ritorna una copia allocata dinamicamente di src, 
    oppure NULL se src è NULL o se malloc fallisce */
 char* duplicaStringa(const char* src);

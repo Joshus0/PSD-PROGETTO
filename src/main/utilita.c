@@ -187,6 +187,7 @@ int pianificaIntervento(Richiesta* richiesta, Tecnico* tecnico, const char* data
     setCodiceTecnicoAssegnatoRichiesta(richiesta, getCodiceTecnico(tecnico));
     setStatoRichiesta(richiesta, PIANIFICATA);
     setDataInizioLavorazioneRichiesta(richiesta, data);
+    setFasciaOrariaRichiesta(richiesta, fasciaOraria);
     
     return 1; /* Pianificazione riuscita */
 }

@@ -130,3 +130,17 @@ Richiesta* cercaRichiestaPerCodice(const ArchivioRichieste* archivioTarget, cons
     
     return NULL;
 }
+
+void stampaRichiesteArchivioPerStato(const ArchivioRichieste* archivio, StatoRichiesta stato) {
+    NodoLista* nodo = getTestaArchivio(archivio);
+    int trovate = 0;
+    while (nodo != NULL) {
+        Richiesta* r = getRichiestaDalNodoLista(nodo);
+        if (r != NULL && getStatoRichiesta(r) == stato) {
+            stampaRichiesta(r);
+            trovate++;
+        }
+        nodo = getNextNodoLista(nodo);
+    }
+    if (trovate == 0) printf("Nessuna richiesta trovata.\n");
+}

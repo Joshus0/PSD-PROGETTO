@@ -17,6 +17,7 @@ struct Richiesta {
     char* dataInizioLavorazione;    /* Data inizio lavorazione (NULL se non iniziata) */
     char* dataChiusura;             /* Data di chiusura (NULL se non conclusa) */
     int isValidaInHeap;           /* Flag: 1 se la richiesta e' valida nell'heap, 0 se e' stata rimossa logicamente */
+    char* fasciaOraria;
 };
  
 /* CREAZIONE E DISTRUZIONE DELLE RICHIESTE*/
@@ -38,6 +39,7 @@ Richiesta* creaRichiesta(const char* codice, const char* appartamento, const cha
     nuova->codiceTecnicoAssegnato  = NULL;
     nuova->dataInizioLavorazione   = NULL;
     nuova->dataChiusura            = NULL;
+    nuova->fasciaOraria = NULL;
  
     nuova->isValidaInHeap = 1; /* Valida di default */
  
@@ -56,6 +58,7 @@ void distruggiRichiesta(Richiesta* richiestaTarget) {
     free(richiestaTarget->codiceTecnicoAssegnato);
     free(richiestaTarget->dataInizioLavorazione);
     free(richiestaTarget->dataChiusura);
+    free(richiestaTarget->fasciaOraria);
  
     free(richiestaTarget);
 }
@@ -116,6 +119,11 @@ int isValidaInHeapRichiesta(const Richiesta* richiestaTarget) {
     return richiestaTarget->isValidaInHeap;
 }
 
+const char* getFasciaOrariaRichiesta(const Richiesta* r) {
+    if (r == NULL) return NULL;
+    return r->fasciaOraria;
+}
+
 /* FUNZIONI SETTER */
 void setStatoRichiesta(Richiesta* richiestaTarget, StatoRichiesta nuovoStato) {
     if (richiestaTarget == NULL) return;
@@ -143,4 +151,10 @@ void setDataChiusuraRichiesta(Richiesta* richiestaTarget, const char* nuovaData)
 void setValidaInHeapRichiesta(Richiesta* richiestaTarget, int flagValidita) {
     if (richiestaTarget == NULL) return;
     richiestaTarget->isValidaInHeap = flagValidita;
+}
+
+void setFasciaOrariaRichiesta(Richiesta* r, const char* fascia) {
+    if (r == NULL) return;
+    free(r->fasciaOraria);
+    r->fasciaOraria = duplicaStringa(fascia);
 }
