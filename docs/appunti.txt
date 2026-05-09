@@ -1,0 +1,1 @@
+Abbiamo preferito evitare l'inserimento manuale dello stato della richiesta poichè quando viene inserita si presuppone sia aperta di default

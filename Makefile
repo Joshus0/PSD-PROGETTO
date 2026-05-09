@@ -1,39 +1,55 @@
-CC = gcc
-CFLAGS = -std=c99 -Wall -Wextra -Iinclude
+CC     = gcc
+CFLAGS = -Wall -Iinclude -Iinclude/entita -Iinclude/main
 
-# 1. Trova e prepara tutti i file
-OBJS = $(patsubst src/%.c, build/%.o, $(wildcard src/*.c src/*/*.c))
-TEST_OBJS = $(patsubst test/%.c, build/test_%.o, $(wildcard test/*.c))
+# ── File oggetto ──────────────────────────────────────────────────────────────
+OBJ = build/codaPriorita.o        \
+      build/archivioRichieste.o   \
+      build/main/utilita.o        \
+      build/entita/richiesta.o    \
+      build/entita/tecnico.o      \
+      build/main/agendaTecnico.o  \
+      build/main/alberoTecnici.o  \
+      build/main/main.o
 
-# 2. Controllo OS vitale SOLO per la pulizia
-ifeq ($(OS),Windows_NT)
-    CLEAN_CMD = del /Q /S build\*.o bin\*.exe 2>nul
-else
-    CLEAN_CMD = rm -f build/*.o build/*/*.o build/test_*.o bin/*
-endif
+# ── Eseguibile finale ─────────────────────────────────────────────────────────
+programma: $(OBJ)
+	$(CC) $(OBJ) -o build/programma.exe
 
-# 3. Regole App Principale
-all: bin/condominio_app.exe
+# ── build/ ────────────────────────────────────────────────────────────────────
+build/codaPriorita.o: src/codaPriorita.c include/codaPriorita.h
+	$(CC) $(CFLAGS) -c src/codaPriorita.c -o build/codaPriorita.o
 
-bin/condominio_app.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+build/archivioRichieste.o: src/archivioRichieste.c include/archivioRichieste.h
+	$(CC) $(CFLAGS) -c src/archivioRichieste.c -o build/archivioRichieste.o
 
-build/%.o: src/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+# ── build/entita/ ─────────────────────────────────────────────────────────────
+build/entita/richiesta.o: src/entita/richiesta.c include/entita/richiesta.h include/main/utilita.h
+	$(CC) $(CFLAGS) -c src/entita/richiesta.c -o build/entita/richiesta.o
 
-# 4. Regole Test (Filtra via il main.o dell'app)
-test: $(filter-out %main.o, $(OBJS)) $(TEST_OBJS)
-	$(CC) $(CFLAGS) -o bin/test_runner.exe $^
-	./bin/test_runner.exe
+build/entita/tecnico.o: src/entita/tecnico.c include/entita/tecnico.h include/main/utilita.h
+	$(CC) $(CFLAGS) -c src/entita/tecnico.c -o build/entita/tecnico.o
 
-build/test_%.o: test/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+# ── build/main/ ───────────────────────────────────────────────────────────────
+build/main/utilita.o: src/main/utilita.c include/main/utilita.h
+	$(CC) $(CFLAGS) -c src/main/utilita.c -o build/main/utilita.o
 
-# 5. Comandi
-run: all
-	./bin/condominio_app.exe
+build/main/agendaTecnico.o: src/main/agendaTecnico.c include/agendaTecnico.h include/main/utilita.h
+	$(CC) $(CFLAGS) -c src/main/agendaTecnico.c -o build/main/agendaTecnico.o
 
+build/main/alberoTecnici.o: src/main/alberoTecnici.c include/alberoTecnici.h include/entita/tecnico.h
+	$(CC) $(CFLAGS) -c src/main/alberoTecnici.c -o build/main/alberoTecnici.o
+
+build/main/main.o: src/main/main.c \
+                   include/entita/richiesta.h include/entita/tecnico.h \
+                   include/main/utilita.h include/agendaTecnico.h \
+                   include/alberoTecnici.h include/archivioRichieste.h \
+                   include/codaPriorita.h
+	$(CC) $(CFLAGS) -c src/main/main.c -o build/main/main.o
+
+# ── Esecuzione ────────────────────────────────────────────────────────────────
+run: programma
+	./build/programma.exe
+
+# ── Pulizia ───────────────────────────────────────────────────────────────────
 clean:
-	-$(CLEAN_CMD)
-
-.PHONY: all test run clean
+	del /Q /F build\*.o build\entita\*.o build\main\*.o build\programma.exe 2>NUL || true
