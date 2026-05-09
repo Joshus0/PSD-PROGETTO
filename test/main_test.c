@@ -1,1 +1,165 @@
-//PROSSIMO FILE PER CASI DI TEST
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "entita/richiesta.h"
+#include "entita/tecnico.h"
+#include "archivioRichieste.h"
+#include "codaPriorita.h"
+#include "alberoTecnici.h"
+#include "main/utilita.h"
+
+#define RESET   "\033[0m"
+#define BOLD    "\033[1m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define CYAN    "\033[36m"
+#define MAGENTA "\033[35m"
+
+int main() {
+    int scelta = -1;
+    
+    setvbuf(stdout, NULL, _IONBF, 0);
+
+    while (scelta != 0) {
+        pulisciSchermo();
+        printf(CYAN BOLD "_____________________________________________________________________\n");
+        printf("|                                                                   |\n");
+        printf("|                  " RESET BOLD "SUITE DI TESTING AUTOMATIZZATA" CYAN BOLD "                   |\n");
+        printf("|_________________________________|_________________________________|\n");
+        printf("|" RESET " [1] Reg. Richieste (da file)    " CYAN BOLD "|" RESET " [5] Aggiornamento Stato         " CYAN BOLD "|\n");
+        printf("|" RESET " [2] Reg. Tecnici (da file)      " CYAN BOLD "|" RESET " [6] Ricerca e Filtri            " CYAN BOLD "|\n");
+        printf("|" RESET " [3] Assegnazione Corretta       " CYAN BOLD "|" RESET " [7] Storico Interventi          " CYAN BOLD "|\n");
+        printf("|" RESET " [4] Pianificazione e Conflitti  " CYAN BOLD "|" RESET " [8] Generazione Report          " CYAN BOLD "|\n");
+        printf("|_________________________________|_________________________________|\n");
+        printf("|" YELLOW BOLD "                             [0] Esci                              " CYAN BOLD "|\n");
+        printf("|___________________________________________________________________|\n" RESET);
+        printf(BOLD YELLOW "\n>> Seleziona il caso di test da avviare: " RESET);
+
+        if (scanf("%d", &scelta) != 1) {
+            pulisciBuffer();
+            scelta = -1;
+            continue;
+        }
+        pulisciBuffer();
+
+        switch (scelta) {
+            case 1: {
+                pulisciSchermo();
+                printf(MAGENTA BOLD "\n[ TEST 1 ] " RESET "Verifica Registrazione Richieste (da file)\n");
+                printf(MAGENTA "=====================================================================\n\n" RESET);
+
+                ArchivioRichieste* archivio = creaArchivioRichieste();
+                CodaPriorita* coda = creaCodaPriorita(50);
+
+                printf(BOLD "> Fase 1: Lettura dal file 'test/data/richieste.txt'...\n" RESET);
+                
+                int richiesteCaricate = caricaRichiesteDaFile(archivio, coda, "test/data/richieste.txt");
+
+                if (richiesteCaricate > 0) {
+                    printf(GREEN "  [ OK ] Lette e processate %d richieste.\n\n" RESET, richiesteCaricate);
+
+                    printf(BOLD "> Fase 2: Controllo integrita' delle Strutture Dati...\n" RESET);
+                    int dimArchivio = getDimensioneArchivio(archivio);
+                    int dimCoda = getDimensioneCodaPriorita(coda);
+                    
+                    printf("  - Dimensione Archivio Storico (Lista) : %d\n", dimArchivio);
+                    printf("  - Dimensione Coda di Attesa (Heap)    : %d\n\n", dimCoda);
+
+                    if (dimArchivio == richiesteCaricate && dimCoda == richiesteCaricate) {
+                        printf(GREEN BOLD "---------------------------------------------------------------------\n");
+                        printf("  [ SUCCESS ] Strutture popolate e allineate correttamente!\n");
+                        printf("---------------------------------------------------------------------\n\n" RESET);
+                        
+                        int ispeziona = 0;
+                        printf(YELLOW ">> Vuoi visualizzare l'ordinamento della Coda? (1=Si, 0=No): " RESET);
+                        if (scanf("%d", &ispeziona) == 1 && ispeziona == 1) {
+                            pulisciBuffer();
+                            printf("\n");
+                            stampaCodaPriorita(coda);
+                        } else {
+                            pulisciBuffer();
+                        }
+                    } else {
+                        printf(RED BOLD "---------------------------------------------------------------------\n");
+                        printf("  [ FAILURE ] Disallineamento nelle strutture dati!\n");
+                        printf("---------------------------------------------------------------------\n\n" RESET);
+                    }
+                } else {
+                    printf(RED BOLD "  [ ERRORE CRITICO ] Impossibile leggere il file o file vuoto.\n" RESET);
+                    printf(YELLOW "  Assicurati che 'test/data/richieste.txt' esista e sia corretto.\n\n" RESET);
+                }
+
+                distruggiArchivioRichieste(archivio);
+                distruggiCodaPriorita(coda);
+                
+                pausaSchermo();
+                break;
+            }
+
+            case 2: {
+                pulisciSchermo();
+                printf(MAGENTA BOLD "\n[ TEST 2 ] " RESET "Verifica Registrazione Tecnici (da file)\n");
+                printf(MAGENTA "=====================================================================\n\n" RESET);
+
+                AlberoTecnici* db = creaAlberoTecnici();
+
+                printf(BOLD "> Fase 1: Lettura dal file 'test/data/tecnici.txt'...\n" RESET);
+                
+                int tecniciCaricati = caricaTecniciDaFile(db, "test/data/tecnici.txt");
+
+                if (tecniciCaricati > 0) {
+                    printf(GREEN "  [ OK ] Letti e registrati %d tecnici nel sistema.\n\n" RESET, tecniciCaricati);
+
+                    printf(BOLD "> Fase 2: Controllo integrita' del Database (BST)...\n" RESET);
+                    
+                    if (getRadiceAlberoTecnici(db) != NULL) {
+                        printf(GREEN BOLD "---------------------------------------------------------------------\n");
+                        printf("  [ SUCCESS ] Albero Binario (BST) popolato con successo!\n");
+                        printf("---------------------------------------------------------------------\n\n" RESET);
+                        
+                        int ispeziona = 0;
+                        printf(YELLOW ">> Vuoi visualizzare il Database Tecnici in ordine? (1=Si, 0=No): " RESET);
+                        if (scanf("%d", &ispeziona) == 1 && ispeziona == 1) {
+                            pulisciBuffer();
+                            printf("\n");
+                            visitaAlberoTecnici(db, stampaTecnico);
+                        } else {
+                            pulisciBuffer();
+                        }
+                    } else {
+                        printf(RED BOLD "---------------------------------------------------------------------\n");
+                        printf("  [ FAILURE ] Errore nella creazione dei nodi dell'Albero!\n");
+                        printf("---------------------------------------------------------------------\n\n" RESET);
+                    }
+                } else {
+                    printf(RED BOLD "  [ ERRORE CRITICO ] Impossibile leggere il file o file vuoto.\n" RESET);
+                    printf(YELLOW "  Assicurati che 'test/data/tecnici.txt' esista e sia corretto.\n\n" RESET);
+                }
+
+                distruggiAlberoTecnici(db);
+                pausaSchermo();
+                break;
+            }
+
+            case 3: case 4: case 5: case 6: case 7: case 8: {
+                printf(YELLOW "\n[ IN CANTIERE ] Questo test sara' implementato a breve.\n" RESET);
+                pausaSchermo();
+                break;
+            }
+
+            case 0: {
+                pulisciSchermo();
+                break;
+            }
+
+            default: {
+                printf(RED BOLD "\n[ ERRORE ]" RESET RED " Opzione non valida.\n" RESET);
+                pausaSchermo();
+                break;
+            }
+        }
+    }
+
+    return 0;
+}

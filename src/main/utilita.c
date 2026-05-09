@@ -330,3 +330,60 @@ void stampaAgendaTecnico(Tecnico* tecnico) {
     visitaAgendaInOrder(nodo, &numero);
     printf("\n");
 }
+
+int caricaTecniciDaFile(AlberoTecnici* albero, const char* percorsoFile) {
+    FILE* file = fopen(percorsoFile, "r");
+    if (file == NULL) return 0;
+
+    char linea[256];
+    int caricati = 0;
+
+    while (fgets(linea, sizeof(linea), file)) {
+        linea[strcspn(linea, "\r\n")] = 0;
+
+        char* codice = strtok(linea, ";");
+        char* nome = strtok(NULL, ";");
+        char* spec = strtok(NULL, ";");
+
+        if (codice != NULL && nome != NULL && spec != NULL) {
+            Tecnico* t = creaTecnico(codice, nome, spec);
+            if (t != NULL) {
+                inserisciInAlberoTecnici(albero, t);
+                caricati++;
+            }
+        }
+    }
+    fclose(file);
+    return caricati;
+}
+
+int caricaRichiesteDaFile(ArchivioRichieste* archivio, CodaPriorita* coda, const char* percorsoFile) {
+    FILE* file = fopen(percorsoFile, "r");
+    if (file == NULL) return 0;
+
+    char linea[512];
+    int caricati = 0;
+
+    while (fgets(linea, sizeof(linea), file)) {
+        linea[strcspn(linea, "\r\n")] = 0;
+
+        char* codice = strtok(linea, ";");
+        char* app = strtok(NULL, ";");
+        char* tipo = strtok(NULL, ";");
+        char* desc = strtok(NULL, ";");
+        char* data = strtok(NULL, ";");
+        char* urgStr = strtok(NULL, ";");
+
+        if (codice && app && tipo && desc && data && urgStr) {
+            int urgenza = atoi(urgStr);
+            Richiesta* r = creaRichiesta(codice, app, tipo, desc, data, urgenza);
+            if (r != NULL) {
+                inserisciInCodaArchivio(archivio, r);
+                inserisciInCodaPriorita(coda, r);
+                caricati++;
+            }
+        }
+    }
+    fclose(file);
+    return caricati;
+}

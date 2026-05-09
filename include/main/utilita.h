@@ -13,6 +13,7 @@
 
 typedef struct ArchivioRichieste ArchivioRichieste;
 typedef struct AlberoTecnici AlberoTecnici;
+typedef struct CodaPriorita CodaPriorita;
 /* Ritorna una copia allocata dinamicamente di src, 
    oppure NULL se src è NULL o se malloc fallisce */
 char* duplicaStringa(const char* src);
@@ -35,5 +36,9 @@ int pianificaIntervento(Richiesta* richiesta, Tecnico* tecnico, const char* data
 void stampaStoricoInterventi(const ArchivioRichieste* archivio);
 void stampaReportStatistiche(const ArchivioRichieste* archivio, const AlberoTecnici* albero);
 void stampaAgendaTecnico(Tecnico* tecnico);
+
+/* Funzioni per il caricamento dati da file */
+int caricaTecniciDaFile(AlberoTecnici* albero, const char* percorsoFile);
+int caricaRichiesteDaFile(ArchivioRichieste* archivio, CodaPriorita* coda, const char* percorsoFile);
 
 #endif

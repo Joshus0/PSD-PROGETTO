@@ -1,0 +1,3 @@
+R001;Piano 1;Idraulico;Tubo rotto in bagno;10/05/2026;4
+R002;Piano Terra;Elettrico;Cortocircuito;11/05/2026;3
+R003;Esterno;Varie;Cancello bloccato;12/05/2026;1

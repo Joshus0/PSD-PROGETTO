@@ -1,0 +1,3 @@
+T001;Mario Rossi;Idraulico
+T002;Luigi Bianchi;Elettrico
+T003;Anna Verdi;Informatico
