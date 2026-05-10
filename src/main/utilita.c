@@ -387,3 +387,37 @@ int caricaRichiesteDaFile(ArchivioRichieste* archivio, CodaPriorita* coda, const
     fclose(file);
     return caricati;
 }
+int confrontaFileOracolo(const char* fileOutput, const char* fileOracolo) {
+    FILE* fOut = fopen(fileOutput, "r");
+    FILE* fOra = fopen(fileOracolo, "r");
+
+    if (fOut == NULL || fOra == NULL) {
+        if (fOut) fclose(fOut);
+        if (fOra) fclose(fOra);
+        return -1; 
+    }
+
+    char rigaOut[512];
+    char rigaOra[512];
+    int uguali = 1;
+
+    while (1) {
+        char* readOut = fgets(rigaOut, sizeof(rigaOut), fOut);
+        char* readOra = fgets(rigaOra, sizeof(rigaOra), fOra);
+
+        if (readOut == NULL && readOra == NULL) break; 
+        
+        if (readOut != NULL) rigaOut[strcspn(rigaOut, "\r\n")] = 0;
+        if (readOra != NULL) rigaOra[strcspn(rigaOra, "\r\n")] = 0;
+
+        if (readOut == NULL || readOra == NULL || strcmp(rigaOut, rigaOra) != 0) {
+            uguali = 0;
+            break;
+        }
+    }
+
+    fclose(fOut);
+    fclose(fOra);
+    
+    return uguali;
+}

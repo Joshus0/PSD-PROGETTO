@@ -1,0 +1,3 @@
+Codice: T001 | Nome: Mario Rossi | Specializzazione: Idraulico
+Codice: T002 | Nome: Luigi Bianchi | Specializzazione: Elettrico
+Codice: T003 | Nome: Anna Verdi | Specializzazione: Informatico

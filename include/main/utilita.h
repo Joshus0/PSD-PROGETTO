@@ -40,5 +40,6 @@ void stampaAgendaTecnico(Tecnico* tecnico);
 /* Funzioni per il caricamento dati da file */
 int caricaTecniciDaFile(AlberoTecnici* albero, const char* percorsoFile);
 int caricaRichiesteDaFile(ArchivioRichieste* archivio, CodaPriorita* coda, const char* percorsoFile);
-
+/*Funzione per il confrontro oracoli*/
+int confrontaFileOracolo(const char* fileOutput, const char* fileOracolo);
 #endif

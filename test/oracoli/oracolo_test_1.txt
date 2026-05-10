@@ -1,0 +1,3 @@
+Codice: R001, Appartamento: Piano 1, Tipologia: Idraulico, Urgenza: 4
+Codice: R002, Appartamento: Piano Terra, Tipologia: Elettrico, Urgenza: 3
+Codice: R003, Appartamento: Esterno, Tipologia: Varie, Urgenza: 1
