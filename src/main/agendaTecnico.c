@@ -147,32 +147,51 @@ const char* getCodiceRichiestaInAgenda(const NodoAgenda* nodoCorrente) {
 
 static NodoAgenda* eliminaNodoRicorsivo(NodoAgenda* radice, const char* data, const char* fascia) {
     if (radice == NULL) return NULL;
+    
     int cmp = confrontaAppuntamenti(data, fascia, radice->data, radice->fasciaOraria);
     if (cmp < 0) {
         radice->sinistro = eliminaNodoRicorsivo(radice->sinistro, data, fascia);
     } else if (cmp > 0) {
         radice->destro = eliminaNodoRicorsivo(radice->destro, data, fascia);
     } else {
-        // nodo trovato: caso con 0 o 1 figlio
         if (radice->sinistro == NULL) {
             NodoAgenda* tmp = radice->destro;
-            free(radice->data); free(radice->fasciaOraria);
-            free(radice->codiceRichiesta); free(radice);
+            free(radice->data); 
+            free(radice->fasciaOraria);
+            free(radice->codiceRichiesta); 
+            free(radice);
             return tmp;
         } else if (radice->destro == NULL) {
             NodoAgenda* tmp = radice->sinistro;
-            free(radice->data); free(radice->fasciaOraria);
-            free(radice->codiceRichiesta); free(radice);
+            free(radice->data); 
+            free(radice->fasciaOraria);
+            free(radice->codiceRichiesta); 
+            free(radice);
             return tmp;
+        } else {
+            NodoAgenda* succ = radice->destro;
+            while (succ->sinistro != NULL) succ = succ->sinistro;
+
+            char* tmpData = malloc(strlen(succ->data) + 1);
+            char* tmpFascia = malloc(strlen(succ->fasciaOraria) + 1);
+            char* tmpCodice = malloc(strlen(succ->codiceRichiesta) + 1);
+
+            if (tmpData != NULL && tmpFascia != NULL && tmpCodice != NULL) {
+                strcpy(tmpData, succ->data);
+                strcpy(tmpFascia, succ->fasciaOraria);
+                strcpy(tmpCodice, succ->codiceRichiesta);
+
+                free(radice->data);
+                free(radice->fasciaOraria);
+                free(radice->codiceRichiesta);
+
+                radice->data = tmpData;
+                radice->fasciaOraria = tmpFascia;
+                radice->codiceRichiesta = tmpCodice;
+            }
+
+            radice->destro = eliminaNodoRicorsivo(radice->destro, succ->data, succ->fasciaOraria);
         }
-        // 2 figli: sostituisci col successore in-order (minimo del sottoalbero destro)
-        NodoAgenda* succ = radice->destro;
-        while (succ->sinistro != NULL) succ = succ->sinistro;
-        free(radice->data); free(radice->fasciaOraria); free(radice->codiceRichiesta);
-        radice->data = strdup(succ->data);
-        radice->fasciaOraria = strdup(succ->fasciaOraria);
-        radice->codiceRichiesta = strdup(succ->codiceRichiesta);
-        radice->destro = eliminaNodoRicorsivo(radice->destro, succ->data, succ->fasciaOraria);
     }
     return radice;
 }
@@ -180,4 +199,15 @@ static NodoAgenda* eliminaNodoRicorsivo(NodoAgenda* radice, const char* data, co
 void rimuoviInterventoDaAgenda(AgendaTecnico* agenda, const char* data, const char* fascia) {
     if (agenda == NULL) return;
     agenda->radice = eliminaNodoRicorsivo(agenda->radice, data, fascia);
+}
+
+static int contaNodiAgenda(NodoAgenda* nodo) {
+    if (nodo == NULL) return 0;
+    return 1 + contaNodiAgenda(nodo->sinistro) + contaNodiAgenda(nodo->destro);
+}
+
+
+int getNumeroInterventiAgenda(AgendaTecnico* agenda) {
+    if (agenda == NULL || agenda->radice == NULL) return 0;
+    return contaNodiAgenda(agenda->radice);
 }

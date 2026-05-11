@@ -36,10 +36,13 @@ int pianificaIntervento(Richiesta* richiesta, Tecnico* tecnico, const char* data
 void stampaStoricoInterventi(const ArchivioRichieste* archivio);
 void stampaReportStatistiche(const ArchivioRichieste* archivio, const AlberoTecnici* albero);
 void stampaAgendaTecnico(Tecnico* tecnico);
+void stampaCaricoLavoroTecnico(Tecnico* t);
 
 /* Funzioni per il caricamento dati da file */
 int caricaTecniciDaFile(AlberoTecnici* albero, const char* percorsoFile);
 int caricaRichiesteDaFile(ArchivioRichieste* archivio, CodaPriorita* coda, const char* percorsoFile);
 /*Funzione per il confrontro oracoli*/
 int confrontaFileOracolo(const char* fileOutput, const char* fileOracolo);
+
+
 #endif

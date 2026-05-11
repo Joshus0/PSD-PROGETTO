@@ -9,8 +9,10 @@ typedef struct NodoAgenda NodoAgenda;       //Forward declaration della struttur
 AgendaTecnico* creaAgendaTecnico();
 void distruggiAgendaTecnico(AgendaTecnico* agendaTarget);
 
+
 //Funzioni per la manipolazione dell'agenda del tecnico
 int inserisciInterventoInAgenda(AgendaTecnico* agendaTarget, const char* data, const char* fasciaOraria, const char* codiceRichiesta);
+int getNumeroInterventiAgenda(AgendaTecnico* agenda);
 
 //Funzioni per accedere ai nodi e alle informazioni sugli interventi nell'agenda del tecnico
 NodoAgenda* getRadiceAgenda(const AgendaTecnico* agendaTarget);

@@ -180,15 +180,26 @@ int main() {
                 break;
             }
 
-            case 4: {
+case 4: {
                 pulisciSchermo();
-                printf(MAGENTA BOLD "\n[ VISUALIZZAZIONE ] " RESET "Database Tecnici (BST)\n");
-                printf(MAGENTA "------------------------------------------------\n\n" RESET);
+                printf(MAGENTA BOLD "\n[ VISUALIZZAZIONE ] " RESET "Monitoraggio Carico di Lavoro Tecnici\n\n");
+                
+                /* Bordo Superiore allargato (91 trattini) */
+                printf(CYAN " ___________________________________________________________________________________________ \n");
+                printf("| %-10s | %-25s | %-20s | %-25s |\n", "CODICE", "NOME", "SPECIALIZZ.", "STATO CARICO");
+                printf("|------------|---------------------------|----------------------|---------------------------|\n" RESET);
+                
                 if (getRadiceAlberoTecnici(databaseTecnici) == NULL) {
-                    printf(YELLOW "Il database tecnici e' attualmente vuoto.\n" RESET);
+                    /* Stringa perfettamente allineata con i nuovi margini (27 spazi vuoti alla fine) */
+                    printf(CYAN "|" RESET YELLOW " Nessun tecnico presente. Usa l'opzione [1] per registrarne uno.                           " CYAN "|\n" RESET);
                 } else {
-                    visitaAlberoTecnici(databaseTecnici, stampaTecnico);
+                    visitaAlberoTecnici(databaseTecnici, stampaCaricoLavoroTecnico);
                 }
+                
+                /* Bordo Inferiore allargato (91 trattini) */
+                printf(CYAN "|___________________________________________________________________________________________|\n" RESET);
+                
+                printf("\n");
                 pausaSchermo();
                 break;
             }
@@ -299,39 +310,90 @@ int main() {
             }
 
             case 8: {
-                int sRicerca = 0;
+                int sRicerca = -1;
                 do {
                     pulisciSchermo();
-                    printf(MAGENTA BOLD "\n[ MODULO ] " RESET "Motore di Ricerca\n");
-                    printf(MAGENTA "----------------------------------------\n" RESET);
-                    printf(" [1] Cerca per Stato\n [2] Cerca per Urgenza\n [3] Cerca per Tipologia\n [4] Cerca per Appartamento\n [5] Cerca per Tecnico\n [0] Indietro\n");
-                    printf("\nFiltro: ");
-                    
-                    if (scanf("%d", &sRicerca) != 1) sRicerca = -1;
+                    printf(CYAN BOLD "\n___________________________________________________________\n");
+                    printf("|                                                         |\n");
+                    printf("|               " RESET BOLD "MOTORE DI RICERCA AVANZATO" CYAN BOLD "                |\n");
+                    printf("|_____________________________|___________________________|\n");
+                    printf("|" RESET " [1] Filtra per Stato        " CYAN BOLD "|" RESET " [4] Cerca per App./Area " CYAN BOLD "|\n");
+                    printf("|" RESET " [2] Filtra per Urgenza      " CYAN BOLD "|" RESET " [5] Cerca per Tecnico   " CYAN BOLD "|\n");
+                    printf("|" RESET " [3] Cerca per Tipologia     " CYAN BOLD "|" RESET " [6] Cerca per Codice    " CYAN BOLD "|\n");
+                    printf("|_____________________________|___________________________|\n");
+                    printf("|" YELLOW BOLD "                       [0] Indietro                      " CYAN BOLD "|\n");
+                    printf("|_________________________________________________________|\n" RESET);
+                    printf(BOLD YELLOW "\n>> Seleziona filtro di ricerca: " RESET);
+
+                    if (scanf("%d", &sRicerca) != 1) {
+                        pulisciBuffer();
+                        sRicerca = -1;
+                        continue;
+                    }
                     pulisciBuffer(); 
 
                     switch (sRicerca) {
                         case 1:
-                            printf("Stato (0=Aperta, 1=Pianificata, 2=In Lav., 3=Conclusa, 4=Annullata): ");
-                            if (scanf("%d", &urgenza) == 1) { pulisciBuffer(); printf("\n"); stampaRichiesteArchivioPerStato(archivioStorico, (StatoRichiesta)urgenza); }
-                            pausaSchermo(); break;
+                            printf("\nStato (0=Aperta, 1=Pianificata, 2=In Lav., 3=Conclusa, 4=Annullata): ");
+                            if (scanf("%d", &urgenza) == 1) { 
+                                pulisciBuffer(); 
+                                printf("\n"); 
+                                stampaRichiesteArchivioPerStato(archivioStorico, (StatoRichiesta)urgenza); 
+                            }
+                            pausaSchermo(); 
+                            break;
+
                         case 2:
-                            printf("Urgenza (0-4): ");
-                            if (scanf("%d", &urgenza) == 1) { pulisciBuffer(); printf("\n"); stampaRichiestePerUrgenza(codaAttesa, urgenza); }
-                            pausaSchermo(); break;
+                            printf("\nUrgenza (0-4): ");
+                            if (scanf("%d", &urgenza) == 1) { 
+                                pulisciBuffer(); 
+                                printf("\n"); 
+                                stampaRichiestePerUrgenza(codaAttesa, urgenza); 
+                            }
+                            pausaSchermo(); 
+                            break;
+
                         case 3:
-                            acquisisciStringa("Tipologia: ", bTipo, 100);
-                            printf("\n"); stampaRichiestePerTipologia(codaAttesa, bTipo);
-                            pausaSchermo(); break;
+                            acquisisciStringa("\nInserisci Tipologia: ", bTipo, sizeof(bTipo));
+                            printf("\n"); 
+                            stampaRichiestePerTipologia(codaAttesa, bTipo);
+                            pausaSchermo(); 
+                            break;
+
                         case 4:
-                            acquisisciStringa("Appartamento: ", bApp, 100);
-                            printf("\n"); stampaRichiestePerAppartamento(codaAttesa, bApp);
-                            pausaSchermo(); break;
+                            acquisisciStringa("\nInserisci Appartamento: ", bApp, sizeof(bApp));
+                            printf("\n"); 
+                            stampaRichiestePerAppartamento(codaAttesa, bApp);
+                            pausaSchermo(); 
+                            break;
+
                         case 5:
-                            acquisisciStringa("Codice Tecnico: ", bCodice, 50);
-                            printf("\n"); stampaRichiestePerTecnico(codaAttesa, bCodice);
-                            pausaSchermo(); break;
-                        case 0: break;
+                            acquisisciStringa("\nInserisci Codice Tecnico: ", bCodice, sizeof(bCodice));
+                            printf("\n"); 
+                            stampaRichiestePerTecnico(codaAttesa, bCodice);
+                            pausaSchermo(); 
+                            break;
+
+                        case 6: {
+                            acquisisciStringa("\nInserisci Codice Richiesta: ", bCodice, sizeof(bCodice));
+                            Richiesta* rTrovata = cercaRichiestaPerCodice(archivioStorico, bCodice);
+                            if (rTrovata != NULL) {
+                                printf(GREEN BOLD "\n [ TROVATA ]" RESET " Dettagli della pratica:\n\n");
+                                stampaRichiesta(rTrovata);
+                            } else {
+                                printf(RED BOLD "\n [ ERRORE ]" RESET " Nessuna richiesta trovata con codice '%s'.\n", bCodice);
+                            }
+                            pausaSchermo(); 
+                            break;
+                        }
+
+                        case 0: 
+                            break;
+
+                        default:
+                            printf(RED BOLD "\n [ ERRORE ]" RESET " Opzione non valida.\n");
+                            pausaSchermo(); 
+                            break;
                     }
                 } while (sRicerca != 0);
                 break;

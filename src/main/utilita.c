@@ -3,6 +3,14 @@
 #include <string.h>
 #include <stdio.h>
 
+#define RESET   "\033[0m"
+#define BOLD    "\033[1m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define CYAN    "\033[36m"
+#define MAGENTA "\033[35m"
+
 char* duplicaStringa(const char* src) {
     char* copia;
     if (src == NULL) return NULL;
@@ -420,4 +428,26 @@ int confrontaFileOracolo(const char* fileOutput, const char* fileOracolo) {
     fclose(fOra);
     
     return uguali;
+}
+
+void stampaCaricoLavoroTecnico(Tecnico* t) {
+    if (t == NULL) return;
+    
+    int carico = getNumeroInterventiAgenda(getAgendaTecnico(t));
+    char statoStr[50]; 
+    
+    /* Nuove larghezze: %-10s | %-25s | %-20s | %-25s */
+    if (carico == 0) {
+        sprintf(statoStr, "LIBERO (%d)", carico);
+        printf(CYAN "|" RESET " %-10s " CYAN "|" RESET " %-25s " CYAN "|" RESET " %-20s " CYAN "|" GREEN " %-25s " CYAN "|\n" RESET, 
+               getCodiceTecnico(t), getNomeTecnico(t), getSpecializzazioneTecnico(t), statoStr);
+    } else if (carico < 3) {
+        sprintf(statoStr, "OCCUPATO (%d)", carico);
+        printf(CYAN "|" RESET " %-10s " CYAN "|" RESET " %-25s " CYAN "|" RESET " %-20s " CYAN "|" YELLOW " %-25s " CYAN "|\n" RESET, 
+               getCodiceTecnico(t), getNomeTecnico(t), getSpecializzazioneTecnico(t), statoStr);
+    } else {
+        sprintf(statoStr, "PIENO (%d)", carico);
+        printf(CYAN "|" RESET " %-10s " CYAN "|" RESET " %-25s " CYAN "|" RESET " %-20s " CYAN "|" RED BOLD " %-25s " CYAN "|\n" RESET, 
+               getCodiceTecnico(t), getNomeTecnico(t), getSpecializzazioneTecnico(t), statoStr);
+    }
 }
