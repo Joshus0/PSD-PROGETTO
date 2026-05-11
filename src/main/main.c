@@ -71,15 +71,10 @@ int main() {
                 pulisciSchermo();
                 printf(MAGENTA BOLD "\n[ MODULO ] " RESET "Registrazione Nuovo Tecnico\n");
                 printf(MAGENTA "----------------------------------------\n\n" RESET);
-                
-                printf("Codice Identificativo (es. T01): ");
-                fgets(bCodice, 50, stdin); bCodice[strcspn(bCodice, "\n")] = 0;
-
-                printf("Nome Completo                  : ");
-                fgets(bNome, 50, stdin); bNome[strcspn(bNome, "\n")] = 0;
-
-                printf("Specializzazione               : ");
-                fgets(bSpec, 50, stdin); bSpec[strcspn(bSpec, "\n")] = 0;
+    
+                acquisisciStringa("Codice Identificativo (es. T01): ", bCodice, sizeof(bCodice));
+                acquisisciStringa("Nome Completo                  : ", bNome, sizeof(bNome));
+                acquisisciStringa("Specializzazione               : ", bSpec, sizeof(bSpec));
 
                 if (cercaTecnicoInAlbero(databaseTecnici, bCodice) != NULL) {
                     printf(RED BOLD "\n [ ERRORE ]" RESET RED " Il codice tecnico inserito esiste già.\n" RESET);
@@ -257,7 +252,7 @@ int main() {
                     }
                         
                         printf(GREEN BOLD "\n [ OK ]" RESET GREEN " Sistema aggiornato.\n" RESET);
-                }
+                    }
             
             pausaSchermo();
             break;

@@ -53,3 +53,14 @@ run: programma
 # ── Pulizia ───────────────────────────────────────────────────────────────────
 clean:
 	del /Q /F build\*.o build\entita\*.o build\main\*.o build\programma.exe 2>NUL || true
+
+# ── Test ──────────────────────────────────────────────────────────────────────
+build/main_test.o: test/main_test.c
+	$(CC) $(CFLAGS) -c test/main_test.c -o build/main_test.o
+
+test: build/codaPriorita.o build/archivioRichieste.o build/main/utilita.o \
+      build/entita/richiesta.o build/entita/tecnico.o \
+      build/main/agendaTecnico.o build/main/alberoTecnici.o \
+      build/main_test.o
+	$(CC) $^ -o build/test_runner.exe
+	./build/test_runner.exe
