@@ -71,13 +71,24 @@ int main() {
                 pulisciSchermo();
                 printf(MAGENTA BOLD "\n[ MODULO ] " RESET "Registrazione Nuovo Tecnico\n");
                 printf(MAGENTA "----------------------------------------\n\n" RESET);
-    
-                acquisisciStringa("Codice Identificativo (es. T01): ", bCodice, sizeof(bCodice));
-                acquisisciStringa("Nome Completo                  : ", bNome, sizeof(bNome));
-                acquisisciStringa("Specializzazione               : ", bSpec, sizeof(bSpec));
+                
+                do {
+                    acquisisciStringa("Codice Identificativo (es. T01): ", bCodice, sizeof(bCodice));
+                    if (strlen(bCodice) == 0) printf(RED "  >> Il codice non puo' essere vuoto.\n" RESET);
+                } while (strlen(bCodice) == 0);
+
+                do {
+                    acquisisciStringa("Nome Completo                  : ", bNome, sizeof(bNome));
+                    if (strlen(bNome) == 0) printf(RED "  >> Il nome non puo' essere vuoto.\n" RESET);
+                } while (strlen(bNome) == 0);
+
+                do {
+                    acquisisciStringa("Specializzazione               : ", bSpec, sizeof(bSpec));
+                    if (strlen(bSpec) == 0) printf(RED "  >> La specializzazione non puo' essere vuota.\n" RESET);
+                } while (strlen(bSpec) == 0);
 
                 if (cercaTecnicoInAlbero(databaseTecnici, bCodice) != NULL) {
-                    printf(RED BOLD "\n [ ERRORE ]" RESET RED " Il codice tecnico inserito esiste già.\n" RESET);
+                    printf(RED BOLD "\n [ ERRORE ]" RESET RED " Il codice tecnico inserito esiste gia'.\n" RESET);
                 } else {
                     Tecnico* nuovoTecnico = creaTecnico(bCodice, bNome, bSpec);
                     if (nuovoTecnico == NULL) {
@@ -96,25 +107,40 @@ int main() {
                 printf(MAGENTA BOLD "\n[ MODULO ] " RESET "Inserimento Nuova Richiesta\n");
                 printf(MAGENTA "----------------------------------------\n\n" RESET);
 
-                /* 1. Chiediamo il codice */
-                acquisisciStringa("Codice Richiesta       : ", bCodice, sizeof(bCodice));
+                do {
+                    acquisisciStringa("Codice Richiesta       : ", bCodice, sizeof(bCodice));
+                    if (strlen(bCodice) == 0) 
+                        printf(RED "  >> Il codice richiesta non puo' essere vuoto.\n" RESET);
+                } while (strlen(bCodice) == 0);
 
-                /* --- NUOVO CONTROLLO UNIVOCO --- */
                 if (cercaRichiestaPerCodice(archivioStorico, bCodice) != NULL) {
                     printf(RED BOLD "\n [ ERRORE ]" RESET RED " Esiste gia' una richiesta con questo codice!\n" RESET);
                     pausaSchermo();
-                    break; /* Esce dal case 2 e torna al menu principale */
+                    break; 
                 }
-                /* ------------------------------- */
-
-                /* 2. Se il codice è nuovo, procediamo col resto */
-                acquisisciStringa("Appartamento / Area    : ", bApp, sizeof(bApp));
-                acquisisciStringa("Tipologia Problema     : ", bTipo, sizeof(bTipo));
-                acquisisciStringa("Breve Descrizione      : ", bDesc, sizeof(bDesc));
 
                 do {
-                    acquisisciStringa("Data (GG/MM/AAAA))      : ", bData, sizeof(bData));
-                    if (validaData(bData) == 0) printf(RED "  >> Formato data errato. Riprova.\n" RESET);
+                    acquisisciStringa("Appartamento / Area    : ", bApp, sizeof(bApp));
+                    if (strlen(bApp) == 0) 
+                        printf(RED "  >> L'area interessata non puo' essere vuota.\n" RESET);
+                } while (strlen(bApp) == 0);
+
+                do {
+                    acquisisciStringa("Tipologia Problema     : ", bTipo, sizeof(bTipo));
+                    if (strlen(bTipo) == 0) 
+                        printf(RED "  >> La tipologia non puo' essere vuota.\n" RESET);
+                } while (strlen(bTipo) == 0);
+
+                do {
+                    acquisisciStringa("Breve Descrizione      : ", bDesc, sizeof(bDesc));
+                    if (strlen(bDesc) == 0) 
+                        printf(RED "  >> La descrizione non puo' essere vuota.\n" RESET);
+                } while (strlen(bDesc) == 0);
+
+                do {
+                    acquisisciStringa("Data (GG/MM/AAAA)      : ", bData, sizeof(bData));
+                    if (validaData(bData) == 0) 
+                        printf(RED "  >> Formato data errato. Riprova.\n" RESET);
                 } while (validaData(bData) == 0);
 
                 do {
@@ -126,6 +152,8 @@ int main() {
                         continue;
                     }
                     pulisciBuffer();
+                    if (urgenza < 0 || urgenza > 4)
+                        printf(RED "  >> Valore fuori range (0-4).\n" RESET);
                 } while (urgenza < 0 || urgenza > 4);
 
                 Richiesta* nuovaRichiesta = creaRichiesta(bCodice, bApp, bTipo, bDesc, bData, urgenza);
