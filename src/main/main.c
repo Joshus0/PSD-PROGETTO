@@ -173,32 +173,58 @@ int main() {
                 printf(MAGENTA BOLD "\n[ MODULO ] " RESET "Assegnazione Automatica (Sistema Priority)\n");
                 printf(MAGENTA "--------------------------------------------------------\n\n" RESET);
 
+                if (isCodaPrioritaVuota(codaAttesa)) {
+                    printf(YELLOW "Nessuna richiesta valida in attesa nella Coda.\n" RESET);
+                    pausaSchermo();
+                    break;
+                }
+
                 Richiesta* rAssegnare = NULL;
+                Tecnico* tSelezionato = NULL;
+                
+                /* Alloca l'array in base alla dimensione reale della coda per evitare overflow */
+                int dimCoda = getDimensioneCodaPriorita(codaAttesa);
+                Richiesta** tempArray = (Richiesta**)malloc(dimCoda * sizeof(Richiesta*));
+                int tempCount = 0;
+
+                /* Estrai finché non trovi un match o l'heap si svuota */
                 while (isCodaPrioritaVuota(codaAttesa) == 0) {
                     rAssegnare = estraiMaxDaCodaPriorita(codaAttesa);
-                    if (rAssegnare != NULL && isValidaInHeapRichiesta(rAssegnare) == 1) break; 
-                    rAssegnare = NULL;
-                }
+                    
+                    /* Se la richiesta è stata rimossa logicamente, ignorala */
+                    if (rAssegnare == NULL || isValidaInHeapRichiesta(rAssegnare) == 0) continue;
 
-                if (rAssegnare == NULL) {
-                    printf(YELLOW "Nessuna richiesta valida in attesa nella Coda.\n" RESET);
-                } else {
-                    Tecnico* tSelezionato = trovaTecnicoDisponibilePerSpecializzazione(databaseTecnici, getTipologiaProblemaRichiesta(rAssegnare));
-                    if (tSelezionato == NULL) {
-                        printf(YELLOW "Nessun tecnico disponibile per la specializzazione richiesta (%s).\n" RESET, getTipologiaProblemaRichiesta(rAssegnare));
-                        printf(YELLOW "La richiesta torna in coda.\n" RESET);
-                        inserisciInCodaPriorita(codaAttesa, rAssegnare);
+                    tSelezionato = trovaTecnicoDisponibilePerSpecializzazione(databaseTecnici, getTipologiaProblemaRichiesta(rAssegnare));
+                    
+                    if (tSelezionato != NULL) {
+                        break; /* Match trovato! Usciamo dal ciclo */
                     } else {
-                        setCodiceTecnicoAssegnatoRichiesta(rAssegnare, getCodiceTecnico(tSelezionato));
-                        setStatoRichiesta(rAssegnare, PIANIFICATA);
-                        setDisponibilitaTecnico(tSelezionato, 0);
-
-                        printf(GREEN BOLD "[ MATCH TROVATO ]\n" RESET);
-                        printf("Tecnico assegnato  : " CYAN "%s\n" RESET, getNomeTecnico(tSelezionato));
-                        printf("Dettagli Richiesta :\n");
-                        stampaRichiesta(rAssegnare);
+                        tempArray[tempCount++] = rAssegnare; /* Parcheggia e passa alla prossima */
+                        rAssegnare = NULL; 
                     }
                 }
+
+                /* 1. Reinserisci nell'heap tutte le richieste parcheggiate */
+                for (int i = 0; i < tempCount; i++) {
+                    inserisciInCodaPriorita(codaAttesa, tempArray[i]);
+                }
+                
+                free(tempArray); /* Libera la memoria dell'array temporaneo */
+
+                /* 2. Procedi con l'assegnazione se hai trovato un match */
+                if (rAssegnare != NULL && tSelezionato != NULL) {
+                    setCodiceTecnicoAssegnatoRichiesta(rAssegnare, getCodiceTecnico(tSelezionato));
+                    setStatoRichiesta(rAssegnare, PIANIFICATA);
+                    setDisponibilitaTecnico(tSelezionato, 0);
+
+                    printf(GREEN BOLD "[ MATCH TROVATO ]\n" RESET);
+                    printf("Tecnico assegnato  : " CYAN "%s\n" RESET, getNomeTecnico(tSelezionato));
+                    printf("Dettagli Richiesta :\n");
+                    stampaRichiesta(rAssegnare);
+                } else {
+                    printf(YELLOW "Nessuna richiesta in attesa puo' essere soddisfatta al momento dai tecnici disponibili.\n" RESET);
+                }
+                
                 pausaSchermo();
                 break;
             }
