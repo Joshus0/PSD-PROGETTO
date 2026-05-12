@@ -197,11 +197,13 @@ static void raccogliAree(const ArchivioRichieste* archivio, RiportoArea** aree, 
     *numeroAree = count;
 }
 
-/* Implementazione funzioni di report */
+/* =========================================================================
+ * IMPLEMENTAZIONE FUNZIONI DI REPORT (CON DESIGN SYSTEM ASCII)
+ * ========================================================================= */
 
 void generaReportPerTipologia(const ArchivioRichieste* archivio) {
     if (archivio == NULL) {
-        printf(RED "Archivio non disponibile.\n" RESET);
+        printf(RED BOLD "\n [ ERRORE ] Archivio non disponibile.\n" RESET);
         return;
     }
     
@@ -210,19 +212,24 @@ void generaReportPerTipologia(const ArchivioRichieste* archivio) {
     
     raccogliTipologie(archivio, &tipologie, &numeroTipologie);
     
-    printf(CYAN BOLD "\n╔════════════════════════════════════════════════╗\n" RESET);
-    printf(CYAN BOLD "║   INTERVENTI PER TIPOLOGIA                     ║\n" RESET);
-    printf(CYAN BOLD "╚════════════════════════════════════════════════╝\n\n" RESET);
+    printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                 " MAGENTA BOLD "[ REPORT ] Interventi per Tipologia" CYAN BOLD "                                    |\n");
+    printf("|________________________________________________________________________________________|\n" RESET);
     
     if (numeroTipologie == 0) {
-        printf(YELLOW "Nessun intervento registrato.\n" RESET);
+        printf(CYAN "|" RESET YELLOW " Nessun intervento registrato al momento.                                               " CYAN "|\n" RESET);
+        printf(CYAN "|________________________________________________________________________________________|\n" RESET);
     } else {
+        printf(CYAN "| %-42s | %-41s |\n", "TIPOLOGIA PROBLEMA", "NUMERO INTERVENTI");
+        printf("|--------------------------------------------|-------------------------------------------|\n" RESET);
         for (int i = 0; i < numeroTipologie; i++) {
-            printf(GREEN "%-30s: %d interventi\n" RESET, 
+            printf(CYAN "|" RESET " %-42s " CYAN "|" RESET " %-41d " CYAN "|\n" RESET, 
                    tipologie[i].tipologia, 
                    tipologie[i].numeroInterventi);
             free(tipologie[i].tipologia);
         }
+        printf(CYAN "|____________________________________________|___________________________________________|\n" RESET);
     }
     
     free(tipologie);
@@ -231,7 +238,7 @@ void generaReportPerTipologia(const ArchivioRichieste* archivio) {
 
 void generaReportStatoInterventi(const ArchivioRichieste* archivio) {
     if (archivio == NULL) {
-        printf(RED "Archivio non disponibile.\n" RESET);
+        printf(RED BOLD "\n [ ERRORE ] Archivio non disponibile.\n" RESET);
         return;
     }
     
@@ -244,20 +251,28 @@ void generaReportStatoInterventi(const ArchivioRichieste* archivio) {
     
     float percentualeChiusura = totale > 0 ? (chiusi * 100.0 / totale) : 0;
     
-    printf(CYAN BOLD "\n╔════════════════════════════════════════════════╗\n" RESET);
-    printf(CYAN BOLD "║   STATO INTERVENTI                             ║\n" RESET);
-    printf(CYAN BOLD "╚════════════════════════════════════════════════╝\n\n" RESET);
+    printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                 " MAGENTA BOLD "[ REPORT ] Stato Globale Interventi" CYAN BOLD "                                    |\n");
+    printf("|________________________________________________________________________________________|\n" RESET);
+    printf(CYAN "| %-42s | %-41s |\n", "METRICA DI VALUTAZIONE", "VALORE ASSOLUTO");
+    printf("|--------------------------------------------|-------------------------------------------|\n" RESET);
+    printf(CYAN "|" RESET " %-42s " CYAN "|" RESET " %-41d " CYAN "|\n" RESET, "Interventi Totali Registrati", totale);
+    printf(CYAN "|" RESET " %-42s " CYAN "|" RESET " %-41d " CYAN "|\n" RESET, "Interventi Aperti / Pianificati", aperti);
+    printf(CYAN "|" RESET " %-42s " CYAN "|" RESET " %-41d " CYAN "|\n" RESET, "Interventi Attualmente In Lavorazione", inLavorazione);
+    printf(CYAN "|" RESET " %-42s " CYAN "|" RESET " %-41d " CYAN "|\n" RESET, "Interventi Chiusi / Annullati", chiusi);
+    printf(CYAN "|--------------------------------------------|-------------------------------------------|\n" RESET);
     
-    printf(BLUE "Interventi Totali:        " RESET "%d\n", totale);
-    printf(GREEN "Interventi Aperti:        " RESET "%d\n", aperti);
-    printf(MAGENTA "Interventi in Lavorazione: " RESET "%d\n", inLavorazione);
-    printf(RED "Interventi Chiusi:        " RESET "%d\n", chiusi);
-    printf(YELLOW "Percentuale Chiusura:     " RESET "%.2f%%\n\n", percentualeChiusura);
+    char bufferPerc[50];
+    sprintf(bufferPerc, "%.2f%%", percentualeChiusura);
+    printf(CYAN "|" RESET YELLOW " %-42s " CYAN "|" RESET YELLOW " %-41s " CYAN "|\n" RESET, "Tasso di Completamento (Success Rate)", bufferPerc);
+    printf(CYAN "|____________________________________________|___________________________________________|\n" RESET);
+    printf("\n");
 }
 
 void generaReportTempoMedio(const ArchivioRichieste* archivio) {
     if (archivio == NULL) {
-        printf(RED "Archivio non disponibile.\n" RESET);
+        printf(RED BOLD "\n [ ERRORE ] Archivio non disponibile.\n" RESET);
         return;
     }
     
@@ -282,25 +297,34 @@ void generaReportTempoMedio(const ArchivioRichieste* archivio) {
     
     float tempoMedio = interventiCompletati > 0 ? (totaleGiorni / (float)interventiCompletati) : 0;
     
-    printf(CYAN BOLD "\n╔════════════════════════════════════════════════╗\n" RESET);
-    printf(CYAN BOLD "║   TEMPO MEDIO DI COMPLETAMENTO                 ║\n" RESET);
-    printf(CYAN BOLD "╚════════════════════════════════════════════════╝\n\n" RESET);
+    printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                 " MAGENTA BOLD "[ REPORT ] Tempo Medio di Completamento" CYAN BOLD "                                |\n");
+    printf("|________________________________________________________________________________________|\n" RESET);
     
     if (interventiCompletati == 0) {
-        printf(YELLOW "Nessun intervento completato.\n" RESET);
+        printf(CYAN "|" RESET YELLOW " Nessun intervento completato al momento. Impossibile calcolare il tempo.               " CYAN "|\n" RESET);
+        printf(CYAN "|________________________________________________________________________________________|\n" RESET);
     } else {
-        printf(GREEN "Interventi Completati:    " RESET "%d\n", interventiCompletati);
-        printf(BLUE "Tempo Medio:              " RESET "%.2f giorni\n\n", tempoMedio);
+        printf(CYAN "| %-42s | %-41s |\n", "PARAMETRO", "RISULTATO");
+        printf("|--------------------------------------------|-------------------------------------------|\n" RESET);
+        
+        char bufferTempo[50];
+        sprintf(bufferTempo, "%.2f giorni", tempoMedio);
+        
+        printf(CYAN "|" RESET " %-42s " CYAN "|" RESET " %-41d " CYAN "|\n" RESET, "Interventi Valutati nel Calcolo", interventiCompletati);
+        printf(CYAN "|" RESET GREEN BOLD " %-42s " CYAN "|" RESET GREEN BOLD " %-41s " CYAN "|\n" RESET, "Tempo Medio Risoluzione Pratiche", bufferTempo);
+        printf(CYAN "|____________________________________________|___________________________________________|\n" RESET);
     }
+    printf("\n");
 }
 
 void generaReportTecnicoPiuAttivo(const ArchivioRichieste* archivio) {
     if (archivio == NULL) {
-        printf(RED "Archivio non disponibile.\n" RESET);
+        printf(RED BOLD "\n [ ERRORE ] Archivio non disponibile.\n" RESET);
         return;
     }
     
-    /* Raccogliamo tutti i codici tecnici unici */
     const char** codiTecnici = (const char**)malloc(sizeof(const char*) * getDimensioneArchivio(archivio));
     int numeroTecnici = 0;
     
@@ -310,7 +334,6 @@ void generaReportTecnicoPiuAttivo(const ArchivioRichieste* archivio) {
         if (richiesta != NULL) {
             const char* codiceTecnico = getCodiceTecnicoAssegnatoRichiesta(richiesta);
             if (codiceTecnico != NULL) {
-                /* Verifica se il codice è già stato aggiunto */
                 int trovato = 0;
                 for (int i = 0; i < numeroTecnici; i++) {
                     if (strcmp(codiTecnici[i], codiceTecnico) == 0) {
@@ -319,7 +342,6 @@ void generaReportTecnicoPiuAttivo(const ArchivioRichieste* archivio) {
                     }
                 }
                 
-                /* Se non trovato, aggiungilo */
                 if (!trovato) {
                     codiTecnici[numeroTecnici] = codiceTecnico;
                     numeroTecnici++;
@@ -329,7 +351,6 @@ void generaReportTecnicoPiuAttivo(const ArchivioRichieste* archivio) {
         nodoCorrente = getNextNodoLista(nodoCorrente);
     }
     
-    /* Trovi il tecnico con più interventi */
     const char* tecnicoPiuAttivo = NULL;
     int maxInterventi = 0;
     
@@ -341,23 +362,29 @@ void generaReportTecnicoPiuAttivo(const ArchivioRichieste* archivio) {
         }
     }
     
-    printf(CYAN BOLD "\n╔════════════════════════════════════════════════╗\n" RESET);
-    printf(CYAN BOLD "║   TECNICO PIÙ ATTIVO                           ║\n" RESET);
-    printf(CYAN BOLD "╚════════════════════════════════════════════════╝\n\n" RESET);
+    printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                 " MAGENTA BOLD "[ REPORT ] Tecnico Piu' Attivo nel Sistema" CYAN BOLD "                             |\n");
+    printf("|________________________________________________________________________________________|\n" RESET);
     
     if (tecnicoPiuAttivo == NULL) {
-        printf(YELLOW "Nessun tecnico con interventi assegnati.\n" RESET);
+        printf(CYAN "|" RESET YELLOW " Nessun tecnico ha interventi assegnati nello storico.                                  " CYAN "|\n" RESET);
+        printf(CYAN "|________________________________________________________________________________________|\n" RESET);
     } else {
-        printf(GREEN "Codice Tecnico:           " RESET "%s\n", tecnicoPiuAttivo);
-        printf(BLUE "Numero Interventi:        " RESET "%d\n\n", maxInterventi);
+        printf(CYAN "| %-42s | %-41s |\n", "INFORMAZIONE", "DETTAGLIO");
+        printf("|--------------------------------------------|-------------------------------------------|\n" RESET);
+        printf(CYAN "|" RESET " %-42s " CYAN "|" RESET " %-41s " CYAN "|\n" RESET, "Codice Tecnico Dominante", tecnicoPiuAttivo);
+        printf(CYAN "|" RESET GREEN BOLD " %-42s " CYAN "|" RESET GREEN BOLD " %-41d " CYAN "|\n" RESET, "Numero Massimo di Interventi Gestiti", maxInterventi);
+        printf(CYAN "|____________________________________________|___________________________________________|\n" RESET);
     }
     
     free(codiTecnici);
+    printf("\n");
 }
 
 void generaReportAreeProblematiche(const ArchivioRichieste* archivio) {
     if (archivio == NULL) {
-        printf(RED "Archivio non disponibile.\n" RESET);
+        printf(RED BOLD "\n [ ERRORE ] Archivio non disponibile.\n" RESET);
         return;
     }
     
@@ -366,14 +393,15 @@ void generaReportAreeProblematiche(const ArchivioRichieste* archivio) {
     
     raccogliAree(archivio, &aree, &numeroAree);
     
-    printf(CYAN BOLD "\n╔════════════════════════════════════════════════╗\n" RESET);
-    printf(CYAN BOLD "║   AREE CON PIÙ PROBLEMI                       ║\n" RESET);
-    printf(CYAN BOLD "╚════════════════════════════════════════════════╝\n\n" RESET);
+    printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                 " MAGENTA BOLD "[ REPORT ] Aree e Appartamenti Piu' Problematici" CYAN BOLD "                       |\n");
+    printf("|________________________________________________________________________________________|\n" RESET);
     
     if (numeroAree == 0) {
-        printf(YELLOW "Nessun appartamento registrato.\n" RESET);
+        printf(CYAN "|" RESET YELLOW " Nessun appartamento/area registrato al momento.                                        " CYAN "|\n" RESET);
+        printf(CYAN "|________________________________________________________________________________________|\n" RESET);
     } else {
-        /* Ordina le aree per numero di problemi (bubbleSort) */
         for (int i = 0; i < numeroAree - 1; i++) {
             for (int j = 0; j < numeroAree - i - 1; j++) {
                 if (aree[j].numeroProblemi < aree[j + 1].numeroProblemi) {
@@ -384,12 +412,15 @@ void generaReportAreeProblematiche(const ArchivioRichieste* archivio) {
             }
         }
         
+        printf(CYAN "| %-42s | %-41s |\n", "APPARTAMENTO / AREA DI INTERVENTO", "NUMERO PROBLEMI SEGNALATI");
+        printf("|--------------------------------------------|-------------------------------------------|\n" RESET);
         for (int i = 0; i < numeroAree; i++) {
-            printf(GREEN "%-30s: %d problemi\n" RESET, 
+            printf(CYAN "|" RESET " %-42s " CYAN "|" RESET " %-41d " CYAN "|\n" RESET, 
                    aree[i].appartamento, 
                    aree[i].numeroProblemi);
             free(aree[i].appartamento);
         }
+        printf(CYAN "|____________________________________________|___________________________________________|\n" RESET);
     }
     
     free(aree);
@@ -398,13 +429,14 @@ void generaReportAreeProblematiche(const ArchivioRichieste* archivio) {
 
 void generaReportCompleto(const ArchivioRichieste* archivio, const AlberoTecnici* albero) {
     if (archivio == NULL) {
-        printf(RED "Archivio non disponibile.\n" RESET);
+        printf(RED BOLD "\n [ ERRORE ] Archivio non disponibile.\n" RESET);
         return;
     }
     
-    printf(MAGENTA BOLD "\n\n╔════════════════════════════════════════════════╗\n" RESET);
-    printf(MAGENTA BOLD "║           REPORT COMPLETO SISTEMA              ║\n" RESET);
-    printf(MAGENTA BOLD "╚════════════════════════════════════════════════╝\n" RESET);
+    printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                     *** INIZIO REPORT COMPLETO DI SISTEMA ***                          |\n");
+    printf("|________________________________________________________________________________________|\n" RESET);
     
     generaReportStatoInterventi(archivio);
     generaReportPerTipologia(archivio);
@@ -412,7 +444,8 @@ void generaReportCompleto(const ArchivioRichieste* archivio, const AlberoTecnici
     generaReportTecnicoPiuAttivo(archivio);
     generaReportAreeProblematiche(archivio);
     
-    printf(MAGENTA BOLD "╔════════════════════════════════════════════════╗\n" RESET);
-    printf(MAGENTA BOLD "║           FINE REPORT                         ║\n" RESET);
-    printf(MAGENTA BOLD "╚════════════════════════════════════════════════╝\n\n" RESET);
+    printf(MAGENTA BOLD " ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                      *** FINE REPORT COMPLETO DI SISTEMA ***                           |\n");
+    printf("|________________________________________________________________________________________|\n\n" RESET);
 }

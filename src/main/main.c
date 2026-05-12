@@ -34,10 +34,11 @@ int main() {
     int urgenza = -1;
 
     pulisciSchermo();
-    printf(CYAN BOLD "\n____________________________________________________\n");
-    printf("|                " RESET BOLD "BENVENUTO" CYAN BOLD "                         |\n");
-    printf("|__________________________________________________|\n" RESET);
-    printf(BOLD "\nPremi INVIO per entrare nel sistema..." RESET);
+    printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                 " RESET BOLD "BENVENUTO NEL SISTEMA GESTIONE CONDOMINIO" CYAN BOLD "                              |\n");
+    printf("|________________________________________________________________________________________|\n" RESET);
+    printf(BOLD YELLOW "\n>> Premi INVIO per entrare nel sistema..." RESET);
     getchar();
 
     /* 2. Ciclo Principale */
@@ -45,20 +46,21 @@ int main() {
         pulisciSchermo();
 
         /* --- NUOVA INTERFACCIA A PANNELLO (DASHBOARD) --- */
-        printf(CYAN BOLD "\n________________________________________________________________\n");
-        printf("|                 " RESET BOLD "PANNELLO DI CONTROLLO GENERALE" CYAN BOLD "               |\n");
-        printf("|_____________________________|________________________________|\n");
-        printf("| " RESET " [1] Nuovo Tecnico          " CYAN BOLD "|" RESET "  [7] Pianifica Intervento     " CYAN BOLD " |\n");
-        printf("| " RESET " [2] Nuova Richiesta        " CYAN BOLD "|" RESET "  [8] Ricerca Avanzata         " CYAN BOLD " |\n");
-        printf("| " RESET " [3] Assegnazione Auto      " CYAN BOLD "|" RESET "  [9] Storico Conclusi         " CYAN BOLD " |\n");
-        printf("| " RESET " [4] Elenco Tecnici         " CYAN BOLD "|" RESET " [10] Statistiche Sistema      " CYAN BOLD " |\n");
-        printf("| " RESET " [5] Coda Attesa (Heap)     " CYAN BOLD "|" RESET " [11] Agenda Tecnico           " CYAN BOLD " |\n");
-        printf("| " RESET " [6] Aggiorna Stato         " CYAN BOLD "|" YELLOW BOLD "  [0] Esci dal Programma       " CYAN BOLD " |\n");
-        printf("|_____________________________|________________________________|\n" RESET);
+        printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+        printf("|                                                                                        |\n");
+        printf("|                 " RESET BOLD "PANNELLO DI CONTROLLO GENERALE" CYAN BOLD "                                         |\n");
+        printf("|___________________________________________|____________________________________________|\n");
+        printf("|" RESET " [1] Nuovo Tecnico                         " CYAN BOLD "|" RESET " [7] Pianifica Intervento                   " CYAN BOLD "|\n");
+        printf("|" RESET " [2] Nuova Richiesta                       " CYAN BOLD "|" RESET " [8] Ricerca Avanzata                       " CYAN BOLD "|\n");
+        printf("|" RESET " [3] Assegnazione Auto                     " CYAN BOLD "|" RESET " [9] Storico Conclusi                       " CYAN BOLD "|\n");
+        printf("|" RESET " [4] Elenco Tecnici                        " CYAN BOLD "|" RESET " [10] Statistiche Sistema                   " CYAN BOLD "|\n");
+        printf("|" RESET " [5] Coda Attesa (Heap)                    " CYAN BOLD "|" RESET " [11] Agenda Tecnico                        " CYAN BOLD "|\n");
+        printf("|" RESET " [6] Aggiorna Stato                        " CYAN BOLD "|" YELLOW BOLD " [0] Esci dal Programma                     " CYAN BOLD "|\n");
+        printf("|___________________________________________|____________________________________________|\n" RESET);
         printf(BOLD YELLOW "\n>> Inserisci comando: " RESET);
 
         if (scanf("%d", &scelta) != 1) {
-            printf(RED BOLD "\n [ ERRORE ]" RESET RED " Input non valido. Inserisci un numero.\n" RESET);
+            printf(RED BOLD "\n [ ERRORE ] Input non valido. Inserisci un numero.\n" RESET);
             pulisciBuffer();
             pausaSchermo();
             continue;
@@ -70,33 +72,35 @@ int main() {
             
             case 1: {
                 pulisciSchermo();
-                printf(MAGENTA BOLD "\n[ MODULO ] " RESET "Registrazione Nuovo Tecnico\n");
-                printf(MAGENTA "----------------------------------------\n\n" RESET);
+                printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+                printf("|                                                                                        |\n");
+                printf("|                 " MAGENTA BOLD "[ MODULO ] Registrazione Nuovo Tecnico" CYAN BOLD "                                 |\n");
+                printf("|________________________________________________________________________________________|\n\n" RESET);
                 
                 do {
                     acquisisciStringa("Codice Identificativo (es. T01): ", bCodice, sizeof(bCodice));
-                    if (strlen(bCodice) == 0) printf(RED "  >> Il codice non puo' essere vuoto.\n" RESET);
+                    if (strlen(bCodice) == 0) printf(RED BOLD "  [ ERRORE ] Il codice non puo' essere vuoto.\n" RESET);
                 } while (strlen(bCodice) == 0);
 
                 do {
                     acquisisciStringa("Nome Completo                  : ", bNome, sizeof(bNome));
-                    if (strlen(bNome) == 0) printf(RED "  >> Il nome non puo' essere vuoto.\n" RESET);
+                    if (strlen(bNome) == 0) printf(RED BOLD "  [ ERRORE ] Il nome non puo' essere vuoto.\n" RESET);
                 } while (strlen(bNome) == 0);
 
                 do {
                     acquisisciStringa("Specializzazione               : ", bSpec, sizeof(bSpec));
-                    if (strlen(bSpec) == 0) printf(RED "  >> La specializzazione non puo' essere vuota.\n" RESET);
+                    if (strlen(bSpec) == 0) printf(RED BOLD "  [ ERRORE ] La specializzazione non puo' essere vuota.\n" RESET);
                 } while (strlen(bSpec) == 0);
 
                 if (cercaTecnicoInAlbero(databaseTecnici, bCodice) != NULL) {
-                    printf(RED BOLD "\n [ ERRORE ]" RESET RED " Il codice tecnico inserito esiste gia'.\n" RESET);
+                    printf(RED BOLD "\n [ ERRORE ] Il codice tecnico inserito esiste gia'.\n" RESET);
                 } else {
                     Tecnico* nuovoTecnico = creaTecnico(bCodice, bNome, bSpec);
                     if (nuovoTecnico == NULL) {
-                        printf(RED BOLD "\n [ ERRORE ]" RESET RED " Fallimento allocazione memoria.\n" RESET);
+                        printf(RED BOLD "\n [ ERRORE ] Fallimento allocazione memoria.\n" RESET);
                     } else {
                         inserisciInAlberoTecnici(databaseTecnici, nuovoTecnico);
-                        printf(GREEN BOLD "\n [ OK ]" RESET GREEN " Tecnico salvato nel database.\n" RESET);
+                        printf(GREEN BOLD "\n [ OK ] Operazione completata. Tecnico salvato nel database.\n" RESET);
                     }
                 }
                 pausaSchermo();
@@ -105,17 +109,19 @@ int main() {
 
             case 2: {
                 pulisciSchermo();
-                printf(MAGENTA BOLD "\n[ MODULO ] " RESET "Inserimento Nuova Richiesta\n");
-                printf(MAGENTA "----------------------------------------\n\n" RESET);
+                printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+                printf("|                                                                                        |\n");
+                printf("|                 " MAGENTA BOLD "[ MODULO ] Inserimento Nuova Richiesta" CYAN BOLD "                                 |\n");
+                printf("|________________________________________________________________________________________|\n\n" RESET);
 
                 do {
                     acquisisciStringa("Codice Richiesta       : ", bCodice, sizeof(bCodice));
                     if (strlen(bCodice) == 0) 
-                        printf(RED "  >> Il codice richiesta non puo' essere vuoto.\n" RESET);
+                        printf(RED BOLD "  [ ERRORE ] Il codice richiesta non puo' essere vuoto.\n" RESET);
                 } while (strlen(bCodice) == 0);
 
                 if (cercaRichiestaPerCodice(archivioStorico, bCodice) != NULL) {
-                    printf(RED BOLD "\n [ ERRORE ]" RESET RED " Esiste gia' una richiesta con questo codice!\n" RESET);
+                    printf(RED BOLD "\n [ ERRORE ] Esiste gia' una richiesta con questo codice!\n" RESET);
                     pausaSchermo();
                     break; 
                 }
@@ -123,47 +129,47 @@ int main() {
                 do {
                     acquisisciStringa("Appartamento / Area    : ", bApp, sizeof(bApp));
                     if (strlen(bApp) == 0) 
-                        printf(RED "  >> L'area interessata non puo' essere vuota.\n" RESET);
+                        printf(RED BOLD "  [ ERRORE ] L'area interessata non puo' essere vuota.\n" RESET);
                 } while (strlen(bApp) == 0);
 
                 do {
                     acquisisciStringa("Tipologia Problema     : ", bTipo, sizeof(bTipo));
                     if (strlen(bTipo) == 0) 
-                        printf(RED "  >> La tipologia non puo' essere vuota.\n" RESET);
+                        printf(RED BOLD "  [ ERRORE ] La tipologia non puo' essere vuota.\n" RESET);
                 } while (strlen(bTipo) == 0);
 
                 do {
                     acquisisciStringa("Breve Descrizione      : ", bDesc, sizeof(bDesc));
                     if (strlen(bDesc) == 0) 
-                        printf(RED "  >> La descrizione non puo' essere vuota.\n" RESET);
+                        printf(RED BOLD "  [ ERRORE ] La descrizione non puo' essere vuota.\n" RESET);
                 } while (strlen(bDesc) == 0);
 
                 do {
                     acquisisciStringa("Data (GG/MM/AAAA)      : ", bData, sizeof(bData));
                     if (validaData(bData) == 0) 
-                        printf(RED "  >> Formato data errato. Riprova.\n" RESET);
+                        printf(RED BOLD "  [ ERRORE ] Formato data errato. Riprova.\n" RESET);
                 } while (validaData(bData) == 0);
 
                 do {
-                    printf("Urgenza (0=Min, 4=Max) : ");
+                    printf(BOLD "\n>> Urgenza (0=Min, 4=Max) : " RESET);
                     if (scanf("%d", &urgenza) != 1) {
                         pulisciBuffer();
-                        printf(RED "  >> Inserire un numero da 0 a 4.\n" RESET);
+                        printf(RED BOLD "  [ ERRORE ] Inserire un numero da 0 a 4.\n" RESET);
                         urgenza = -1;
                         continue;
                     }
                     pulisciBuffer();
                     if (urgenza < 0 || urgenza > 4)
-                        printf(RED "  >> Valore fuori range (0-4).\n" RESET);
+                        printf(RED BOLD "  [ ERRORE ] Valore fuori range (0-4).\n" RESET);
                 } while (urgenza < 0 || urgenza > 4);
 
                 Richiesta* nuovaRichiesta = creaRichiesta(bCodice, bApp, bTipo, bDesc, bData, urgenza);
                 if (nuovaRichiesta == NULL) {
-                    printf(RED BOLD "\n [ ERRORE ]" RESET RED " Impossibile allocare memoria.\n" RESET);
+                    printf(RED BOLD "\n [ ERRORE ] Impossibile allocare memoria.\n" RESET);
                 } else {
                     inserisciInCodaArchivio(archivioStorico, nuovaRichiesta);
                     inserisciInCodaPriorita(codaAttesa, nuovaRichiesta);
-                    printf(GREEN BOLD "\n [ OK ]" RESET GREEN " Richiesta registrata e accodata con successo.\n" RESET);
+                    printf(GREEN BOLD "\n [ OK ] Operazione completata. Richiesta registrata e accodata con successo.\n" RESET);
                 }
                 pausaSchermo();
                 break;
@@ -171,11 +177,13 @@ int main() {
 
             case 3: {
                 pulisciSchermo();
-                printf(MAGENTA BOLD "\n[ MODULO ] " RESET "Assegnazione Automatica (Sistema Priority)\n");
-                printf(MAGENTA "--------------------------------------------------------\n\n" RESET);
+                printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+                printf("|                                                                                        |\n");
+                printf("|                 " MAGENTA BOLD "[ MODULO ] Assegnazione Automatica" CYAN BOLD "                                     |\n");
+                printf("|________________________________________________________________________________________|\n\n" RESET);
 
                 if (isCodaPrioritaVuota(codaAttesa)) {
-                    printf(YELLOW "Nessuna richiesta valida in attesa nella Coda.\n" RESET);
+                    printf(YELLOW " Nessuna richiesta valida in attesa nella Coda.\n" RESET);
                     pausaSchermo();
                     break;
                 }
@@ -183,81 +191,80 @@ int main() {
                 Richiesta* rAssegnare = NULL;
                 Tecnico* tSelezionato = NULL;
                 
-                /* Alloca l'array in base alla dimensione reale della coda per evitare overflow */
                 int dimCoda = getDimensioneCodaPriorita(codaAttesa);
                 Richiesta** tempArray = (Richiesta**)malloc(dimCoda * sizeof(Richiesta*));
                 int tempCount = 0;
 
-                /* Estrai finché non trovi un match o l'heap si svuota */
                 while (isCodaPrioritaVuota(codaAttesa) == 0) {
                     rAssegnare = estraiMaxDaCodaPriorita(codaAttesa);
                     
-                    /* Se la richiesta è stata rimossa logicamente, ignorala */
                     if (rAssegnare == NULL || isValidaInHeapRichiesta(rAssegnare) == 0) continue;
 
                     tSelezionato = trovaTecnicoDisponibilePerSpecializzazione(databaseTecnici, getTipologiaProblemaRichiesta(rAssegnare));
                     
                     if (tSelezionato != NULL) {
-                        break; /* Match trovato! Usciamo dal ciclo */
+                        break; 
                     } else {
-                        tempArray[tempCount++] = rAssegnare; /* Parcheggia e passa alla prossima */
+                        tempArray[tempCount++] = rAssegnare; 
                         rAssegnare = NULL; 
                     }
                 }
 
-                /* 1. Reinserisci nell'heap tutte le richieste parcheggiate */
                 for (int i = 0; i < tempCount; i++) {
                     inserisciInCodaPriorita(codaAttesa, tempArray[i]);
                 }
                 
-                free(tempArray); /* Libera la memoria dell'array temporaneo */
+                free(tempArray); 
 
-                /* 2. Procedi con l'assegnazione se hai trovato un match */
                 if (rAssegnare != NULL && tSelezionato != NULL) {
                     setCodiceTecnicoAssegnatoRichiesta(rAssegnare, getCodiceTecnico(tSelezionato));
                     setStatoRichiesta(rAssegnare, PIANIFICATA);
                     setDisponibilitaTecnico(tSelezionato, 0);
 
-                    printf(GREEN BOLD "[ MATCH TROVATO ]\n" RESET);
-                    printf("Tecnico assegnato  : " CYAN "%s\n" RESET, getNomeTecnico(tSelezionato));
-                    printf("Dettagli Richiesta :\n");
+                    printf(GREEN BOLD "\n [ OK ] Match Trovato!\n" RESET);
+                    printf(" Tecnico assegnato  : " CYAN "%s\n\n" RESET, getNomeTecnico(tSelezionato));
+                    
+                    printf(CYAN " ________________________________________________________________________________________ \n");
+                    printf("| %-8s | %-14s | %-15s | %-7s | %-14s | %-13s |\n", "CODICE", "APPARTAMENTO", "TIPOLOGIA", "URGENZA", "STATO", "TECNICO");
+                    printf("|----------|----------------|-----------------|---------|----------------|---------------|\n" RESET);
                     stampaRichiesta(rAssegnare);
+                    printf(CYAN "|________________________________________________________________________________________|\n" RESET);
                 } else {
-                    printf(YELLOW "Nessuna richiesta in attesa puo' essere soddisfatta al momento dai tecnici disponibili.\n" RESET);
+                    printf(YELLOW "\n [ AVVISO ] Nessuna richiesta in attesa puo' essere soddisfatta dai tecnici disponibili.\n" RESET);
                 }
                 
                 pausaSchermo();
                 break;
             }
 
-case 4: {
+            case 4: {
                 pulisciSchermo();
-                printf(MAGENTA BOLD "\n[ VISUALIZZAZIONE ] " RESET "Monitoraggio Carico di Lavoro Tecnici\n\n");
+                printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+                printf("|                                                                                        |\n");
+                printf("|                 " MAGENTA BOLD "[ VISUALIZZAZIONE ] Monitoraggio Carico Tecnici" CYAN BOLD "                        |\n");
+                printf("|________________________________________________________________________________________|\n");
                 
-                /* Bordo Superiore allargato (91 trattini) */
-                printf(CYAN " ___________________________________________________________________________________________ \n");
-                printf("| %-10s | %-25s | %-20s | %-25s |\n", "CODICE", "NOME", "SPECIALIZZ.", "STATO CARICO");
-                printf("|------------|---------------------------|----------------------|---------------------------|\n" RESET);
+                printf("| %-10s | %-22s | %-18s | %-27s |\n", "CODICE", "NOME", "SPECIALIZZ.", "STATO CARICO");
+                printf("|------------|------------------------|--------------------|-----------------------------|\n" RESET);
                 
                 if (getRadiceAlberoTecnici(databaseTecnici) == NULL) {
-                    /* Stringa perfettamente allineata con i nuovi margini (27 spazi vuoti alla fine) */
-                    printf(CYAN "|" RESET YELLOW " Nessun tecnico presente. Usa l'opzione [1] per registrarne uno.                           " CYAN "|\n" RESET);
+                    printf(CYAN "|" RESET YELLOW " Nessun tecnico presente nel sistema.                                                   " CYAN "|\n" RESET);
                 } else {
                     visitaAlberoTecnici(databaseTecnici, stampaCaricoLavoroTecnico);
                 }
                 
-                /* Bordo Inferiore allargato (91 trattini) */
-                printf(CYAN "|___________________________________________________________________________________________|\n" RESET);
+                printf(CYAN "|________________________________________________________________________________________|\n\n" RESET);
                 
-                printf("\n");
                 pausaSchermo();
                 break;
             }
 
             case 5: {
                 pulisciSchermo();
-                printf(MAGENTA BOLD "\n[ VISUALIZZAZIONE ] " RESET "Coda di Attesa (Max-Heap)\n");
-                printf(MAGENTA "------------------------------------------------\n\n" RESET);
+                printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+                printf("|                                                                                        |\n");
+                printf("|                 " MAGENTA BOLD "[ VISUALIZZAZIONE ] Coda di Attesa (Max-Heap)" CYAN BOLD "                          |\n");
+                printf("|________________________________________________________________________________________|\n\n" RESET);
                 stampaCodaPriorita(codaAttesa);
                 pausaSchermo();
                 break;
@@ -265,26 +272,33 @@ case 4: {
 
             case 6: {
                 pulisciSchermo();
-                printf(MAGENTA BOLD "\n[ MODULO ] " RESET "Aggiornamento Stato Intervento\n");
-                printf(MAGENTA "----------------------------------------\n\n" RESET);
+                printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+                printf("|                                                                                        |\n");
+                printf("|                 " MAGENTA BOLD "[ MODULO ] Aggiornamento Stato Intervento" CYAN BOLD "                              |\n");
+                printf("|________________________________________________________________________________________|\n\n" RESET);
 
-                acquisisciStringa("Inserisci Codice Richiesta: ", bCodice, sizeof(bCodice));
+                acquisisciStringa("Codice Richiesta: ", bCodice, sizeof(bCodice));
                 Richiesta* rTrovata = cercaRichiestaPerCodice(archivioStorico, bCodice);
 
                 if (rTrovata == NULL) {
-                    printf(RED BOLD "\n [ ERRORE ]" RESET RED " Richiesta inesistente.\n" RESET);
+                    printf(RED BOLD "\n [ ERRORE ] Richiesta inesistente.\n" RESET);
                 } else {
                     StatoRichiesta sAttuale = getStatoRichiesta(rTrovata);
                     if (sAttuale == CONCLUSA || sAttuale == ANNULLATA) {
-                        printf(YELLOW BOLD "\n [ STOP ]" RESET YELLOW " Pratica gia' archiviata in modo definitivo.\n" RESET);
+                        printf(YELLOW BOLD "\n [ AVVISO ] Pratica gia' archiviata in modo definitivo.\n" RESET);
                     } else {
                         printf("\n");
+                        printf(CYAN " ________________________________________________________________________________________ \n");
+                        printf("| %-8s | %-14s | %-15s | %-7s | %-14s | %-13s |\n", "CODICE", "APPARTAMENTO", "TIPOLOGIA", "URGENZA", "STATO", "TECNICO");
+                        printf("|----------|----------------|-----------------|---------|----------------|---------------|\n" RESET);
                         stampaRichiesta(rTrovata);
-                        printf("\nNuovo Stato: [0] APERTA, [1] PIANIFICATA, [2] IN LAVORAZIONE, [3] CONCLUSA, [4] ANNULLATA\n");
+                        printf(CYAN "|________________________________________________________________________________________|\n" RESET);
+
+                        printf("\n" CYAN BOLD "Stati disponibili: " RESET "[0] APERTA, [1] PIANIFICATA, [2] IN LAVORAZIONE, [3] CONCLUSA, [4] ANNULLATA\n");
                         
                         int nuovoS = -1;
                         while (nuovoS < 0 || nuovoS > 4) {
-                            printf("Selezione: ");
+                            printf(BOLD "\n>> Inserisci Nuovo Stato: " RESET);
                             if (scanf("%d", &nuovoS) != 1) { pulisciBuffer(); nuovoS = -1; continue; }
                             pulisciBuffer();
                         }
@@ -297,14 +311,13 @@ case 4: {
                         }
 
                         if (nStato == CONCLUSA) {
-                            /* Avviso se si sta chiudendo una richiesta non in lavorazione */
                             if (sAttuale != IN_LAVORAZIONE) {
-                                printf(YELLOW BOLD "\n [ AVVISO ]" RESET YELLOW " La richiesta non e' in stato IN_LAVORAZIONE.\n" RESET);
+                                printf(YELLOW BOLD "\n [ AVVISO ] La richiesta non e' in stato IN_LAVORAZIONE.\n" RESET);
                             }
                             
                             int dataValida = 0;
                             do {
-                                acquisisciStringa("Inserisci data chiusura effettiva (GG/MM/AAAA): ", bData, sizeof(bData));
+                                acquisisciStringa("Data chiusura effettiva (GG/MM/AAAA): ", bData, sizeof(bData));
                                 dataValida = validaDataChiusuraRichiesta(bData, rTrovata);
                             } while (dataValida == 0);
                             setDataChiusuraRichiesta(rTrovata, bData);
@@ -321,44 +334,47 @@ case 4: {
                                 }
                             }
                         }
-
+                        printf(GREEN BOLD "\n [ OK ] Operazione completata. Sistema aggiornato.\n" RESET);
                     }
-                        
-                        printf(GREEN BOLD "\n [ OK ]" RESET GREEN " Sistema aggiornato.\n" RESET);
-                    }
-            
-            pausaSchermo();
-            break;
+                }
+                pausaSchermo();
+                break;
             }
 
             case 7: {
                 pulisciSchermo();
-                printf(MAGENTA BOLD "\n[ MODULO ] " RESET "Pianificazione Intervento in Agenda\n");
-                printf(MAGENTA "------------------------------------------------\n\n" RESET);
+                printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+                printf("|                                                                                        |\n");
+                printf("|                 " MAGENTA BOLD "[ MODULO ] Pianificazione Intervento in Agenda" CYAN BOLD "                         |\n");
+                printf("|________________________________________________________________________________________|\n\n" RESET);
 
                 acquisisciStringa("Codice Richiesta: ", bCodice, sizeof(bCodice));
                 Richiesta* rPianif = cercaRichiestaPerCodice(archivioStorico, bCodice);
 
                 if (rPianif == NULL) {
-                    printf(RED BOLD "\n [ ERRORE ]" RESET RED " Richiesta non trovata.\n" RESET);
+                    printf(RED BOLD "\n [ ERRORE ] Richiesta non trovata.\n" RESET);
                 } else if (getCodiceTecnicoAssegnatoRichiesta(rPianif) == NULL) {
-                    printf(YELLOW "\n [ ATTENZIONE ]" RESET YELLOW " Assegna prima un tecnico alla richiesta (Opzione 3).\n" RESET);
-                }  else if (getStatoRichiesta(rPianif) == CONCLUSA || getStatoRichiesta(rPianif) == ANNULLATA) {
-                    printf(RED BOLD "\n [ ERRORE ]" RESET RED " Impossibile pianificare: richiesta %s.\n" RESET,
+                    printf(YELLOW "\n [ AVVISO ] Assegna prima un tecnico alla richiesta (Opzione 3).\n" RESET);
+                } else if (getStatoRichiesta(rPianif) == CONCLUSA || getStatoRichiesta(rPianif) == ANNULLATA) {
+                    printf(RED BOLD "\n [ ERRORE ] Impossibile pianificare: richiesta %s.\n" RESET,
                     getStatoRichiesta(rPianif) == CONCLUSA ? "CONCLUSA" : "ANNULLATA");
-                    }else {
+                } else {
                     Tecnico* tAss = cercaTecnicoInAlbero(databaseTecnici, getCodiceTecnicoAssegnatoRichiesta(rPianif));
                     if (tAss != NULL) {
                         printf("\n");
+                        printf(CYAN " ________________________________________________________________________________________ \n");
+                        printf("| %-8s | %-14s | %-15s | %-7s | %-14s | %-13s |\n", "CODICE", "APPARTAMENTO", "TIPOLOGIA", "URGENZA", "STATO", "TECNICO");
+                        printf("|----------|----------------|-----------------|---------|----------------|---------------|\n" RESET);
                         stampaRichiesta(rPianif);
+                        printf(CYAN "|________________________________________________________________________________________|\n\n" RESET);
                         
-                        do { acquisisciStringa("\nData appuntamento (GG-MM-AAAA)    : ", bData, sizeof(bData)); } while (validaData(bData) == 0);
+                        do { acquisisciStringa("Data appuntamento (GG/MM/AAAA)  : ", bData, sizeof(bData)); } while (validaData(bData) == 0);
                         acquisisciStringa("Fascia oraria (es. 09:00-11:00) : ", bFascia, sizeof(bFascia));
 
                         if (pianificaIntervento(rPianif, tAss, bData, bFascia)) {
-                            printf(GREEN BOLD "\n [ OK ]" RESET GREEN " Slot prenotato nell'agenda del tecnico!\n" RESET);
+                            printf(GREEN BOLD "\n [ OK ] Operazione completata. Slot prenotato nell'agenda del tecnico!\n" RESET);
                         } else {
-                            printf(RED BOLD "\n [ CONFLITTO ]" RESET RED " Il tecnico ha gia' un impegno in questa fascia.\n" RESET);
+                            printf(RED BOLD "\n [ ERRORE ] Conflitto orario. Il tecnico ha gia' un impegno in questa fascia.\n" RESET);
                         }
                     }
                 }
@@ -370,16 +386,16 @@ case 4: {
                 int sRicerca = -1;
                 do {
                     pulisciSchermo();
-                    printf(CYAN BOLD "\n___________________________________________________________\n");
-                    printf("|                                                         |\n");
-                    printf("|               " RESET BOLD "MOTORE DI RICERCA AVANZATO" CYAN BOLD "                |\n");
-                    printf("|_____________________________|___________________________|\n");
-                    printf("|" RESET " [1] Filtra per Stato        " CYAN BOLD "|" RESET " [4] Cerca per App./Area " CYAN BOLD "|\n");
-                    printf("|" RESET " [2] Filtra per Urgenza      " CYAN BOLD "|" RESET " [5] Cerca per Tecnico   " CYAN BOLD "|\n");
-                    printf("|" RESET " [3] Cerca per Tipologia     " CYAN BOLD "|" RESET " [6] Cerca per Codice    " CYAN BOLD "|\n");
-                    printf("|_____________________________|___________________________|\n");
-                    printf("|" YELLOW BOLD "                       [0] Indietro                      " CYAN BOLD "|\n");
-                    printf("|_________________________________________________________|\n" RESET);
+                    printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+                    printf("|                                                                                        |\n");
+                    printf("|                 " MAGENTA BOLD "[ MODULO ] Ricerca Avanzata" CYAN BOLD "                                            |\n");
+                    printf("|___________________________________________|____________________________________________|\n");
+                    printf("|" RESET " [1] Filtra per Stato                      " CYAN BOLD "|" RESET " [4] Cerca per App./Area                    " CYAN BOLD "|\n");
+                    printf("|" RESET " [2] Filtra per Urgenza                    " CYAN BOLD "|" RESET " [5] Cerca per Tecnico                      " CYAN BOLD "|\n");
+                    printf("|" RESET " [3] Cerca per Tipologia                   " CYAN BOLD "|" RESET " [6] Cerca per Codice                       " CYAN BOLD "|\n");
+                    printf("|___________________________________________|____________________________________________|\n");
+                    printf("|" YELLOW BOLD "                                      [0] Indietro                                      " CYAN BOLD "|\n");
+                    printf("|________________________________________________________________________________________|\n" RESET);
                     printf(BOLD YELLOW "\n>> Seleziona filtro di ricerca: " RESET);
 
                     if (scanf("%d", &sRicerca) != 1) {
@@ -391,7 +407,7 @@ case 4: {
 
                     switch (sRicerca) {
                         case 1:
-                            printf("\nStato (0=Aperta, 1=Pianificata, 2=In Lav., 3=Conclusa, 4=Annullata): ");
+                            printf(BOLD "\n>> Stato (0=Aperta, 1=Pianificata, 2=In Lav., 3=Conclusa, 4=Annullata): " RESET);
                             if (scanf("%d", &urgenza) == 1) { 
                                 pulisciBuffer(); 
                                 printf("\n"); 
@@ -401,7 +417,7 @@ case 4: {
                             break;
 
                         case 2:
-                            printf("Urgenza (0-4): ");
+                            printf(BOLD "\n>> Urgenza (0-4): " RESET);
                             if (scanf("%d", &urgenza) == 1) { 
                                 pulisciBuffer(); 
                                 printf("\n"); 
@@ -411,34 +427,38 @@ case 4: {
                             break;
 
                         case 3:
-                            acquisisciStringa("Tipologia: ", bTipo, 100);
+                            acquisisciStringa("Tipologia: ", bTipo, sizeof(bTipo));
                             printf("\n"); 
                             stampaRichiesteArchivioPerTipologia(archivioStorico, bTipo);
                             pausaSchermo(); 
                             break;
                         
                         case 4:
-                            acquisisciStringa("Appartamento: ", bApp, 100);
+                            acquisisciStringa("Appartamento: ", bApp, sizeof(bApp));
                             printf("\n"); 
                             stampaRichiesteArchivioPerAppartamento(archivioStorico, bApp);
                             pausaSchermo(); 
                             break;
 
                         case 5:
-                            acquisisciStringa("Codice Tecnico: ", bCodice, 50);
+                            acquisisciStringa("Codice Tecnico: ", bCodice, sizeof(bCodice));
                             printf("\n"); 
                             stampaRichiesteArchivioPerTecnico(archivioStorico, bCodice);
                             pausaSchermo(); 
                             break;
 
                         case 6: {
-                            acquisisciStringa("\nInserisci Codice Richiesta: ", bCodice, sizeof(bCodice));
+                            acquisisciStringa("Codice Richiesta: ", bCodice, sizeof(bCodice));
                             Richiesta* rTrovata = cercaRichiestaPerCodice(archivioStorico, bCodice);
                             if (rTrovata != NULL) {
-                                printf(GREEN BOLD "\n [ TROVATA ]" RESET " Dettagli della pratica:\n\n");
+                                printf(GREEN BOLD "\n [ OK ] Ricerca completata.\n\n" RESET);
+                                printf(CYAN " ________________________________________________________________________________________ \n");
+                                printf("| %-8s | %-14s | %-15s | %-7s | %-14s | %-13s |\n", "CODICE", "APPARTAMENTO", "TIPOLOGIA", "URGENZA", "STATO", "TECNICO");
+                                printf("|----------|----------------|-----------------|---------|----------------|---------------|\n" RESET);
                                 stampaRichiesta(rTrovata);
+                                printf(CYAN "|________________________________________________________________________________________|\n" RESET);
                             } else {
-                                printf(RED BOLD "\n [ ERRORE ]" RESET " Nessuna richiesta trovata con codice '%s'.\n", bCodice);
+                                printf(RED BOLD "\n [ ERRORE ] Nessuna richiesta trovata con codice '%s'.\n" RESET, bCodice);
                             }
                             pausaSchermo(); 
                             break;
@@ -448,7 +468,7 @@ case 4: {
                             break;
 
                         default:
-                            printf(RED BOLD "\n [ ERRORE ]" RESET " Opzione non valida.\n");
+                            printf(RED BOLD "\n [ ERRORE ] Opzione non valida.\n" RESET);
                             pausaSchermo(); 
                             break;
                     }
@@ -458,32 +478,33 @@ case 4: {
 
             case 9: {
                 pulisciSchermo();
-                printf(MAGENTA BOLD "\n[ VISUALIZZAZIONE ] " RESET "Archivio Storico Interventi\n");
-                printf(MAGENTA "------------------------------------------------\n\n" RESET);
+                printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+                printf("|                                                                                        |\n");
+                printf("|                 " MAGENTA BOLD "[ VISUALIZZAZIONE ] Archivio Storico Interventi" CYAN BOLD "                        |\n");
+                printf("|________________________________________________________________________________________|\n\n" RESET);
                 stampaStoricoInterventi(archivioStorico);
                 pausaSchermo();
                 break;
             }
 
             case 10: {
-                pulisciSchermo();
-                printf(MAGENTA BOLD "\n[ REPORT ] " RESET "Sistema Avanzato di Reporting\n");
-                printf(MAGENTA "------------------------------------------------\n\n" RESET);
-                
                 int sceltaReport = -1;
                 while (sceltaReport != 0) {
-                    printf(CYAN BOLD "\nScelta Report:\n" RESET);
-                    printf("  [1] Report Completo (Tutte le statistiche)\n");
-                    printf("  [2] Stato Interventi (Aperti/Chiusi)\n");
-                    printf("  [3] Interventi per Tipologia\n");
-                    printf("  [4] Tempo Medio di Completamento\n");
-                    printf("  [5] Tecnico Più Attivo\n");
-                    printf("  [6] Aree con Più Problemi\n");
-                    printf("  [0] Torna al menu principale\n");
-                    printf(BOLD YELLOW "\n>> Inserisci comando: " RESET);
+                    pulisciSchermo();
+                    printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+                    printf("|                                                                                        |\n");
+                    printf("|                 " MAGENTA BOLD "[ REPORT ] Statistiche Sistema" CYAN BOLD "                                         |\n");
+                    printf("|___________________________________________|____________________________________________|\n");
+                    printf("|" RESET " [1] Report Completo                       " CYAN BOLD "|" RESET " [4] Tempo Medio Completamento             " CYAN BOLD " |\n");
+                    printf("|" RESET " [2] Stato Interventi                      " CYAN BOLD "|" RESET " [5] Tecnico Piu' Attivo                   " CYAN BOLD " |\n");
+                    printf("|" RESET " [3] Tipologia Interventi                  " CYAN BOLD "|" RESET " [6] Aree Piu' Problematiche               " CYAN BOLD " |\n");
+                    printf("|___________________________________________|____________________________________________|\n");
+                    printf("|" YELLOW BOLD "                                      [0] Indietro                                      " CYAN BOLD "|\n");
+                    printf("|________________________________________________________________________________________|\n" RESET);
+                    printf(BOLD YELLOW "\n>> Seleziona tipologia report: " RESET);
                     
                     if (scanf("%d", &sceltaReport) != 1) {
-                        printf(RED BOLD "\n [ ERRORE ]" RESET RED " Input non valido.\n" RESET);
+                        printf(RED BOLD "\n [ ERRORE ] Input non valido.\n" RESET);
                         pulisciBuffer();
                         continue;
                     }
@@ -513,12 +534,11 @@ case 4: {
                         case 0:
                             break;
                         default:
-                            printf(RED BOLD "\n [ ERRORE ]" RESET RED " Opzione non valida.\n" RESET);
+                            printf(RED BOLD "\n [ ERRORE ] Opzione non valida.\n" RESET);
                     }
                     
                     if (sceltaReport != 0 && sceltaReport >= 1 && sceltaReport <= 6) {
                         pausaSchermo();
-                        pulisciSchermo();
                     }
                 }
                 break;
@@ -526,14 +546,16 @@ case 4: {
 
             case 11: {
                 pulisciSchermo();
-                printf(MAGENTA BOLD "\n[ VISUALIZZAZIONE ] " RESET "Agenda Lavori Tecnico\n");
-                printf(MAGENTA "------------------------------------------------\n\n" RESET);
+                printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+                printf("|                                                                                        |\n");
+                printf("|                 " MAGENTA BOLD "[ VISUALIZZAZIONE ] Agenda Lavori Tecnico" CYAN BOLD "                              |\n");
+                printf("|________________________________________________________________________________________|\n\n" RESET);
 
-                acquisisciStringa("Inserisci Codice Tecnico: ", bCodice, sizeof(bCodice));
+                acquisisciStringa("Codice Tecnico: ", bCodice, sizeof(bCodice));
                 Tecnico* tAgenda = cercaTecnicoInAlbero(databaseTecnici, bCodice);
                 
                 if (tAgenda == NULL) {
-                    printf(RED BOLD "\n [ ERRORE ]" RESET RED " Tecnico inesistente.\n" RESET);
+                    printf(RED BOLD "\n [ ERRORE ] Tecnico inesistente.\n" RESET);
                 } else {
                     printf("\n");
                     stampaAgendaTecnico(tAgenda);
@@ -544,13 +566,16 @@ case 4: {
 
             case 0: {
                 pulisciSchermo();
-                printf(YELLOW BOLD "\n>>> Arresto dei moduli e pulizia memoria in corso...\n" RESET);
-                printf(GREEN ">>> Sistema terminato. Arrivederci!\n\n" RESET);
+                printf(CYAN BOLD "\n ________________________________________________________________________________________ \n");
+                printf("|                                                                                        |\n");
+                printf("|                 " YELLOW BOLD "Arresto dei moduli e pulizia memoria in corso..." CYAN BOLD "                       |\n");
+                printf("|________________________________________________________________________________________|\n" RESET);
+                printf(GREEN BOLD "\n [ OK ] Sistema terminato con successo. Arrivederci!\n\n" RESET);
                 break;
             }
 
             default: {
-                printf(RED BOLD "\n [ ERRORE ]" RESET RED " Comando non riconosciuto.\n" RESET);
+                printf(RED BOLD "\n [ ERRORE ] Comando non riconosciuto.\n" RESET);
                 pausaSchermo();
                 break;
             }
