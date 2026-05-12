@@ -10,6 +10,7 @@
 #include "archivioRichieste.h"
 #include "agendaTecnico.h"
 #include "main/utilita.h"
+#include "report.h"
 
 /* --- DEFINIZIONE COLORI ANSI --- */
 #define RESET   "\033[0m"
@@ -466,10 +467,60 @@ case 4: {
 
             case 10: {
                 pulisciSchermo();
-                printf(MAGENTA BOLD "\n[ REPORT ] " RESET "Statistiche Globali di Sistema\n");
+                printf(MAGENTA BOLD "\n[ REPORT ] " RESET "Sistema Avanzato di Reporting\n");
                 printf(MAGENTA "------------------------------------------------\n\n" RESET);
-                stampaReportStatistiche(archivioStorico, databaseTecnici);
-                pausaSchermo();
+                
+                int sceltaReport = -1;
+                while (sceltaReport != 0) {
+                    printf(CYAN BOLD "\nScelta Report:\n" RESET);
+                    printf("  [1] Report Completo (Tutte le statistiche)\n");
+                    printf("  [2] Stato Interventi (Aperti/Chiusi)\n");
+                    printf("  [3] Interventi per Tipologia\n");
+                    printf("  [4] Tempo Medio di Completamento\n");
+                    printf("  [5] Tecnico Più Attivo\n");
+                    printf("  [6] Aree con Più Problemi\n");
+                    printf("  [0] Torna al menu principale\n");
+                    printf(BOLD YELLOW "\n>> Inserisci comando: " RESET);
+                    
+                    if (scanf("%d", &sceltaReport) != 1) {
+                        printf(RED BOLD "\n [ ERRORE ]" RESET RED " Input non valido.\n" RESET);
+                        pulisciBuffer();
+                        continue;
+                    }
+                    pulisciBuffer();
+                    
+                    pulisciSchermo();
+                    
+                    switch (sceltaReport) {
+                        case 1:
+                            generaReportCompleto(archivioStorico, databaseTecnici);
+                            break;
+                        case 2:
+                            generaReportStatoInterventi(archivioStorico);
+                            break;
+                        case 3:
+                            generaReportPerTipologia(archivioStorico);
+                            break;
+                        case 4:
+                            generaReportTempoMedio(archivioStorico);
+                            break;
+                        case 5:
+                            generaReportTecnicoPiuAttivo(archivioStorico);
+                            break;
+                        case 6:
+                            generaReportAreeProblematiche(archivioStorico);
+                            break;
+                        case 0:
+                            break;
+                        default:
+                            printf(RED BOLD "\n [ ERRORE ]" RESET RED " Opzione non valida.\n" RESET);
+                    }
+                    
+                    if (sceltaReport != 0 && sceltaReport >= 1 && sceltaReport <= 6) {
+                        pausaSchermo();
+                        pulisciSchermo();
+                    }
+                }
                 break;
             }
 

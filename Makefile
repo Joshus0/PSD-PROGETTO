@@ -4,6 +4,7 @@ CFLAGS = -Wall -Iinclude -Iinclude/entita -Iinclude/main
 # ── File oggetto ──────────────────────────────────────────────────────────────
 OBJ = build/codaPriorita.o        \
       build/archivioRichieste.o   \
+      build/report.o              \
       build/main/utilita.o        \
       build/entita/richiesta.o    \
       build/entita/tecnico.o      \
@@ -21,6 +22,9 @@ build/codaPriorita.o: src/codaPriorita.c include/codaPriorita.h
 
 build/archivioRichieste.o: src/archivioRichieste.c include/archivioRichieste.h
 	$(CC) $(CFLAGS) -c src/archivioRichieste.c -o build/archivioRichieste.o
+
+build/report.o: src/report.c include/report.h
+	$(CC) $(CFLAGS) -c src/report.c -o build/report.o
 
 # ── build/entita/ ─────────────────────────────────────────────────────────────
 build/entita/richiesta.o: src/entita/richiesta.c include/entita/richiesta.h include/main/utilita.h
@@ -43,7 +47,7 @@ build/main/main.o: src/main/main.c \
                    include/entita/richiesta.h include/entita/tecnico.h \
                    include/main/utilita.h include/agendaTecnico.h \
                    include/alberoTecnici.h include/archivioRichieste.h \
-                   include/codaPriorita.h
+                   include/codaPriorita.h include/report.h
 	$(CC) $(CFLAGS) -c src/main/main.c -o build/main/main.o
 
 # ── Esecuzione ────────────────────────────────────────────────────────────────
