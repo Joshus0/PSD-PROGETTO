@@ -55,6 +55,60 @@ int validaData(const char* data) {
 
     return 1; /* La data e' perfetta */
 }
+
+/* Funzione helper per confrontare due date (formato GG/MM/AAAA)
+   Ritorna: 1 se data1 < data2
+           0 se data1 == data2
+          -1 se data1 > data2 */
+static int confrontaDate(const char* data1, const char* data2) {
+    int g1, m1, a1;
+    int g2, m2, a2;
+    
+    if (data1 == NULL || data2 == NULL) return 0;
+    
+    sscanf(data1, "%d/%d/%d", &g1, &m1, &a1);
+    sscanf(data2, "%d/%d/%d", &g2, &m2, &a2);
+    
+    /* Confronta gli anni */
+    if (a1 != a2) return a1 < a2 ? 1 : -1;
+    
+    /* Se gli anni sono uguali, confronta i mesi */
+    if (m1 != m2) return m1 < m2 ? 1 : -1;
+    
+    /* Se anni e mesi sono uguali, confronta i giorni */
+    if (g1 != g2) return g1 < g2 ? 1 : -1;
+    
+    return 0; /* Date identiche */
+}
+
+/* Valida la data di chiusura di una richiesta verificando la coerenza logica
+   Ritorna 1 se la data è valida, 0 altrimenti */
+int validaDataChiusuraRichiesta(const char* dataChiusura, const Richiesta* richiesta) {
+    if (dataChiusura == NULL || richiesta == NULL) return 0;
+    
+    /* Prima verifica il formato della data */
+    if (validaData(dataChiusura) == 0) {
+        return 0;
+    }
+    
+    const char* dataCreazione = getDataRichiesta(richiesta);
+    const char* dataInizioLav = getDataInizioLavorazioneRichiesta(richiesta);
+    
+    /* Verifica che la data di chiusura non sia prima della data di creazione */
+    if (dataCreazione != NULL && confrontaDate(dataChiusura, dataCreazione) > 0) {
+        printf(RED BOLD "\n [ ERRORE ]" RESET RED " Data chiusura non puo' essere prima della data di creazione.\n" RESET);
+        return 0;
+    }
+    
+    /* Verifica che la data di chiusura non sia prima della data di inizio lavorazione */
+    if (dataInizioLav != NULL && confrontaDate(dataChiusura, dataInizioLav) > 0) {
+        printf(RED BOLD "\n [ ERRORE ]" RESET RED " Data chiusura non puo' essere prima della data di inizio lavorazione.\n" RESET);
+        return 0;
+    }
+    
+    return 1;
+}
+
 /* Funzione per pulire il buffer (Solo ciclo while) */
 void pulisciBuffer() {
     int c;

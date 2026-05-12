@@ -296,10 +296,17 @@ case 4: {
                         }
 
                         if (nStato == CONCLUSA) {
+                            /* Avviso se si sta chiudendo una richiesta non in lavorazione */
+                            if (sAttuale != IN_LAVORAZIONE) {
+                                printf(YELLOW BOLD "\n [ AVVISO ]" RESET YELLOW " La richiesta non e' in stato IN_LAVORAZIONE.\n" RESET);
+                            }
+                            
+                            int dataValida = 0;
                             do {
                                 acquisisciStringa("Inserisci data chiusura effettiva (GG/MM/AAAA): ", bData, sizeof(bData));
-                                } while (validaData(bData) == 0);
-                                setDataChiusuraRichiesta(rTrovata, bData);
+                                dataValida = validaDataChiusuraRichiesta(bData, rTrovata);
+                            } while (dataValida == 0);
+                            setDataChiusuraRichiesta(rTrovata, bData);
 
                             const char* codiceTecnico = getCodiceTecnicoAssegnatoRichiesta(rTrovata);
                             if (codiceTecnico != NULL) {

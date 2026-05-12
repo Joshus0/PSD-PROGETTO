@@ -20,6 +20,9 @@ char* duplicaStringa(const char* src);
 
 int validaData(const char* data);
 
+/* Valida la data di chiusura verificando coerenza logica con le altre date della richiesta */
+int validaDataChiusuraRichiesta(const char* dataChiusura, const Richiesta* richiesta);
+
 void pulisciBuffer(void);
 void pulisciSchermo(void);
 void pausaSchermo(void);
