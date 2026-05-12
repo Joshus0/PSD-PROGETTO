@@ -52,8 +52,7 @@ run: programma
 
 # ── Pulizia ───────────────────────────────────────────────────────────────────
 clean:
-	-del /S /Q /F src\*.o 2>nul
-	-del /Q /F programma.exe 2>nul
+	del /Q /F build\*.o build\entita\*.o build\main\*.o build\programma.exe 2>NUL || true
 
 # ── Test ──────────────────────────────────────────────────────────────────────
 build/main_test.o: test/main_test.c
