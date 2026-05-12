@@ -29,5 +29,10 @@ int getDimensioneArchivio(const ArchivioRichieste* archivioTarget);
 // Funzione per cercare una richiesta specifica tramite il suo codice
 Richiesta* cercaRichiestaPerCodice(const ArchivioRichieste* archivioTarget, const char* codiceDaCercare);
 
+void stampaRichiesteArchivioPerUrgenza(const ArchivioRichieste* archivio, int urgenza);
+void stampaRichiesteArchivioPerTipologia(const ArchivioRichieste* archivio, const char* tipologia);
+void stampaRichiesteArchivioPerAppartamento(const ArchivioRichieste* archivio, const char* appartamento);
+void stampaRichiesteArchivioPerTecnico(const ArchivioRichieste* archivio, const char* codiceTecnico);
+
 #endif
 //Chiusura di #ifndef ARCHIVIO_RICHIESTE_H

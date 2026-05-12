@@ -393,33 +393,33 @@ case 4: {
                             break;
 
                         case 2:
-                            printf("\nUrgenza (0-4): ");
+                            printf("Urgenza (0-4): ");
                             if (scanf("%d", &urgenza) == 1) { 
                                 pulisciBuffer(); 
                                 printf("\n"); 
-                                stampaRichiestePerUrgenza(codaAttesa, urgenza); 
+                                stampaRichiesteArchivioPerUrgenza(archivioStorico, urgenza); 
                             }
                             pausaSchermo(); 
                             break;
 
                         case 3:
-                            acquisisciStringa("\nInserisci Tipologia: ", bTipo, sizeof(bTipo));
+                            acquisisciStringa("Tipologia: ", bTipo, 100);
                             printf("\n"); 
-                            stampaRichiestePerTipologia(codaAttesa, bTipo);
+                            stampaRichiesteArchivioPerTipologia(archivioStorico, bTipo);
                             pausaSchermo(); 
                             break;
-
+                        
                         case 4:
-                            acquisisciStringa("\nInserisci Appartamento: ", bApp, sizeof(bApp));
+                            acquisisciStringa("Appartamento: ", bApp, 100);
                             printf("\n"); 
-                            stampaRichiestePerAppartamento(codaAttesa, bApp);
+                            stampaRichiesteArchivioPerAppartamento(archivioStorico, bApp);
                             pausaSchermo(); 
                             break;
 
                         case 5:
-                            acquisisciStringa("\nInserisci Codice Tecnico: ", bCodice, sizeof(bCodice));
+                            acquisisciStringa("Codice Tecnico: ", bCodice, 50);
                             printf("\n"); 
-                            stampaRichiestePerTecnico(codaAttesa, bCodice);
+                            stampaRichiesteArchivioPerTecnico(archivioStorico, bCodice);
                             pausaSchermo(); 
                             break;
 

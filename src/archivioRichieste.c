@@ -144,3 +144,62 @@ void stampaRichiesteArchivioPerStato(const ArchivioRichieste* archivio, StatoRic
     }
     if (trovate == 0) printf("Nessuna richiesta trovata.\n");
 }
+
+void stampaRichiesteArchivioPerUrgenza(const ArchivioRichieste* archivio, int urgenza) {
+    NodoLista* nodo = getTestaArchivio(archivio);
+    int trovate = 0;
+    while (nodo != NULL) {
+        Richiesta* r = getRichiestaDalNodoLista(nodo);
+        if (r != NULL && getLivelloUrgenzaRichiesta(r) == urgenza) {
+            stampaRichiesta(r);
+            trovate++;
+        }
+        nodo = getNextNodoLista(nodo);
+    }
+    if (trovate == 0) printf("Nessuna richiesta trovata con urgenza %d.\n", urgenza);
+}
+
+void stampaRichiesteArchivioPerTipologia(const ArchivioRichieste* archivio, const char* tipologia) {
+    NodoLista* nodo = getTestaArchivio(archivio);
+    int trovate = 0;
+    while (nodo != NULL) {
+        Richiesta* r = getRichiestaDalNodoLista(nodo);
+        if (r != NULL && strcmp(getTipologiaProblemaRichiesta(r), tipologia) == 0) {
+            stampaRichiesta(r);
+            trovate++;
+        }
+        nodo = getNextNodoLista(nodo);
+    }
+    if (trovate == 0) printf("Nessuna richiesta trovata per tipologia: %s\n", tipologia);
+}
+
+void stampaRichiesteArchivioPerAppartamento(const ArchivioRichieste* archivio, const char* appartamento) {
+    NodoLista* nodo = getTestaArchivio(archivio);
+    int trovate = 0;
+    while (nodo != NULL) {
+        Richiesta* r = getRichiestaDalNodoLista(nodo);
+        if (r != NULL && strcmp(getAppartamentoRichiesta(r), appartamento) == 0) {
+            stampaRichiesta(r);
+            trovate++;
+        }
+        nodo = getNextNodoLista(nodo);
+    }
+    if (trovate == 0) printf("Nessuna richiesta trovata per appartamento: %s\n", appartamento);
+}
+
+void stampaRichiesteArchivioPerTecnico(const ArchivioRichieste* archivio, const char* codiceTecnico) {
+    NodoLista* nodo = getTestaArchivio(archivio);
+    int trovate = 0;
+    while (nodo != NULL) {
+        Richiesta* r = getRichiestaDalNodoLista(nodo);
+        if (r != NULL) {
+            const char* tec = getCodiceTecnicoAssegnatoRichiesta(r);
+            if (tec != NULL && strcmp(tec, codiceTecnico) == 0) {
+                stampaRichiesta(r);
+                trovate++;
+            }
+        }
+        nodo = getNextNodoLista(nodo);
+    }
+    if (trovate == 0) printf("Nessuna richiesta trovata per tecnico: %s\n", codiceTecnico);
+}
