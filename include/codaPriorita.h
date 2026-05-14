@@ -19,10 +19,127 @@ int isCodaPrioritaVuota(const CodaPriorita* codaTarget);
 int getDimensioneCodaPriorita(const CodaPriorita* codaTarget);
 void stampaCodaPriorita(const CodaPriorita* codaTarget);
 
+/* 
+ * STAMPA FILTRATA
+ */
+
+/*
+ * Funzione: stampaRichiestePerStato
+ * ----------------------------------
+ * Scorre la coda e stampa su stdout solo le richieste il cui stato
+ * corrisponde a quello specificato.
+ *
+ * Parametri:
+ *   codaTarget - Coda da scorrere (puo' essere NULL)
+ *   stato      - Stato da usare come filtro (APERTA, PIANIFICATA,
+ *                IN_LAVORAZIONE, CONCLUSA, ANNULLATA)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce
+ *   internamente il caso codaTarget == NULL o coda vuota.
+ *   stato deve essere un valore valido dell'enumerazione StatoRichiesta.
+ *
+ * Post-condizione:
+ *   L'output viene scritto su stdout. La coda non viene modificata.
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaRichiestePerStato(const CodaPriorita* codaTarget, StatoRichiesta stato);
+
+/*
+ * Funzione: stampaRichiestePerUrgenza
+ * -------------------------------------
+ * Scorre la coda e stampa su stdout solo le richieste il cui livello
+ * di urgenza corrisponde a quello specificato.
+ *
+ * Parametri:
+ *   codaTarget - Coda da scorrere (puo' essere NULL)
+ *   urgenza    - Livello di urgenza da usare come filtro (0-4)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce
+ *   internamente il caso codaTarget == NULL o coda vuota.
+ *   urgenza dovrebbe essere nel range 0-4 per produrre risultati
+ *   significativi.
+ *
+ * Post-condizione:
+ *   L'output viene scritto su stdout. La coda non viene modificata.
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaRichiestePerUrgenza(const CodaPriorita* codaTarget, int urgenza);
+
+/*
+ * Funzione: stampaRichiestePerTipologia
+ * ---------------------------------------
+ * Scorre la coda e stampa su stdout solo le richieste la cui tipologia
+ * di problema corrisponde esattamente alla stringa specificata.
+ *
+ * Parametri:
+ *   codaTarget - Coda da scorrere (puo' essere NULL)
+ *   tipologia  - Stringa con la tipologia da usare come filtro
+ *                (es. "Idraulico", "Elettrico") (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce
+ *   internamente il caso codaTarget == NULL o coda vuota.
+ *
+ * Post-condizione:
+ *   L'output viene scritto su stdout. La coda non viene modificata.
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaRichiestePerTipologia(const CodaPriorita* codaTarget, const char* tipologia);
+
+/*
+ * Funzione: stampaRichiestePerAppartamento
+ * -----------------------------------------
+ * Scorre la coda e stampa su stdout solo le richieste il cui
+ * appartamento o area di provenienza corrisponde esattamente
+ * alla stringa specificata.
+ *
+ * Parametri:
+ *   codaTarget   - Coda da scorrere (puo' essere NULL)
+ *   appartamento - Stringa con il codice appartamento o area da usare
+ *                  come filtro (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce
+ *   internamente il caso codaTarget == NULL o coda vuota.
+ *
+ * Post-condizione:
+ *   L'output viene scritto su stdout. La coda non viene modificata.
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaRichiestePerAppartamento(const CodaPriorita* codaTarget, const char* appartamento);
+
+/*
+ * Funzione: stampaRichiestePerTecnico
+ * -------------------------------------
+ * Scorre la coda e stampa su stdout solo le richieste assegnate
+ * al tecnico il cui codice corrisponde esattamente alla stringa
+ * specificata.
+ *
+ * Parametri:
+ *   codaTarget    - Coda da scorrere (puo' essere NULL)
+ *   codiceTecnico - Codice identificativo del tecnico da usare
+ *                   come filtro (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce
+ *   internamente il caso codaTarget == NULL o coda vuota.
+ *
+ * Post-condizione:
+ *   L'output viene scritto su stdout. La coda non viene modificata.
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaRichiestePerTecnico(const CodaPriorita* codaTarget, const char* codiceTecnico);
 
 #endif

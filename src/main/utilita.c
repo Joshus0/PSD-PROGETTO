@@ -1,3 +1,18 @@
+/*
+ * Implementazione delle funzioni di utilita' del sistema.
+ *
+ * Raccoglie funzioni ausiliarie condivise tra i vari moduli:
+ * validazione e confronto di date, I/O da terminale, stampa
+ * formattata di entita', logica di pianificazione degli interventi,
+ * caricamento dati da file e confronto di output per i casi di test.
+ *
+ * Dipende da tutte le entita' principali (Richiesta, Tecnico,
+ * AlberoTecnici, AgendaTecnico, ArchivioRichieste) poiche' funge
+ * da livello di presentazione e coordinamento del sistema.
+ *
+ * 7 maggio
+ * Sabato Pio
+ */
 #include "main/utilita.h"
 #include <stdlib.h>
 #include <string.h>
@@ -11,6 +26,20 @@
 #define CYAN    "\033[36m"
 #define MAGENTA "\033[35m"
 
+/*
+ * duplicaStringa - Alloca e restituisce una copia di una stringa.
+ *
+ * Alternativa portabile a strdup, compatibile con C89/C99.
+ * Usata ovunque nel sistema per rendere le strutture dati indipendenti
+ * dal ciclo di vita dei buffer passati dal chiamante.
+ *
+ * Parametri:
+ *   src - Stringa da duplicare (puo' essere NULL)
+ *
+ * Ritorna:
+ *   Puntatore alla copia allocata in heap, oppure NULL se src e' NULL
+ *   o se la malloc fallisce.
+ */
 char* duplicaStringa(const char* src) {
     char* copia;
     if (src == NULL) return NULL;
@@ -90,11 +119,24 @@ int validaDataChiusuraRichiesta(const char* dataChiusura, const Richiesta* richi
     return 1;
 }
 
+/*
+ * pulisciBuffer - Svuota il buffer di input stdin fino al newline o EOF.
+ *
+ * Da chiamare dopo ogni scanf per evitare che caratteri residui
+ * (in particolare '\n') vengano letti dalle chiamate successive
+ * a fgets o getchar.
+ */
 void pulisciBuffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
 
+/*
+ * pulisciSchermo - Cancella il contenuto del terminale.
+ *
+ * Usa "cls" su Windows e "clear" su sistemi POSIX (Linux/macOS).
+ * Chiamata prima di ogni schermata del menu per un'interfaccia pulita.
+ */
 void pulisciSchermo() {
     #ifdef _WIN32
         system("cls");
@@ -103,11 +145,30 @@ void pulisciSchermo() {
     #endif
 }
 
+/*
+ * pausaSchermo - Sospende l'esecuzione fino alla pressione di INVIO.
+ *
+ * Permette all'utente di leggere l'output di un'operazione prima
+ * che il menu venga ridisegnato. Da chiamare a fine di ogni case
+ * del menu principale.
+ */
 void pausaSchermo() {
     printf(BOLD YELLOW "\n>> Premi INVIO per tornare al menu..." RESET);
     getchar();
 }
 
+/*
+ * acquisisciStringa - Legge una riga di testo da stdin nel buffer fornito.
+ *
+ * Stampa il prompt, acquisisce la riga con fgets e rimuove il
+ * carattere newline finale. Se fgets fallisce, restituisce una
+ * stringa vuota anziche' lasciare il buffer indeterminato.
+ *
+ * Parametri:
+ *   prompt - Testo da mostrare prima dell'input (non NULL)
+ *   buffer - Destinazione della stringa letta (non NULL)
+ *   dim    - Dimensione massima del buffer, incluso il terminatore
+ */
 void acquisisciStringa(const char* prompt, char* buffer, int dim) {
     printf(BOLD "\n>> %s" RESET, prompt);
     
@@ -118,6 +179,19 @@ void acquisisciStringa(const char* prompt, char* buffer, int dim) {
     }
 }
 
+/*
+ * statoRichiestaToString - Converte un valore StatoRichiesta in stringa leggibile.
+ *
+ * Usata dalla funzione stampaRichiesta e dalle stampe di dettaglio
+ * per presentare lo stato in forma testuale anziche' numerica.
+ *
+ * Parametri:
+ *   stato - Valore dell'enumerazione StatoRichiesta
+ *
+ * Ritorna:
+ *   Stringa costante con il nome dello stato, oppure "SCONOSCIUTO"
+ *   se il valore non corrisponde ad alcun caso dell'enumerazione.
+ */
 const char* statoRichiestaToString(StatoRichiesta stato) {
     switch (stato) {
         case APERTA: return "APERTA";
@@ -129,6 +203,17 @@ const char* statoRichiestaToString(StatoRichiesta stato) {
     }
 }
 
+
+/*
+ * stampaTecnico - Stampa una riga formattata con i dati di un tecnico.
+ *
+ * Produce una riga nel formato a tabella previsto dal menu principale
+ * (opzione 4 - Elenco Tecnici). I campi sono allineati con %-Ns per
+ * uniformita' visiva nell'elenco completo.
+ *
+ * Parametri:
+ *   tecnico - Puntatore al Tecnico da stampare (ignorato se NULL)
+ */
 void stampaTecnico(Tecnico* tecnico) {
     if (tecnico == NULL) return;
     
@@ -139,6 +224,16 @@ void stampaTecnico(Tecnico* tecnico) {
            isDisponibileTecnico(tecnico) ? "Disponibile" : "Occupato");
 }
 
+/*
+ * stampaRichiesta - Stampa una riga formattata con i dati di una richiesta.
+ *
+ * Produce una riga nel formato a tabella condiviso da piu' schermate
+ * (ricerca, assegnazione, aggiornamento stato). Se nessun tecnico e'
+ * ancora assegnato, mostra "N/A" al posto del codice.
+ *
+ * Parametri:
+ *   richiesta - Puntatore alla Richiesta da stampare (ignorata se NULL)
+ */
 void stampaRichiesta(const Richiesta* richiesta) {
     if (richiesta == NULL) return;
     
@@ -153,6 +248,24 @@ void stampaRichiesta(const Richiesta* richiesta) {
            tecnicoAss != NULL ? tecnicoAss : "N/A");
 }
 
+/*
+ * trovaTecnicoDisponibilePerSpecializzazioneRic - Visita ricorsiva del BST
+ *   dei tecnici alla ricerca del primo disponibile con la specializzazione
+ *   richiesta.
+ *
+ * Funzione statica di supporto a trovaTecnicoDisponibilePerSpecializzazione.
+ * La visita e' in-order (sinistro -> radice -> destro) per garantire
+ * determinismo nella selezione: a parita' di specializzazione viene
+ * preferito il tecnico con codice lessicograficamente minore.
+ *
+ * Parametri:
+ *   nodo             - Nodo corrente del BST (NULL indica sottoalbero vuoto)
+ *   specializzazione - Specializzazione da cercare (non NULL)
+ *
+ * Ritorna:
+ *   Puntatore al primo Tecnico disponibile trovato, oppure NULL se
+ *   nessun tecnico soddisfa i criteri nel sottoalbero corrente.
+ */
 static Tecnico* trovaTecnicoDisponibilePerSpecializzazioneRic(const NodoAlberoTecnici* nodo, const char* specializzazione) {
     if (nodo == NULL) return NULL;
 
@@ -178,6 +291,23 @@ static Tecnico* trovaTecnicoDisponibilePerSpecializzazioneRic(const NodoAlberoTe
     return NULL;
 }
 
+/*
+ * trovaTecnicoDisponibilePerSpecializzazione - Trova il primo tecnico
+ *   disponibile con la specializzazione corrispondente alla tipologia
+ *   del problema.
+ *
+ * Wrapper pubblico della funzione ricorsiva. Usato nell'assegnazione
+ * automatica (case 3 del menu) per abbinare una richiesta al tecnico
+ * piu' adatto tra quelli registrati nel BST.
+ *
+ * Parametri:
+ *   albero           - BST dei tecnici in cui cercare (puo' essere NULL)
+ *   specializzazione - Specializzazione richiesta (puo' essere NULL)
+ *
+ * Ritorna:
+ *   Puntatore al Tecnico trovato, oppure NULL se nessun tecnico
+ *   disponibile con quella specializzazione e' presente nell'albero.
+ */
 Tecnico* trovaTecnicoDisponibilePerSpecializzazione(const AlberoTecnici* albero, const char* specializzazione) {
     if (albero == NULL || specializzazione == NULL) return NULL;
     return trovaTecnicoDisponibilePerSpecializzazioneRic(getRadiceAlberoTecnici(albero), specializzazione);
