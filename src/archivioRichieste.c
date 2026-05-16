@@ -130,7 +130,25 @@ Richiesta* cercaRichiestaPerCodice(const ArchivioRichieste* archivioTarget, cons
     
     return NULL;
 }
-
+/*
+ * stampaRichiesteArchivioPerStato - Stampa tutte le richieste dell'archivio
+ *   il cui stato corrisponde a quello specificato.
+ *
+ * Scorre linearmente la lista doppia dell'archivio dal nodo testa
+ * fino alla fine, confrontando lo stato di ogni richiesta con quello
+ * passato come filtro. Per ogni corrispondenza richiama stampaRichiesta.
+ * Se nessuna richiesta corrisponde al filtro, stampa un messaggio
+ * di avviso su stdout.
+ *
+ * Parametri:
+ *   archivio - Puntatore all'archivio da scorrere (puo' essere NULL)
+ *   stato    - Valore dell'enumerazione StatoRichiesta da usare come
+ *              filtro (APERTA, PIANIFICATA, IN_LAVORAZIONE,
+ *              CONCLUSA, ANNULLATA)
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaRichiesteArchivioPerStato(const ArchivioRichieste* archivio, StatoRichiesta stato) {
     NodoLista* nodo = getTestaArchivio(archivio);
     int trovate = 0;
@@ -145,6 +163,17 @@ void stampaRichiesteArchivioPerStato(const ArchivioRichieste* archivio, StatoRic
     if (trovate == 0) printf("Nessuna richiesta trovata.\n");
 }
 
+/*
+ * stampaRichiesteArchivioPerUrgenza - Stampa tutte le richieste dell'archivio
+ *   il cui livello di urgenza corrisponde a quello specificato.
+ *
+ * Parametri:
+ *   archivio - Puntatore all'archivio da scorrere (puo' essere NULL)
+ *   urgenza  - Livello di urgenza da usare come filtro (0-4)
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaRichiesteArchivioPerUrgenza(const ArchivioRichieste* archivio, int urgenza) {
     NodoLista* nodo = getTestaArchivio(archivio);
     int trovate = 0;
@@ -159,6 +188,18 @@ void stampaRichiesteArchivioPerUrgenza(const ArchivioRichieste* archivio, int ur
     if (trovate == 0) printf("Nessuna richiesta trovata con urgenza %d.\n", urgenza);
 }
 
+/*
+ * stampaRichiesteArchivioPerTipologia - Stampa tutte le richieste dell'archivio
+ *   la cui tipologia di problema corrisponde esattamente alla stringa specificata.
+ *
+ * Parametri:
+ *   archivio  - Puntatore all'archivio da scorrere (puo' essere NULL)
+ *   tipologia - Stringa con la tipologia da usare come filtro
+ *               (es. "Idraulico", "Elettrico") (puo' essere NULL)
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaRichiesteArchivioPerTipologia(const ArchivioRichieste* archivio, const char* tipologia) {
     NodoLista* nodo = getTestaArchivio(archivio);
     int trovate = 0;
@@ -173,6 +214,19 @@ void stampaRichiesteArchivioPerTipologia(const ArchivioRichieste* archivio, cons
     if (trovate == 0) printf("Nessuna richiesta trovata per tipologia: %s\n", tipologia);
 }
 
+/*
+ * stampaRichiesteArchivioPerAppartamento - Stampa tutte le richieste dell'archivio
+ *   il cui appartamento o area di provenienza corrisponde esattamente
+ *   alla stringa specificata.
+ *
+ * Parametri:
+ *   archivio     - Puntatore all'archivio da scorrere (puo' essere NULL)
+ *   appartamento - Stringa con il codice appartamento o area da usare
+ *                  come filtro (puo' essere NULL)
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaRichiesteArchivioPerAppartamento(const ArchivioRichieste* archivio, const char* appartamento) {
     NodoLista* nodo = getTestaArchivio(archivio);
     int trovate = 0;
@@ -187,6 +241,19 @@ void stampaRichiesteArchivioPerAppartamento(const ArchivioRichieste* archivio, c
     if (trovate == 0) printf("Nessuna richiesta trovata per appartamento: %s\n", appartamento);
 }
 
+/*
+ * stampaRichiesteArchivioPerTecnico - Stampa tutte le richieste dell'archivio
+ *   assegnate al tecnico il cui codice corrisponde esattamente alla stringa
+ *   specificata. Salta le richieste senza tecnico assegnato (campo NULL).
+ *
+ * Parametri:
+ *   archivio      - Puntatore all'archivio da scorrere (puo' essere NULL)
+ *   codiceTecnico - Codice identificativo del tecnico da usare come filtro
+ *                   (puo' essere NULL)
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaRichiesteArchivioPerTecnico(const ArchivioRichieste* archivio, const char* codiceTecnico) {
     NodoLista* nodo = getTestaArchivio(archivio);
     int trovate = 0;

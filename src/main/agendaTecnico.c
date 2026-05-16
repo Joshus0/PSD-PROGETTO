@@ -144,7 +144,33 @@ const char* getCodiceRichiestaInAgenda(const NodoAgenda* nodoCorrente) {
     if (nodoCorrente == NULL) return NULL;
     return nodoCorrente->codiceRichiesta;
 }
-
+/*
+ * eliminaNodoRicorsivo - Rimuove ricorsivamente il nodo corrispondente
+ *   alla coppia data/fascia dal sottoalbero radicato in radice,
+ *   ripristinando la proprieta' di BST dopo la cancellazione.
+ *
+ * Scende ricorsivamente nell'albero confrontando la coppia data/fascia
+ * con quella del nodo corrente tramite confrontaAppuntamenti. Gestisce
+ * tre casi distinti alla rimozione:
+ *   1. Nodo con solo figlio destro (o foglia): sostituisce il nodo
+ *      con il figlio destro e dealloca le stringhe e il nodo stesso.
+ *   2. Nodo con solo figlio sinistro: sostituisce il nodo con il
+ *      figlio sinistro e dealloca le stringhe e il nodo stesso.
+ *   3. Nodo con due figli: trova il successore in-order (minimo del
+ *      sottoalbero destro), copia i suoi dati nel nodo corrente e
+ *      rimuove ricorsivamente il successore dal sottoalbero destro,
+ *      preservando cosi' l'ordinamento cronologico.
+ *
+ * Parametri:
+ *   radice - Radice del sottoalbero corrente (NULL indica albero vuoto)
+ *   data   - Data dell'appuntamento da rimuovere nel formato "GG/MM/AAAA"
+ *   fascia - Fascia oraria dell'appuntamento da rimuovere,
+ *            es. "09:00-11:00"
+ *
+ * Ritorna:
+ *   Puntatore alla radice del sottoalbero aggiornato dopo la rimozione,
+ *   oppure NULL se il sottoalbero era vuoto o il nodo non e' stato trovato.
+ */
 static NodoAgenda* eliminaNodoRicorsivo(NodoAgenda* radice, const char* data, const char* fascia) {
     if (radice == NULL) return NULL;
     
@@ -195,7 +221,25 @@ static NodoAgenda* eliminaNodoRicorsivo(NodoAgenda* radice, const char* data, co
     }
     return radice;
 }
-
+/*
+ * rimuoviInterventoDaAgenda - Rimuove dall'agenda l'intervento
+ *   identificato dalla coppia data/fascia oraria.
+ *
+ * Wrapper pubblico della funzione ricorsiva eliminaNodoRicorsivo.
+ * Aggiorna il puntatore alla radice dell'agenda dopo la rimozione,
+ * necessario nel caso in cui il nodo eliminato fosse la radice stessa.
+ *
+ * Parametri:
+ *   agenda - Puntatore all'agenda da cui rimuovere l'intervento
+ *            (ignorato se NULL)
+ *   data   - Data dell'appuntamento da rimuovere nel formato
+ *            "GG/MM/AAAA" (non NULL)
+ *   fascia - Fascia oraria dell'appuntamento da rimuovere,
+ *            es. "09:00-11:00" (non NULL)
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void rimuoviInterventoDaAgenda(AgendaTecnico* agenda, const char* data, const char* fascia) {
     if (agenda == NULL) return;
     agenda->radice = eliminaNodoRicorsivo(agenda->radice, data, fascia);
