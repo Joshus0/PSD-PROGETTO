@@ -24,6 +24,40 @@ const char* getDataIntervento(const NodoAgenda* nodoCorrente);
 const char* getFasciaOrariaIntervento(const NodoAgenda* nodoCorrente);
 const char* getCodiceRichiestaInAgenda(const NodoAgenda* nodoCorrente);
 
+/*
+ * Funzione: rimuoviInterventoDaAgenda
+ * ------------------------------------
+ * Rimuove dall'agenda il nodo corrispondente all'appuntamento
+ * identificato dalla coppia data/fascia oraria, ripristinando
+ * la proprieta' di BST dopo la cancellazione.
+ * Se il nodo da eliminare ha due figli, viene sostituito con il
+ * successore in-order (minimo del sottoalbero destro) per mantenere
+ * l'ordinamento cronologico. Le stringhe del nodo rimosso vengono
+ * deallocate.
+ *
+ * Parametri:
+ *   agenda - Puntatore all'agenda da cui rimuovere l'intervento
+ *            (puo' essere NULL)
+ *   data   - Data dell'appuntamento da rimuovere nel formato
+ *            "GG/MM/AAAA" (puo' essere NULL)
+ *   fascia - Fascia oraria dell'appuntamento da rimuovere,
+ *            es. "09:00-11:00" (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce
+ *   internamente il caso agenda == NULL.
+ *   La coppia data/fascia deve identificare univocamente un nodo
+ *   nell'agenda per produrre un effetto.
+ *
+ * Post-condizione:
+ *   Se il nodo e' trovato, viene rimosso e la sua memoria deallocata.
+ *   La proprieta' di BST dell'agenda viene ripristinata.
+ *   Se la coppia data/fascia non corrisponde ad alcun nodo,
+ *   l'agenda rimane invariata.
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void rimuoviInterventoDaAgenda(AgendaTecnico* agenda, const char* data, const char* fascia);
 
 #endif
