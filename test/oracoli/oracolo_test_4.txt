@@ -1,0 +1,2 @@
+Tentativo 1 | Richiesta: R999 | Tecnico: T001 | Fascia: 10:00-12:00 | Esito: SUCCESSO
+Tentativo 2 | Richiesta: R888 | Tecnico: T001 | Fascia: 10:00-12:00 | Esito: CONFLITTO
