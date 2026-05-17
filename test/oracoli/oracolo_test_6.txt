@@ -1,0 +1,2 @@
+Ricerca R002: TROVATA -> Codice: R002, Appartamento: Piano Terra, Tipologia: Elettrico, Urgenza: 3
+Ricerca R_INVAL: NON TROVATA

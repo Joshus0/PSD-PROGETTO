@@ -34,11 +34,12 @@
 FILE* fileTempOracolo = NULL;
 
 /* Prototipi */
-void testCase1_RegistrazioneRichieste(void);
-void testCase2_RegistrazioneTecnici(void);
-void testCase3_AssegnazioneCorretta(void);
-void testCase4_PianificazioneConflitti(void);
-
+void testCase1_RegistrazioneRichieste();
+void testCase2_RegistrazioneTecnici();
+void testCase3_AssegnazioneCorretta();
+void testCase4_PianificazioneConflitti();
+void testCase5_AggiornamentoStato();
+void testCase6_RicercaFiltri();
 /*
  * Funzione: stampaRichiestaSuFile
  * -------------------------------
@@ -144,13 +145,18 @@ int main(void) {
             case 2: pulisciSchermo(); testCase2_RegistrazioneTecnici();   pausaSchermo(); break;
             case 3: pulisciSchermo(); testCase3_AssegnazioneCorretta();   pausaSchermo(); break;
             case 4: pulisciSchermo(); testCase4_PianificazioneConflitti(); pausaSchermo(); break;
+            case 5: pulisciSchermo(); testCase5_AggiornamentoStato(); pausaSchermo(); break;
+            case 6: pulisciSchermo(); testCase6_RicercaFiltri(); pausaSchermo(); break;
             case 9:
                 pulisciSchermo(); testCase1_RegistrazioneRichieste(); pausaSchermo();
                 pulisciSchermo(); testCase2_RegistrazioneTecnici();   pausaSchermo();
                 pulisciSchermo(); testCase3_AssegnazioneCorretta();   pausaSchermo();
                 pulisciSchermo(); testCase4_PianificazioneConflitti(); pausaSchermo();
+                pulisciSchermo(); testCase5_AggiornamentoStato(); pausaSchermo();
+                pulisciSchermo(); testCase6_RicercaFiltri(); pausaSchermo();
                 break;
-            case 5: case 6: case 7: case 8:
+
+             case 7: case 8:
                 printf(YELLOW "\n [ IN ATTESA ] Test %d da implementare...\n" RESET, scelta);
                 pausaSchermo();
                 break;
@@ -191,7 +197,7 @@ int main(void) {
  * Ritorna:
  * Niente (void).
  */
-void testCase1_RegistrazioneRichieste(void) {
+void testCase1_RegistrazioneRichieste() {
     printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
     printf("|                                                                                        |\n");
     printf("|                 " MAGENTA BOLD "[ TEST 1 ] Verifica Registrazione Richieste (Oracolo)                  |\n");
@@ -280,7 +286,7 @@ void testCase1_RegistrazioneRichieste(void) {
  * Ritorna:
  * Niente (void).
  */
-void testCase2_RegistrazioneTecnici(void) {
+void testCase2_RegistrazioneTecnici() {
     printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
     printf("|                                                                                        |\n");
     printf("|                 " MAGENTA BOLD "[ TEST 2 ] Verifica Registrazione Tecnici (Oracolo)                    |\n");
@@ -356,7 +362,7 @@ void testCase2_RegistrazioneTecnici(void) {
  * Ritorna:
  * Niente (void).
  */
-void testCase3_AssegnazioneCorretta(void) {
+void testCase3_AssegnazioneCorretta() {
     printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
     printf("|                                                                                        |\n");
     printf("|                 " MAGENTA BOLD "[ TEST 3 ] Verifica Assegnazione Corretta (Oracolo)                    |\n");
@@ -473,7 +479,7 @@ void testCase3_AssegnazioneCorretta(void) {
  * Ritorna:
  * Niente (void).
  */
-void testCase4_PianificazioneConflitti(void) {
+void testCase4_PianificazioneConflitti() {
     printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
     printf("|                                                                                        |\n");
     printf("|                 " MAGENTA BOLD "[ TEST 4 ] Verifica Pianificazione e Conflitti Orari                   |\n");
@@ -572,4 +578,182 @@ void testCase4_PianificazioneConflitti(void) {
      */
     distruggiAlberoTecnici(db);
     distruggiArchivioRichieste(arcTemp);
+}
+
+
+/*
+ * Funzione: testCase5_AggiornamentoStato
+ * --------------------------------------
+ * Testa il corretto aggiornamento del ciclo di vita di una richiesta
+ * (da APERTA a IN_LAVORAZIONE a CONCLUSA) e l'assegnazione della data di chiusura.
+ * Lo stato finale modificato viene scritto su un file temporaneo e confrontato
+ * con il file Oracolo per validare l'esattezza delle mutazioni.
+ *
+ * FIX applicati:
+ * - Eliminato assert su I/O (fopen). Usato if + return con pulizia memoria.
+ * - Ordine di distruzione corretto: svuotamento heap prima della distruzione archivio.
+ *
+ * Parametri:
+ * Nessuno.
+ *
+ * Pre-condizione:
+ * I file "test/data/richieste.txt" e "test/oracoli/oracolo_test_5.txt"
+ * devono essere disponibili e corretti.
+ *
+ * Post-condizione:
+ * Lo stato della richiesta viene mutato. Il file temporaneo viene eliminato.
+ * La memoria allocata viene liberata rigorosamente senza memory leak.
+ *
+ * Ritorna:
+ * Niente (void). L'esecuzione si interrompe (assert) in caso di errore logico.
+ */
+void testCase5_AggiornamentoStato(void) {
+    printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                 " MAGENTA BOLD "[ TEST 5 ] Verifica Aggiornamento Stato (Oracolo)                      |\n");
+    printf("|________________________________________________________________________________________|\n" RESET);
+    
+    ArchivioRichieste* arc = creaArchivioRichieste();
+    CodaPriorita* coda = creaCodaPriorita(50);
+    
+    if (arc == NULL || coda == NULL) {
+        fprintf(stderr, RED BOLD "\n [ ERRORE ] Allocazione strutture fallita.\n" RESET);
+        if (coda) distruggiCodaPriorita(coda);
+        if (arc) distruggiArchivioRichieste(arc);
+        return;
+    }
+    
+    printf(CYAN "\n > Inizializzazione ambiente e caricamento dati...\n" RESET);
+    caricaRichiesteDaFile(arc, coda, "test/data/richieste.txt");
+    
+    Richiesta* r = cercaRichiestaPerCodice(arc, "R002");
+    assert(r != NULL);
+    assert(getStatoRichiesta(r) == APERTA);
+    
+    setStatoRichiesta(r, IN_LAVORAZIONE);
+    assert(getStatoRichiesta(r) == IN_LAVORAZIONE);
+    
+    setStatoRichiesta(r, CONCLUSA);
+    assert(getStatoRichiesta(r) == CONCLUSA);
+    
+    setDataChiusuraRichiesta(r, "18/05/2026");
+    
+    printf(CYAN " > Generazione stato finale su file...\n" RESET);
+    fileTempOracolo = fopen("test/oracoli/output_5.txt", "w");
+    
+    if (fileTempOracolo == NULL) {
+        fprintf(stderr, RED BOLD "\n [ ERRORE ] Impossibile aprire file output_5.txt.\n" RESET);
+        while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
+        distruggiCodaPriorita(coda);
+        distruggiArchivioRichieste(arc);
+        return;
+    }
+    
+    fprintf(fileTempOracolo, "Codice: %s | Stato Finale: %s | Data Chiusura: %s\n",
+            getCodiceRichiesta(r),
+            statoRichiestaToString(getStatoRichiesta(r)),
+            getDataChiusuraRichiesta(r));
+            
+    fclose(fileTempOracolo);
+    fileTempOracolo = NULL;
+    
+    printf(CYAN " > Confronto con il file 'oracolo_test_5.txt'...\n" RESET);
+    int match = confrontaFileOracolo("test/oracoli/output_5.txt", "test/oracoli/oracolo_test_5.txt");
+    assert(match == 1);
+    
+    printf(GREEN BOLD "\n [ SUCCESS ] Test N.5 superato con successo! Transizioni di stato corrette.\n" RESET);
+    
+    remove("test/oracoli/output_5.txt");
+    
+
+    while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
+    distruggiCodaPriorita(coda);
+    distruggiArchivioRichieste(arc);
+}
+
+
+/*
+ * Funzione: testCase6_RicercaFiltri
+ * ---------------------------------
+ * Testa il motore di ricerca delle richieste. Effettua una ricerca
+ * per un codice esistente verificandone l'esito positivo (non NULL) 
+ * e una ricerca per un codice inesistente verificandone l'esito negativo.
+ * I risultati formattati vengono scritti su un file temporaneo e confrontati
+ * con l'Oracolo per validarne la correttezza assoluta.
+ *
+ * FIX applicati:
+ * - Evitata la collisione del codice 'R999' usando 'R_INVAL'.
+ * - Risolto ownership di svuotamento heap prima della distruzione archivio.
+ * - Sostituito assert(file) con logica if + return.
+ *
+ * Parametri:
+ * Nessuno.
+ *
+ * Pre-condizione:
+ * I file "test/data/richieste.txt" e "test/oracoli/oracolo_test_6.txt"
+ * devono esistere e contenere i dati attesi.
+ *
+ * Post-condizione:
+ * Le ricerche vengono eseguite senza alterare lo stato dell'archivio.
+ * Il file temporaneo "output_6.txt" viene eliminato.
+ *
+ * Ritorna:
+ * Niente (void). L'esecuzione si interrompe (assert) se la logica fallisce.
+ */
+void testCase6_RicercaFiltri(void) {
+    printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                 " MAGENTA BOLD "[ TEST 6 ] Verifica Ricerca e Filtri (Oracolo)                         |\n");
+    printf("|________________________________________________________________________________________|\n" RESET);
+    
+    ArchivioRichieste* arc = creaArchivioRichieste();
+    CodaPriorita* coda = creaCodaPriorita(50);
+    
+    if (arc == NULL || coda == NULL) {
+        fprintf(stderr, RED BOLD "\n [ ERRORE ] Allocazione strutture fallita.\n" RESET);
+        if (coda) distruggiCodaPriorita(coda);
+        if (arc) distruggiArchivioRichieste(arc);
+        return;
+    }
+    
+    printf(CYAN "\n > Inizializzazione ambiente e caricamento dati...\n" RESET);
+    caricaRichiesteDaFile(arc, coda, "test/data/richieste.txt");
+    
+    printf(CYAN " > Esecuzione ricerche e generazione file di output...\n" RESET);
+    fileTempOracolo = fopen("test/oracoli/output_6.txt", "w");
+    if (fileTempOracolo == NULL) {
+        fprintf(stderr, RED BOLD "\n [ ERRORE ] Impossibile aprire file output_6.txt.\n" RESET);
+        while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
+        distruggiCodaPriorita(coda);
+        distruggiArchivioRichieste(arc);
+        return;
+    }
+    
+    /* Ricerca 1: Codice ESISTENTE */
+    Richiesta* r1 = cercaRichiestaPerCodice(arc, "R002");
+    assert(r1 != NULL);
+    fprintf(fileTempOracolo, "Ricerca R002: TROVATA -> ");
+    stampaRichiestaSuFile(r1);
+    
+    /* Ricerca 2: Codice INESISTENTE garantito */
+    Richiesta* r2 = cercaRichiestaPerCodice(arc, "R_INVAL");
+    assert(r2 == NULL);
+    fprintf(fileTempOracolo, "Ricerca R_INVAL: NON TROVATA\n");
+    
+    fclose(fileTempOracolo);
+    fileTempOracolo = NULL;
+    
+    printf(CYAN " > Confronto con il file 'oracolo_test_6.txt'...\n" RESET);
+    int match = confrontaFileOracolo("test/oracoli/output_6.txt", "test/oracoli/oracolo_test_6.txt");
+    
+    assert(match == 1);
+    
+    printf(GREEN BOLD "\n [ SUCCESS ] Test N.6 superato con successo! Il motore di ricerca funziona perfettamente.\n" RESET);
+    
+    remove("test/oracoli/output_6.txt");
+    
+    /* Pulizia memoria corretta (Ownership risolta) */
+    while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
+    distruggiCodaPriorita(coda);
+    distruggiArchivioRichieste(arc);
 }
