@@ -220,6 +220,7 @@ int main() {
                     setCodiceTecnicoAssegnatoRichiesta(rAssegnare, getCodiceTecnico(tSelezionato));
                     setStatoRichiesta(rAssegnare, PIANIFICATA);
                     setDisponibilitaTecnico(tSelezionato, 0);
+                    setValidaInHeapRichiesta(rAssegnare, 0);
 
                     printf(GREEN BOLD "\n [ OK ] Match Trovato!\n" RESET);
                     printf(" Tecnico assegnato  : " CYAN "%s\n\n" RESET, getNomeTecnico(tSelezionato));
@@ -331,6 +332,7 @@ int main() {
                                         getDataInizioLavorazioneRichiesta(rTrovata),
                                         getFasciaOrariaRichiesta(rTrovata)
                                     );
+                                    setDisponibilitaTecnico(tConcluso, 1);
                                 }
                             }
                         }

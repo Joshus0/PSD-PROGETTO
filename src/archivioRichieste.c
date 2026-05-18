@@ -1,7 +1,25 @@
+/*
+ * Implementazione dell'entita' ArchivioRichieste.
+ *
+ * Gestisce la collezione completa delle richieste di manutenzione
+ * attraverso una lista doppiamente concatenata. Permette operazioni di 
+ * inserimento in coda, rimozione, ricerca e filtraggio in base a 
+ * molteplici criteri (stato, urgenza, tecnico assegnato, ecc.).
+ * 
+ * 8 maggio
+ * Joshua Sarnelli
+ */
 #include "archivioRichieste.h"
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * Struttura interna di un nodo della lista.
+ *
+ * Rappresenta un singolo elemento all'interno dell'archivio (lista
+ * doppiamente concatenata), contenente il puntatore ai dati effettivi
+ * e i collegamenti per navigare in entrambe le direzioni.
+ */
 struct NodoLista 
 {
     Richiesta* dato;      /* Puntatore alla richiesta contenuta nel nodo */
@@ -9,7 +27,13 @@ struct NodoLista
     NodoLista* prev;      /* Puntatore al nodo precedente nella lista */
 };
 
-
+/*
+ * Struttura interna dell'ArchivioRichieste.
+ *
+ * Mantiene i riferimenti agli estremi della lista (testa e coda) 
+ * per consentire inserimenti e attraversamenti efficienti, oltre a 
+ * tracciare il numero totale di elementi.
+ */
 struct ArchivioRichieste
 {
     NodoLista* testa;     /* Puntatore al primo nodo della lista */
@@ -17,7 +41,13 @@ struct ArchivioRichieste
     int dimensione;       /* Numero di richieste attualmente nell'archivio */
 };
 
-
+/*
+ * creaArchivioRichieste - Alloca e inizializza un nuovo archivio vuoto.
+ *
+ * Ritorna:
+ *   Puntatore al nuovo ArchivioRichieste allocato, oppure NULL in caso di
+ *   fallimento della malloc.
+ */
 ArchivioRichieste* creaArchivioRichieste()
 {
     ArchivioRichieste* nuovoArchivio = (ArchivioRichieste*)malloc(sizeof(ArchivioRichieste));
@@ -30,7 +60,16 @@ ArchivioRichieste* creaArchivioRichieste()
     return nuovoArchivio;
 }
 
-
+/*
+ * distruggiArchivioRichieste - Libera tutta la memoria associata all'archivio.
+ *
+ * Scorre l'intera lista doppiamente concatenata, deallocando per ogni
+ * nodo sia la richiesta contenuta (tramite distruggiRichiesta) sia il nodo
+ * stesso, prima di liberare la struttura principale dell'archivio.
+ *
+ * Parametri:
+ *   archivioTarget - Puntatore all'archivio da deallocare (ignorato se NULL)
+ */
 void distruggiArchivioRichieste(ArchivioRichieste* archivioTarget)
 {
     if(archivioTarget != NULL)
@@ -47,9 +86,16 @@ void distruggiArchivioRichieste(ArchivioRichieste* archivioTarget)
     }
 }
 
-
-
-
+/*
+ * inserisciInCodaArchivio - Aggiunge una nuova richiesta alla fine della lista.
+ *
+ * Alloca un nuovo nodo e aggiorna i puntatori della lista doppiamente 
+ * concatenata per inserirlo in coda, gestendo anche il caso di lista vuota.
+ *
+ * Parametri:
+ *   archivioTarget - Puntatore all'archivio (ignorato se NULL)
+ *   nuovaRichiesta - Puntatore alla richiesta da inserire (ignorato se NULL)
+ */
 void inserisciInCodaArchivio(ArchivioRichieste* archivioTarget, Richiesta* nuovaRichiesta) {
     if (archivioTarget == NULL || nuovaRichiesta == NULL) return;
 
@@ -70,6 +116,18 @@ void inserisciInCodaArchivio(ArchivioRichieste* archivioTarget, Richiesta* nuova
     archivioTarget->dimensione++;
 }
 
+/*
+ * rimuoviNodoDaArchivio - Estrae e dealloca un nodo specifico dall'archivio.
+ *
+ * Ricollega i puntatori dei nodi adiacenti per escludere il nodo bersaglio,
+ * aggiornando la testa o la coda se necessario. 
+ * NOTA: La funzione libera la memoria del 'NodoLista' ma NON dealloca la 
+ * 'Richiesta' contenuta, permettendo al chiamante di conservarla.
+ *
+ * Parametri:
+ *   archivioTarget  - Puntatore all'archivio (ignorato se NULL)
+ *   nodoDaRimuovere - Puntatore al nodo da rimuovere (ignorato se NULL)
+ */
 void rimuoviNodoDaArchivio(ArchivioRichieste* archivioTarget, NodoLista* nodoDaRimuovere) {
     if (archivioTarget == NULL || nodoDaRimuovere == NULL) return;
 
@@ -89,29 +147,68 @@ void rimuoviNodoDaArchivio(ArchivioRichieste* archivioTarget, NodoLista* nodoDaR
     archivioTarget->dimensione--;
 }
 
+/*
+ * GETTER — navigazione della lista e lettura dei campi
+ *
+ * Tutte le funzioni restituiscono NULL (o 0 per i tipi interi)
+ * se il puntatore ricevuto e' nullo.
+ */
+
+/*
+ * getTestaArchivio - Restituisce il primo nodo dell'archivio.
+ */
 NodoLista* getTestaArchivio(const ArchivioRichieste* archivioTarget) {
     return (archivioTarget != NULL) ? archivioTarget->testa : NULL;
 }
 
+/*
+ * getCodaArchivio - Restituisce l'ultimo nodo dell'archivio.
+ */
 NodoLista* getCodaArchivio(const ArchivioRichieste* archivioTarget) {
     return (archivioTarget != NULL) ? archivioTarget->coda : NULL;
 }
 
+/*
+ * getNextNodoLista - Restituisce il nodo successivo nella lista.
+ */
 NodoLista* getNextNodoLista(const NodoLista* nodoCorrente) {
     return (nodoCorrente != NULL) ? nodoCorrente->next : NULL;
 }
 
+/*
+ * getPrevNodoLista - Restituisce il nodo precedente nella lista.
+ */
 NodoLista* getPrevNodoLista(const NodoLista* nodoCorrente) {
     return (nodoCorrente != NULL) ? nodoCorrente->prev : NULL;
 }
 
+/*
+ * getRichiestaDalNodoLista - Estrae la richiesta ospitata dal nodo.
+ */
 Richiesta* getRichiestaDalNodoLista(const NodoLista* nodoCorrente) {
     return (nodoCorrente != NULL) ? nodoCorrente->dato : NULL;
 }
 
+/*
+ * getDimensioneArchivio - Restituisce il numero totale di richieste salvate.
+ */
 int getDimensioneArchivio(const ArchivioRichieste* archivioTarget) {
     return (archivioTarget != NULL) ? archivioTarget->dimensione : 0;
 }
+
+/*
+ * cercaRichiestaPerCodice - Individua una richiesta in base al suo codice univoco.
+ *
+ * Esegue una ricerca sequenziale lungo tutta la lista per trovare la
+ * prima richiesta che possiede il codice esatto.
+ *
+ * Parametri:
+ *   archivioTarget  - Puntatore all'archivio (puo' essere NULL)
+ *   codiceDaCercare - Stringa del codice identificativo (puo' essere NULL)
+ *
+ * Ritorna:
+ *   Puntatore alla Richiesta se trovata, altrimenti NULL.
+ */
 Richiesta* cercaRichiestaPerCodice(const ArchivioRichieste* archivioTarget, const char* codiceDaCercare) {
     if (archivioTarget == NULL || codiceDaCercare == NULL) {
         return NULL;
@@ -130,6 +227,7 @@ Richiesta* cercaRichiestaPerCodice(const ArchivioRichieste* archivioTarget, cons
     
     return NULL;
 }
+
 /*
  * stampaRichiesteArchivioPerStato - Stampa tutte le richieste dell'archivio
  *   il cui stato corrisponde a quello specificato.

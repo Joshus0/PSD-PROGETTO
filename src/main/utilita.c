@@ -488,10 +488,12 @@ int caricaTecniciDaFile(AlberoTecnici* albero, const char* percorsoFile) {
         char* spec = strtok(NULL, ";");
 
         if (codice != NULL && nome != NULL && spec != NULL) {
-            Tecnico* t = creaTecnico(codice, nome, spec);
-            if (t != NULL) {
-                inserisciInAlberoTecnici(albero, t);
-                caricati++;
+            if (cercaTecnicoInAlbero(albero, codice) == NULL) {
+                Tecnico* t = creaTecnico(codice, nome, spec);
+                if (t != NULL) {
+                    inserisciInAlberoTecnici(albero, t);
+                    caricati++;
+                }
             }
         }
     }

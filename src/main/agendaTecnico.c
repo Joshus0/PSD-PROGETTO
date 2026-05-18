@@ -6,7 +6,7 @@
  * e fascia oraria). Fornisce funzionalita' per inserire, rimuovere,
  * consultare e contare gli interventi programmati senza creare sovrapposizioni.
  * 
- * 5 maggio
+ * 8 maggio
  * Joshua Sarnelli
  */
 #include "agendaTecnico.h"

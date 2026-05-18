@@ -1,8 +1,22 @@
+/*
+ * Implementazione del modulo Report.
+ *
+ * Fornisce funzionalita' per l'aggregazione dei dati e la generazione di 
+ * report statistici sullo stato degli interventi di manutenzione. Include 
+ * metriche sulle tipologie di problemi, lo stato delle richieste, i tempi 
+ * medi di risoluzione, i tecnici piu' attivi e le aree maggiormente 
+ * problematiche. Sfrutta sequenze di escape ANSI per un output a terminale 
+ * chiaro e leggibile.
+ * 
+ * 5 maggio
+ * Joshua Sarnelli
+ */
 #include "report.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
+/* Sequenze di escape ANSI per la formattazione grafica dell'output a terminale */
 #define RESET   "\033[0m"
 #define BOLD    "\033[1m"
 #define RED     "\033[31m"
@@ -12,8 +26,20 @@
 #define MAGENTA "\033[35m"
 #define BLUE    "\033[34m"
 
-/* Funzione helper per convertire una data in numero di giorni dal 1900-01-01
-   Formato data: GG/MM/AAAA */
+/*
+ * dataAGiorni - Converte una data stringa in numero di giorni assoluti.
+ *
+ * Funzione helper statica. Utilizza come epoca di riferimento il 1 Gennaio 1900.
+ * La funzione calcola i giorni totali trascorsi tenendo conto degli anni 
+ * bisestili e della differente durata di ogni mese.
+ *
+ * Parametri:
+ *   data - Stringa contenente la data nel formato "GG/MM/AAAA" (puo' essere NULL)
+ *
+ * Ritorna:
+ *   Il numero di giorni trascorsi dall'epoca di riferimento, oppure
+ *   0 se il puntatore alla data e' NULL.
+ */
 static int dataAGiorni(const char* data) {
     if (data == NULL) return 0;
     
@@ -44,13 +70,37 @@ static int dataAGiorni(const char* data) {
     return giorni;
 }
 
-/* Funzione helper per calcolare la differenza di giorni tra due date */
+/*
+ * differenzaGiorni - Calcola i giorni di distanza temporale tra due date.
+ *
+ * Sfrutta la funzione dataAGiorni per ottenere le rappresentazioni numeriche 
+ * assolute delle date e ne calcola la differenza aritmetica.
+ *
+ * Parametri:
+ *   dataInizio - Data di partenza nel formato "GG/MM/AAAA"
+ *   dataFine   - Data finale nel formato "GG/MM/AAAA"
+ *
+ * Ritorna:
+ *   Il numero intero di giorni di differenza, oppure 0 se uno dei parametri e' NULL.
+ */
 static int differenzaGiorni(const char* dataInizio, const char* dataFine) {
     if (dataInizio == NULL || dataFine == NULL) return 0;
     return dataAGiorni(dataFine) - dataAGiorni(dataInizio);
 }
 
-/* Funzione helper per contare interventi per una tipologia specifica */
+/*
+ * contaInterventiPerTipologia - Calcola il totale di richieste per una data tipologia.
+ *
+ * Scorre l'archivio linearmente incrementando un contatore per ogni
+ * richiesta che fa match con la stringa della tipologia passata in input.
+ *
+ * Parametri:
+ *   archivio  - Puntatore all'archivio delle richieste
+ *   tipologia - Stringa rappresentante la tipologia da contare
+ *
+ * Ritorna:
+ *   Il numero di occorrenze trovate nell'archivio.
+ */
 static int contaInterventiPerTipologia(const ArchivioRichieste* archivio, const char* tipologia) {
     int contatore = 0;
     
@@ -66,7 +116,16 @@ static int contaInterventiPerTipologia(const ArchivioRichieste* archivio, const 
     return contatore;
 }
 
-/* Funzione helper per contare interventi per un tecnico specifico */
+/*
+ * contaInterventiPerTecnico - Calcola il totale di richieste assegnate a un tecnico.
+ *
+ * Parametri:
+ *   archivio      - Puntatore all'archivio delle richieste
+ *   codiceTecnico - Codice identificativo del tecnico da cercare
+ *
+ * Ritorna:
+ *   Il numero di richieste assegnate al tecnico specificato.
+ */
 static int contaInterventiPerTecnico(const ArchivioRichieste* archivio, const char* codiceTecnico) {
     int contatore = 0;
     
@@ -85,7 +144,16 @@ static int contaInterventiPerTecnico(const ArchivioRichieste* archivio, const ch
     return contatore;
 }
 
-/* Funzione helper per contare interventi per un appartamento specifico */
+/*
+ * contaInterventiPerAppartamento - Calcola le richieste associate a un appartamento.
+ *
+ * Parametri:
+ *   archivio     - Puntatore all'archivio delle richieste
+ *   appartamento - Identificativo dell'appartamento da cercare
+ *
+ * Ritorna:
+ *   Il numero di richieste provenienti dall'appartamento specificato.
+ */
 static int contaInterventiPerAppartamento(const ArchivioRichieste* archivio, const char* appartamento) {
     int contatore = 0;
     
@@ -101,7 +169,16 @@ static int contaInterventiPerAppartamento(const ArchivioRichieste* archivio, con
     return contatore;
 }
 
-/* Funzione helper per contare interventi per uno stato specifico */
+/*
+ * contaInterventiPerStato - Calcola il totale di richieste in un dato stato.
+ *
+ * Parametri:
+ *   archivio - Puntatore all'archivio delle richieste
+ *   stato    - Lo stato dell'enumerazione (APERTA, PIANIFICATA, ecc.) da contare
+ *
+ * Ritorna:
+ *   Il numero di richieste che si trovano nello stato indicato.
+ */
 static int contaInterventiPerStato(const ArchivioRichieste* archivio, StatoRichiesta stato) {
     int contatore = 0;
     
@@ -117,7 +194,18 @@ static int contaInterventiPerStato(const ArchivioRichieste* archivio, StatoRichi
     return contatore;
 }
 
-/* Raccoglie tutte le tipologie uniche e il relativo numero di interventi */
+/*
+ * raccogliTipologie - Costruisce un array dinamico di aggregazione per tipologia.
+ *
+ * Scorre l'intero archivio estraendo le tipologie uniche. Per ogni tipologia
+ * individuata, calcola il totale degli interventi associati. L'array risultante
+ * viene restituito tramite passaggio per riferimento.
+ *
+ * Parametri:
+ *   archivio        - Puntatore all'archivio da analizzare
+ *   tipologie       - Puntatore al puntatore dell'array strutturato (output)
+ *   numeroTipologie - Puntatore in cui verra' salvato il numero di elementi (output)
+ */
 static void raccogliTipologie(const ArchivioRichieste* archivio, RiportoTipologia** tipologie, int* numeroTipologie) {
     if (archivio == NULL || getDimensioneArchivio(archivio) == 0) {
         *numeroTipologie = 0;
@@ -157,7 +245,17 @@ static void raccogliTipologie(const ArchivioRichieste* archivio, RiportoTipologi
     *numeroTipologie = count;
 }
 
-/* Raccoglie tutte le aree uniche e il relativo numero di problemi */
+/*
+ * raccogliAree - Costruisce un array dinamico di aggregazione per appartamento.
+ *
+ * Analogo a raccogliTipologie, ma raggruppa le statistiche isolando gli
+ * appartamenti (o aree) univoci presenti nello storico delle richieste.
+ *
+ * Parametri:
+ *   archivio   - Puntatore all'archivio da analizzare
+ *   aree       - Puntatore al puntatore dell'array strutturato (output)
+ *   numeroAree - Puntatore in cui verra' salvato il numero di elementi (output)
+ */
 static void raccogliAree(const ArchivioRichieste* archivio, RiportoArea** aree, int* numeroAree) {
     if (archivio == NULL || getDimensioneArchivio(archivio) == 0) {
         *numeroAree = 0;
@@ -201,6 +299,15 @@ static void raccogliAree(const ArchivioRichieste* archivio, RiportoArea** aree, 
  * IMPLEMENTAZIONE FUNZIONI DI REPORT (CON DESIGN SYSTEM ASCII)
  * ========================================================================= */
 
+/*
+ * generaReportPerTipologia - Mostra le statistiche degli interventi per tipo.
+ *
+ * Raccoglie i dati e stampa una tabella formattata indicante quante richieste
+ * sono state registrate per ogni tipologia di problema nota al sistema.
+ *
+ * Parametri:
+ *   archivio - Puntatore all'archivio centrale delle richieste
+ */
 void generaReportPerTipologia(const ArchivioRichieste* archivio) {
     if (archivio == NULL) {
         printf(RED BOLD "\n [ ERRORE ] Archivio non disponibile.\n" RESET);
@@ -236,6 +343,16 @@ void generaReportPerTipologia(const ArchivioRichieste* archivio) {
     printf("\n");
 }
 
+/*
+ * generaReportStatoInterventi - Mostra le percentuali e i tassi di completamento.
+ *
+ * Analizza e raggruppa le richieste secondo la classificazione del loro ciclo di 
+ * vita (Aperte, In Lavorazione, Chiuse), fornendo un colpo d'occhio
+ * rapido sulle performance complessive di smaltimento dei ticket.
+ *
+ * Parametri:
+ *   archivio - Puntatore all'archivio centrale delle richieste
+ */
 void generaReportStatoInterventi(const ArchivioRichieste* archivio) {
     if (archivio == NULL) {
         printf(RED BOLD "\n [ ERRORE ] Archivio non disponibile.\n" RESET);
@@ -270,6 +387,15 @@ void generaReportStatoInterventi(const ArchivioRichieste* archivio) {
     printf("\n");
 }
 
+/*
+ * generaReportTempoMedio - Calcola e stampa la media dei giorni di risoluzione.
+ *
+ * Filtra solo le richieste nello stato CONCLUSA, valutando la differenza 
+ * temporale tra la data di creazione e quella di chiusura, e ne fa una media.
+ *
+ * Parametri:
+ *   archivio - Puntatore all'archivio centrale delle richieste
+ */
 void generaReportTempoMedio(const ArchivioRichieste* archivio) {
     if (archivio == NULL) {
         printf(RED BOLD "\n [ ERRORE ] Archivio non disponibile.\n" RESET);
@@ -319,6 +445,15 @@ void generaReportTempoMedio(const ArchivioRichieste* archivio) {
     printf("\n");
 }
 
+/*
+ * generaReportTecnicoPiuAttivo - Evidenzia il tecnico con il carico maggiore.
+ *
+ * Scorre l'archivio per identificare il tecnico che e' stato storicamente 
+ * assegnato al maggior numero di richieste (indipendentemente dal loro stato).
+ *
+ * Parametri:
+ *   archivio - Puntatore all'archivio centrale delle richieste
+ */
 void generaReportTecnicoPiuAttivo(const ArchivioRichieste* archivio) {
     if (archivio == NULL) {
         printf(RED BOLD "\n [ ERRORE ] Archivio non disponibile.\n" RESET);
@@ -382,6 +517,16 @@ void generaReportTecnicoPiuAttivo(const ArchivioRichieste* archivio) {
     printf("\n");
 }
 
+/*
+ * generaReportAreeProblematiche - Classifica gli appartamenti per volume di richieste.
+ *
+ * Utilizza la logica di raggruppamento per appartamento, ordinando (Bubble Sort) 
+ * i risultati in ordine decrescente, cosi' da mostrare per primi gli 
+ * appartamenti/aree che hanno generato piu' chiamate.
+ *
+ * Parametri:
+ *   archivio - Puntatore all'archivio centrale delle richieste
+ */
 void generaReportAreeProblematiche(const ArchivioRichieste* archivio) {
     if (archivio == NULL) {
         printf(RED BOLD "\n [ ERRORE ] Archivio non disponibile.\n" RESET);
@@ -427,6 +572,16 @@ void generaReportAreeProblematiche(const ArchivioRichieste* archivio) {
     printf("\n");
 }
 
+/*
+ * generaReportCompleto - Genera ed emette l'intera suite di diagnostica.
+ *
+ * Funzione wrapper di alto livello che richiama in sequenza tutte le funzioni
+ * specifiche di generazione dei report, fornendo un output completo del sistema.
+ *
+ * Parametri:
+ *   archivio - Puntatore all'archivio centrale delle richieste
+ *   albero   - Puntatore all'albero dei tecnici (riservato per espansioni future)
+ */
 void generaReportCompleto(const ArchivioRichieste* archivio, const AlberoTecnici* albero) {
     if (archivio == NULL) {
         printf(RED BOLD "\n [ ERRORE ] Archivio non disponibile.\n" RESET);
