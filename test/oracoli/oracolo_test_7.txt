@@ -1,0 +1,2 @@
+Storico #1 | Codice: R001 | Tecnico: T001 | Data Chiusura: 18/05/2026
+Storico #2 | Codice: R003 | Tecnico: T003 | Data Chiusura: 20/05/2026

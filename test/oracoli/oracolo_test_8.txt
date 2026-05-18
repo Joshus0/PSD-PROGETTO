@@ -1,0 +1,7 @@
+Statistiche Generali:
+- Totale Pratiche: 3
+- Aperte: 1
+- In Lavorazione: 1
+- Concluse: 1
+- Problemi Idraulici: 1
+- Problemi Elettrici: 1

@@ -4,7 +4,8 @@
  * Fornisce un'interfaccia a riga di comando per eseguire singoli casi di test
  * o l'intera suite, validando il comportamento delle strutture dati tramite assert
  * e pattern "Golden Master" (confronto con file Oracolo).
- * L'information hiding e' rigorosamente mantenuto.
+ * L'information hiding e' rigorosamente mantenuto: ogni accesso alle strutture
+ * avviene esclusivamente tramite le funzioni getter pubbliche degli ADT.
  */
 
 #include <stdio.h>
@@ -28,18 +29,25 @@
 #define MAGENTA "\033[35m"
 
 /*
- * Variabile globale per indirizzare l'output dei visitatori su file.
- * Inizializzata a NULL e impostata prima di ogni visita, resettata dopo fclose.
+ * fileTempOracolo - Canale di output condiviso tra i visitatori e il test corrente.
+ *
+ * I visitatori (stampaRichiestaSuFile, stampaTecnicoSuFile) non ricevono
+ * il FILE* come parametro perche' la firma deve essere compatibile con quella
+ * attesa da visitaAlberoTecnici (void (*)(Tecnico*)). Questa variabile globale
+ * e' l'unico modo per passare il file ai visitatori rispettando l'interfaccia.
+ * Va impostata a NULL dopo ogni fclose per evitare scritture accidentali.
  */
 FILE* fileTempOracolo = NULL;
 
-/* Prototipi */
-void testCase1_RegistrazioneRichieste();
-void testCase2_RegistrazioneTecnici();
-void testCase3_AssegnazioneCorretta();
-void testCase4_PianificazioneConflitti();
-void testCase5_AggiornamentoStato();
-void testCase6_RicercaFiltri();
+void testCase1_RegistrazioneRichieste(void);
+void testCase2_RegistrazioneTecnici(void);
+void testCase3_AssegnazioneCorretta(void);
+void testCase4_PianificazioneConflitti(void);
+void testCase5_AggiornamentoStato(void);
+void testCase6_RicercaFiltri(void);
+void testCase7_StoricoInterventi(void);
+void testCase8_GenerazioneReport(void);
+
 /*
  * Funzione: stampaRichiestaSuFile
  * -------------------------------
@@ -50,12 +58,10 @@ void testCase6_RicercaFiltri();
  * r - Puntatore alla Richiesta da stampare (puo' essere NULL).
  *
  * Pre-condizione:
- * La variabile globale fileTempOracolo deve puntare a un file aperto in
- * modalita' scrittura ("w").
+ * fileTempOracolo deve puntare a un file aperto in modalita' scrittura ("w").
  *
  * Post-condizione:
- * I dati vengono accodati nel file. La richiesta non viene modificata in
- * alcun modo.
+ * I dati vengono accodati nel file. La richiesta non viene modificata.
  *
  * Ritorna:
  * Niente (void).
@@ -71,20 +77,19 @@ void stampaRichiestaSuFile(Richiesta* r) {
 /*
  * Funzione: stampaTecnicoSuFile
  * ------------------------------
- * Visitatore compatibile con la visita in-order dell'albero dei tecnici.
- * Estrae i dati tramite getter (Information Hiding) e li formatta
- * scrivendoli nel file puntato dalla variabile globale fileTempOracolo.
+ * Visitatore compatibile con la firma void (*)(Tecnico*) richiesta da
+ * visitaAlberoTecnici. Scrive i dati del tecnico nel file puntato da
+ * fileTempOracolo usando esclusivamente i getter pubblici.
  *
  * Parametri:
  * t - Puntatore al Tecnico da stampare (puo' essere NULL).
  *
  * Pre-condizione:
- * La variabile globale fileTempOracolo deve puntare a un file aperto in
- * modalita' scrittura ("w").
+ * fileTempOracolo deve puntare a un file aperto in modalita' scrittura ("w").
  *
  * Post-condizione:
- * I dati vengono accodati nel file. L'oggetto Tecnico e l'albero non
- * subiscono alcuna modifica.
+ * I dati vengono accodati nel file. Il Tecnico e l'albero non subiscono
+ * alcuna modifica.
  *
  * Ritorna:
  * Niente (void).
@@ -99,20 +104,22 @@ void stampaTecnicoSuFile(Tecnico* t) {
 /*
  * Funzione: main
  * --------------
- * Punto di ingresso per la suite di testing. Gestisce il menu interattivo
- * per selezionare e avviare i singoli casi di test o l'esecuzione completa.
+ * Punto di ingresso della suite di testing. Presenta un menu interattivo
+ * e delega l'esecuzione ai singoli test case. L'opzione 9 esegue tutti
+ * i test in sequenza, bloccandosi al primo fallimento grazie agli assert.
  *
  * Parametri:
  * Nessuno.
  *
  * Pre-condizione:
- * L'ambiente deve supportare input/output standard e sequenze escape ANSI.
+ * L'ambiente deve supportare sequenze escape ANSI per la colorazione.
  *
  * Post-condizione:
- * Il programma termina con la selezione dello "0".
+ * Il programma termina normalmente con la selezione dello "0".
+ * Se un assert fallisce internamente, il programma termina con abort().
  *
  * Ritorna:
- * 0 al completamento corretto del programma.
+ * 0 al completamento corretto.
  */
 int main(void) {
     int scelta = -1;
@@ -145,20 +152,19 @@ int main(void) {
             case 2: pulisciSchermo(); testCase2_RegistrazioneTecnici();   pausaSchermo(); break;
             case 3: pulisciSchermo(); testCase3_AssegnazioneCorretta();   pausaSchermo(); break;
             case 4: pulisciSchermo(); testCase4_PianificazioneConflitti(); pausaSchermo(); break;
-            case 5: pulisciSchermo(); testCase5_AggiornamentoStato(); pausaSchermo(); break;
-            case 6: pulisciSchermo(); testCase6_RicercaFiltri(); pausaSchermo(); break;
+            case 5: pulisciSchermo(); testCase5_AggiornamentoStato();     pausaSchermo(); break;
+            case 6: pulisciSchermo(); testCase6_RicercaFiltri();          pausaSchermo(); break;
+            case 7: pulisciSchermo(); testCase7_StoricoInterventi();      pausaSchermo(); break;
+            case 8: pulisciSchermo(); testCase8_GenerazioneReport();      pausaSchermo(); break;
             case 9:
                 pulisciSchermo(); testCase1_RegistrazioneRichieste(); pausaSchermo();
                 pulisciSchermo(); testCase2_RegistrazioneTecnici();   pausaSchermo();
                 pulisciSchermo(); testCase3_AssegnazioneCorretta();   pausaSchermo();
                 pulisciSchermo(); testCase4_PianificazioneConflitti(); pausaSchermo();
-                pulisciSchermo(); testCase5_AggiornamentoStato(); pausaSchermo();
-                pulisciSchermo(); testCase6_RicercaFiltri(); pausaSchermo();
-                break;
-
-             case 7: case 8:
-                printf(YELLOW "\n [ IN ATTESA ] Test %d da implementare...\n" RESET, scelta);
-                pausaSchermo();
+                pulisciSchermo(); testCase5_AggiornamentoStato();     pausaSchermo();
+                pulisciSchermo(); testCase6_RicercaFiltri();          pausaSchermo();
+                pulisciSchermo(); testCase7_StoricoInterventi();      pausaSchermo();
+                pulisciSchermo(); testCase8_GenerazioneReport();      pausaSchermo();
                 break;
             case 0: break;
             default:
@@ -173,54 +179,52 @@ int main(void) {
 /*
  * Funzione: testCase1_RegistrazioneRichieste
  * ------------------------------------------
- * Testa il caricamento delle richieste da file e l'inserimento
- * nell'Archivio Lista e nella Coda di Priorita' (Max-Heap). Estrae gli
- * elementi ordinati, li scrive in un file temporaneo e li confronta
- * con il file Oracolo noto.
- *
- * FIX applicati:
- * - Ordine di distruzione corretto: heap svuotato prima, poi archivio.
- * - assert sostituito con if+return su operazioni di I/O/filesystem.
- * - File descriptor chiuso prima di ogni uscita anticipata.
+ * Verifica che il caricamento da file inserisca le richieste nell'Archivio
+ * e nella Coda di Priorita' (Max-Heap) rispettando l'ordinamento per urgenza.
+ * Le richieste vengono estratte in ordine decrescente di urgenza, scritte
+ * su file e confrontate con l'Oracolo noto.
  *
  * Parametri:
  * Nessuno.
  *
  * Pre-condizione:
  * I file "test/data/richieste.txt" e "test/oracoli/oracolo_test_1.txt"
- * devono essere disponibili.
+ * devono essere presenti e leggibili.
  *
  * Post-condizione:
- * Il file temporaneo generato "output_1.txt" viene eliminato. Tutte le
- * strutture allocate vengono distrutte senza provocare memory leak.
+ * Il file temporaneo "output_1.txt" viene eliminato. Tutte le strutture
+ * allocate vengono distrutte. La coda viene svuotata prima dell'archivio
+ * perche' quest'ultimo e' l'unico owner delle Richiesta*.
  *
  * Ritorna:
- * Niente (void).
+ * Niente (void). L'esecuzione si blocca (assert) se l'ordine di estrazione
+ * non corrisponde all'Oracolo.
  */
-void testCase1_RegistrazioneRichieste() {
+void testCase1_RegistrazioneRichieste(void) {
     printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
     printf("|                                                                                        |\n");
     printf("|                 " MAGENTA BOLD "[ TEST 1 ] Verifica Registrazione Richieste (Oracolo)                  |\n");
     printf("|________________________________________________________________________________________|\n" RESET);
 
     ArchivioRichieste* archivio = creaArchivioRichieste();
-    CodaPriorita*      coda     = creaCodaPriorita(50);
+    CodaPriorita* coda     = creaCodaPriorita(50);
 
     if (archivio == NULL || coda == NULL) {
         fprintf(stderr, RED BOLD "\n [ ERRORE ] Allocazione strutture fallita.\n" RESET);
-        if (coda)    distruggiCodaPriorita(coda);
+        if (coda)     distruggiCodaPriorita(coda);
         if (archivio) distruggiArchivioRichieste(archivio);
         return;
     }
 
+    /* Valida l'invariante dell'ADT: lo stato iniziale deve essere vuoto. */
     assert(getDimensioneArchivio(archivio) == 0);
 
     printf(CYAN "\n > Caricamento dati da 'richieste.txt'...\n" RESET);
     int caricate = caricaRichiesteDaFile(archivio, coda, "test/data/richieste.txt");
 
+    /* Fail-fast: impedisce l'esecuzione del test su un dataset vuoto. */
     if (caricate <= 0) {
         fprintf(stderr, RED BOLD "\n [ ERRORE ] Nessuna richiesta caricata da file. Verificare il path.\n" RESET);
-        /* Svuota l'heap prima di distruggere: l'archivio e' owner delle Richiesta* */
         while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
         distruggiCodaPriorita(coda);
         distruggiArchivioRichieste(archivio);
@@ -238,6 +242,7 @@ void testCase1_RegistrazioneRichieste() {
         return;
     }
 
+    /* L'estrazione progressiva verifica l'ordinamento decrescente del Max-Heap. */
     while (!isCodaPrioritaVuota(coda)) {
         Richiesta* r = estraiMaxDaCodaPriorita(coda);
         if (r != NULL) stampaRichiestaSuFile(r);
@@ -249,13 +254,14 @@ void testCase1_RegistrazioneRichieste() {
     printf(CYAN " > Confronto con il file 'oracolo_test_1.txt'...\n" RESET);
     int match = confrontaFileOracolo("test/oracoli/output_1.txt", "test/oracoli/oracolo_test_1.txt");
 
-    /* assert(match == 1): il programma SI BLOCCA se l'oracolo non combacia */
+    /* Blocca il test in caso di regressione sull'algoritmo di ordinamento. */
     assert(match == 1);
 
     printf(GREEN BOLD "\n [ SUCCESS ] Test N.1 superato con successo! L'ordine dell'Heap combacia con l'Oracolo.\n" RESET);
 
     remove("test/oracoli/output_1.txt");
-    /* Ordine corretto: heap gia' vuoto dopo estrazione, poi archivio owner delle Richiesta* */
+
+    /* La coda contiene riferimenti; va distrutta prima dell'archivio, unico owner della memoria. */
     distruggiCodaPriorita(coda);
     distruggiArchivioRichieste(archivio);
 }
@@ -263,14 +269,10 @@ void testCase1_RegistrazioneRichieste() {
 /*
  * Funzione: testCase2_RegistrazioneTecnici
  * ----------------------------------------
- * Testa il caricamento dei tecnici e l'inserimento nell'Albero Binario (BST).
- * Genera un file di output navigando l'albero in-order e lo confronta
- * con il relativo Oracolo per validare il corretto ordinamento lessicografico.
- *
- * FIX applicati:
- * - assert sostituito con if+return su operazioni di I/O/filesystem.
- * - File descriptor chiuso prima di ogni uscita anticipata.
- * - fileTempOracolo resettato a NULL dopo ogni fclose.
+ * Verifica che il caricamento da file inserisca i tecnici nel BST mantenendo
+ * l'ordinamento lessicografico per codice. La visita in-order dell'albero
+ * deve produrre i tecnici in ordine alfabetico, confermato dal confronto
+ * con l'Oracolo.
  *
  * Parametri:
  * Nessuno.
@@ -280,13 +282,14 @@ void testCase1_RegistrazioneRichieste() {
  * devono esistere ed essere leggibili.
  *
  * Post-condizione:
- * Il file temporaneo generato "output_2.txt" viene eliminato. L'albero
- * viene deallocato integralmente a fine test.
+ * Il file temporaneo "output_2.txt" viene eliminato. L'albero viene
+ * deallocato integralmente insieme ai Tecnico* che contiene.
  *
  * Ritorna:
- * Niente (void).
+ * Niente (void). L'esecuzione si blocca (assert) se l'ordinamento BST
+ * non corrisponde all'Oracolo.
  */
-void testCase2_RegistrazioneTecnici() {
+void testCase2_RegistrazioneTecnici(void) {
     printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
     printf("|                                                                                        |\n");
     printf("|                 " MAGENTA BOLD "[ TEST 2 ] Verifica Registrazione Tecnici (Oracolo)                    |\n");
@@ -299,6 +302,7 @@ void testCase2_RegistrazioneTecnici() {
         return;
     }
 
+    /* Verifica che l'ADT non contenga nodi pre-allocati al momento della creazione. */
     assert(getRadiceAlberoTecnici(db) == NULL);
 
     printf(CYAN "\n > Caricamento dati da 'tecnici.txt'...\n" RESET);
@@ -310,7 +314,7 @@ void testCase2_RegistrazioneTecnici() {
         return;
     }
 
-    printf(CYAN " > Generazione dell'output e visita dell'albero...\n" RESET);
+    printf(CYAN " > Generazione dell'output tramite visita in-order dell'albero...\n" RESET);
 
     fileTempOracolo = fopen("test/oracoli/output_2.txt", "w");
     if (fileTempOracolo == NULL) {
@@ -319,6 +323,7 @@ void testCase2_RegistrazioneTecnici() {
         return;
     }
 
+    /* La visita in-order produce un output strettamente deterministico grazie alla topologia del BST. */
     visitaAlberoTecnici(db, stampaTecnicoSuFile);
 
     fclose(fileTempOracolo);
@@ -327,7 +332,7 @@ void testCase2_RegistrazioneTecnici() {
     printf(CYAN " > Confronto con il file 'oracolo_test_2.txt'...\n" RESET);
     int match = confrontaFileOracolo("test/oracoli/output_2.txt", "test/oracoli/oracolo_test_2.txt");
 
-    /* assert(match == 1): il programma SI BLOCCA se l'oracolo non combacia */
+    /* Blocca il test se l'ordinamento del BST non corrisponde all'Oracolo. */
     assert(match == 1);
 
     printf(GREEN BOLD "\n [ SUCCESS ] Test N.2 superato con successo! L'output del BST combacia con l'Oracolo.\n" RESET);
@@ -339,38 +344,37 @@ void testCase2_RegistrazioneTecnici() {
 /*
  * Funzione: testCase3_AssegnazioneCorretta
  * ----------------------------------------
- * Testa il flusso di assegnazione simulando l'estrazione della richiesta
- * a massima urgenza e la ricerca del tecnico compatibile nel BST.
- * Verifica stato post-assegnazione tramite oracolo. Il programma si blocca
- * con assert se il confronto fallisce (comportamento atteso dalla suite).
- *
- * FIX applicati:
- * - Logica assegnazione con setter diretti (identica all'originale).
- * - assert(match == 1): il programma si BLOCCA se l'oracolo non combacia.
- * - Ordine di distruzione corretto: heap svuotato, poi distrutto, poi archivio.
- * - if+return solo su allocazioni e fopen (errori di sistema, non logici).
+ * Verifica il flusso di assegnazione: la richiesta con urgenza massima viene
+ * estratta dall'heap, il tecnico compatibile viene trovato nel BST e l'
+ * assegnazione viene completata tramite setter. Lo stato post-assegnazione
+ * viene confrontato con l'Oracolo.
  *
  * Parametri:
  * Nessuno.
  *
  * Pre-condizione:
- * Tutti i file di input (richieste/tecnici) e l'Oracolo devono esistere.
+ * I file di input (richieste.txt, tecnici.txt) e oracolo_test_3.txt
+ * devono esistere. Il file richieste.txt deve contenere almeno una
+ * richiesta con tipologia corrispondente a un tecnico disponibile.
  *
  * Post-condizione:
- * Memoria e file deallocati a fine operazione, nessun dangling pointer.
+ * Lo stato della richiesta estratta e' PIANIFICATA. Il tecnico assegnato
+ * ha disponibilita' impostata a 0. Tutte le strutture vengono deallocate
+ * nell'ordine corretto: heap prima, poi archivio, poi albero.
  *
  * Ritorna:
- * Niente (void).
+ * Niente (void). L'esecuzione si blocca (assert) se l'assegnazione
+ * non produce lo stato atteso o se l'Oracolo non combacia.
  */
-void testCase3_AssegnazioneCorretta() {
+void testCase3_AssegnazioneCorretta(void) {
     printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
     printf("|                                                                                        |\n");
     printf("|                 " MAGENTA BOLD "[ TEST 3 ] Verifica Assegnazione Corretta (Oracolo)                    |\n");
     printf("|________________________________________________________________________________________|\n" RESET);
 
-    AlberoTecnici*    db      = creaAlberoTecnici();
+    AlberoTecnici* db       = creaAlberoTecnici();
     ArchivioRichieste* archivio = creaArchivioRichieste();
-    CodaPriorita*     coda    = creaCodaPriorita(50);
+    CodaPriorita* coda     = creaCodaPriorita(50);
 
     if (db == NULL || archivio == NULL || coda == NULL) {
         fprintf(stderr, RED BOLD "\n [ ERRORE ] Allocazione strutture fallita.\n" RESET);
@@ -385,20 +389,22 @@ void testCase3_AssegnazioneCorretta() {
     caricaRichiesteDaFile(archivio, coda, "test/data/richieste.txt");
 
     Richiesta* r = estraiMaxDaCodaPriorita(coda);
-    Tecnico*   t = (r != NULL)
+
+    /* La ricerca nel BST viene effettuata solo se l'estrazione dalla coda ha avuto successo. */
+    Tecnico* t = (r != NULL)
                    ? trovaTecnicoDisponibilePerSpecializzazione(db, getTipologiaProblemaRichiesta(r))
                    : NULL;
 
-    /* Invarianti logiche: assert blocca il programma se i dati non sono disponibili */
+    /* Blocca il test se i dati di input non garantiscono un join valido tra problema e specializzazione. */
     assert(r != NULL);
     assert(t != NULL);
 
-    /* Assegnazione con setter diretti — identica alla logica originale */
+    /* Simulazione della business logic: aggiornamento dello stato e occupazione della risorsa. */
     setCodiceTecnicoAssegnatoRichiesta(r, getCodiceTecnico(t));
     setStatoRichiesta(r, PIANIFICATA);
     setDisponibilitaTecnico(t, 0);
 
-    /* Verifica invarianti post-assegnazione */
+    /* Verifica che i setter abbiano aggiornato correttamente lo stato degli oggetti. */
     assert(getStatoRichiesta(r) == PIANIFICATA);
     assert(getCodiceTecnicoAssegnatoRichiesta(r) != NULL);
     assert(isDisponibileTecnico(t) == 0);
@@ -415,7 +421,6 @@ void testCase3_AssegnazioneCorretta() {
         return;
     }
 
-    /* Formato identico all'originale per garantire il match con l'oracolo */
     fprintf(fileTempOracolo,
             "Richiesta: %s | Assegnata a: %s | Stato: %s | Tecnico Disponibile: %d\n",
             getCodiceRichiesta(r),
@@ -429,23 +434,14 @@ void testCase3_AssegnazioneCorretta() {
     printf(CYAN " > Confronto con il file 'oracolo_test_3.txt'...\n" RESET);
     int match = confrontaFileOracolo("test/oracoli/output_3.txt", "test/oracoli/oracolo_test_3.txt");
 
-    /*
-     * assert(match == 1): il programma SI BLOCCA se l'oracolo non combacia.
-     * Questo e' il comportamento richiesto dalla suite di testing.
-     */
+    /* Blocca il test se la logica applicativa ha prodotto uno stato non atteso. */
     assert(match == 1);
 
     printf(GREEN BOLD "\n [ SUCCESS ] Test N.3 superato con successo! L'assegnazione combacia con l'Oracolo.\n" RESET);
 
     remove("test/oracoli/output_3.txt");
 
-    /*
-     * Ordine di distruzione corretto (ownership):
-     * 1. Svuota l'heap (puntatori rimasti sono owned dall'archivio).
-     * 2. Distruggi il wrapper heap (ora vuoto, nessun dangling).
-     * 3. Distruggi l'archivio (libera le Richiesta* effettive).
-     * 4. Distruggi l'albero (libera i Tecnico*).
-     */
+    /* I riferimenti nell'heap vanno rimossi prima dei nodi master nell'archivio (ownership). */
     while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
     distruggiCodaPriorita(coda);
     distruggiArchivioRichieste(archivio);
@@ -455,43 +451,39 @@ void testCase3_AssegnazioneCorretta() {
 /*
  * Funzione: testCase4_PianificazioneConflitti
  * -------------------------------------------
- * Testa la logica di inserimento appuntamenti nell'Agenda del Tecnico (BST).
- * Verifica che il primo inserimento in una fascia oraria libera abbia successo,
- * e che un secondo tentativo nella stessa fascia (conflitto) venga respinto.
- * I risultati vengono scritti su file e confrontati con l'oracolo.
- *
- * FIX applicati:
- * - assert sostituito con if+return su operazioni di I/O/filesystem.
- * - Ownership di r1/r2 affidata ad arcTemp: distruzione sempre garantita.
- * - File descriptor chiuso e fileTempOracolo = NULL prima di ogni uscita.
- * - Ordine distruzione: arcTemp (owner delle Richiesta*) dopo albero.
+ * Verifica che l'Agenda del Tecnico (BST) gestisca correttamente i conflitti
+ * orari: il primo inserimento su una fascia libera deve riuscire, il secondo
+ * tentativo sulla stessa fascia deve essere respinto senza modificare lo stato
+ * della richiesta coinvolta.
  *
  * Parametri:
  * Nessuno.
  *
  * Pre-condizione:
  * I file "test/data/tecnici.txt" e "test/oracoli/oracolo_test_4.txt"
- * devono essere disponibili e corretti.
+ * devono essere presenti. Il file tecnici.txt deve contenere T001.
  *
  * Post-condizione:
- * Memoria allocata per richieste di test e albero liberata senza leak.
+ * L'agenda di T001 contiene un solo appuntamento. Le richieste di test
+ * vengono deallocate tramite arcTemp che ne e' l'owner.
  *
  * Ritorna:
- * Niente (void).
+ * Niente (void). L'esecuzione si blocca (assert) se il conflitto non viene
+ * rilevato o se l'Oracolo non combacia.
  */
-void testCase4_PianificazioneConflitti() {
+void testCase4_PianificazioneConflitti(void) {
     printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
     printf("|                                                                                        |\n");
     printf("|                 " MAGENTA BOLD "[ TEST 4 ] Verifica Pianificazione e Conflitti Orari                   |\n");
     printf("|________________________________________________________________________________________|\n" RESET);
 
-    AlberoTecnici*    db      = creaAlberoTecnici();
+    AlberoTecnici* db      = creaAlberoTecnici();
     ArchivioRichieste* arcTemp = creaArchivioRichieste();
 
     if (db == NULL || arcTemp == NULL) {
         fprintf(stderr, RED BOLD "\n [ ERRORE ] Allocazione strutture fallita.\n" RESET);
         if (arcTemp) distruggiArchivioRichieste(arcTemp);
-        if (db)       distruggiAlberoTecnici(db);
+        if (db)      distruggiAlberoTecnici(db);
         return;
     }
 
@@ -506,11 +498,8 @@ void testCase4_PianificazioneConflitti() {
         return;
     }
 
-    /*
-     * Creazione manuale delle richieste di test.
-     * L'ownership e' affidata ad arcTemp: distruggiArchivioRichieste
-     * chiamera' distruggiRichiesta su r1 e r2 in ogni percorso di uscita.
-     */
+    /* Istanziazione diretta per controllare i parametri temporali e forzare il conflitto.
+     * L'inserimento in arcTemp centralizza la deallocazione. */
     Richiesta* r1 = creaRichiesta("R999", "App. 5",  "Idraulico", "Perdita", "16/05/2026", 3);
     Richiesta* r2 = creaRichiesta("R888", "App. 12", "Idraulico", "Tubo",    "16/05/2026", 2);
 
@@ -523,7 +512,6 @@ void testCase4_PianificazioneConflitti() {
         return;
     }
 
-    /* Inserimento in arcTemp: da questo punto la distruzione e' garantita */
     inserisciInCodaArchivio(arcTemp, r1);
     inserisciInCodaArchivio(arcTemp, r2);
 
@@ -537,10 +525,9 @@ void testCase4_PianificazioneConflitti() {
         return;
     }
 
-    /* PRIMA PIANIFICAZIONE: Riuscita (fascia libera) */
     int p1 = pianificaIntervento(r1, t, "16/05/2026", "10:00-12:00");
 
-    /* assert logici: non dipendono da I/O, safe */
+    /* Positive test: lo slot e' libero, l'operazione deve avere successo. */
     assert(p1 == 1);
     assert(getStatoRichiesta(r1) == PIANIFICATA);
 
@@ -548,11 +535,13 @@ void testCase4_PianificazioneConflitti() {
             "Tentativo 1 | Richiesta: %s | Tecnico: %s | Fascia: 10:00-12:00 | Esito: SUCCESSO\n",
             getCodiceRichiesta(r1), getCodiceTecnico(t));
 
-    /* SECONDA PIANIFICAZIONE: Fallita (conflitto agenda BST) */
     int p2 = pianificaIntervento(r2, t, "16/05/2026", "10:00-12:00");
 
+    /* Negative test: lo slot e' occupato, il BST deve rilevare il conflitto e rifiutare l'inserimento. */
     assert(p2 == 0);
-    assert(getStatoRichiesta(r2) == APERTA); /* stato NON deve essere mutato */
+
+    /* In caso di conflitto, la richiesta deve mantenere il proprio stato iniziale. */
+    assert(getStatoRichiesta(r2) == APERTA);
 
     fprintf(fileTempOracolo,
             "Tentativo 2 | Richiesta: %s | Tecnico: %s | Fascia: 10:00-12:00 | Esito: CONFLITTO\n",
@@ -564,83 +553,77 @@ void testCase4_PianificazioneConflitti() {
     printf(CYAN " > Confronto con il file 'oracolo_test_4.txt'...\n" RESET);
     int match = confrontaFileOracolo("test/oracoli/output_4.txt", "test/oracoli/oracolo_test_4.txt");
 
-    /* assert(match == 1): il programma SI BLOCCA se l'oracolo non combacia */
+    /* Blocca il test se le politiche di mutua esclusione dell'agenda non funzionano correttamente. */
     assert(match == 1);
 
     printf(GREEN BOLD "\n [ SUCCESS ] Test N.4 superato con successo! La gestione conflitti combacia con l'Oracolo.\n" RESET);
 
     remove("test/oracoli/output_4.txt");
 
-    /*
-     * Ordine di distruzione corretto:
-     * 1. albero tecnici (non e' owner delle richieste).
-     * 2. arcTemp (e' owner di r1 e r2, chiama distruggiRichiesta su entrambe).
-     */
     distruggiAlberoTecnici(db);
     distruggiArchivioRichieste(arcTemp);
 }
 
-
 /*
  * Funzione: testCase5_AggiornamentoStato
  * --------------------------------------
- * Testa il corretto aggiornamento del ciclo di vita di una richiesta
- * (da APERTA a IN_LAVORAZIONE a CONCLUSA) e l'assegnazione della data di chiusura.
- * Lo stato finale modificato viene scritto su un file temporaneo e confrontato
- * con il file Oracolo per validare l'esattezza delle mutazioni.
- *
- * FIX applicati:
- * - Eliminato assert su I/O (fopen). Usato if + return con pulizia memoria.
- * - Ordine di distruzione corretto: svuotamento heap prima della distruzione archivio.
+ * Verifica le transizioni di stato di una richiesta lungo il ciclo di vita
+ * previsto: APERTA -> IN_LAVORAZIONE -> CONCLUSA. Controlla anche che la
+ * data di chiusura venga registrata correttamente.
  *
  * Parametri:
  * Nessuno.
  *
  * Pre-condizione:
  * I file "test/data/richieste.txt" e "test/oracoli/oracolo_test_5.txt"
- * devono essere disponibili e corretti.
+ * devono essere presenti. Il file richieste.txt deve contenere R002
+ * con stato iniziale APERTA.
  *
  * Post-condizione:
- * Lo stato della richiesta viene mutato. Il file temporaneo viene eliminato.
- * La memoria allocata viene liberata rigorosamente senza memory leak.
+ * Lo stato di R002 e' CONCLUSA con data di chiusura impostata.
+ * Il file temporaneo viene eliminato. La coda viene svuotata prima
+ * della distruzione dell'archivio.
  *
  * Ritorna:
- * Niente (void). L'esecuzione si interrompe (assert) in caso di errore logico.
+ * Niente (void). L'esecuzione si blocca (assert) se una transizione
+ * non produce lo stato atteso o se l'Oracolo non combacia.
  */
 void testCase5_AggiornamentoStato(void) {
     printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
     printf("|                                                                                        |\n");
     printf("|                 " MAGENTA BOLD "[ TEST 5 ] Verifica Aggiornamento Stato (Oracolo)                      |\n");
     printf("|________________________________________________________________________________________|\n" RESET);
-    
-    ArchivioRichieste* arc = creaArchivioRichieste();
+
+    ArchivioRichieste* arc  = creaArchivioRichieste();
     CodaPriorita* coda = creaCodaPriorita(50);
-    
+
     if (arc == NULL || coda == NULL) {
         fprintf(stderr, RED BOLD "\n [ ERRORE ] Allocazione strutture fallita.\n" RESET);
         if (coda) distruggiCodaPriorita(coda);
-        if (arc) distruggiArchivioRichieste(arc);
+        if (arc)  distruggiArchivioRichieste(arc);
         return;
     }
-    
+
     printf(CYAN "\n > Inizializzazione ambiente e caricamento dati...\n" RESET);
     caricaRichiesteDaFile(arc, coda, "test/data/richieste.txt");
-    
+
     Richiesta* r = cercaRichiestaPerCodice(arc, "R002");
+
+    /* Verifica che la richiesta esista e si trovi nello stato iniziale atteso prima di procedere. */
     assert(r != NULL);
     assert(getStatoRichiesta(r) == APERTA);
-    
+
     setStatoRichiesta(r, IN_LAVORAZIONE);
     assert(getStatoRichiesta(r) == IN_LAVORAZIONE);
-    
+
     setStatoRichiesta(r, CONCLUSA);
     assert(getStatoRichiesta(r) == CONCLUSA);
-    
+
     setDataChiusuraRichiesta(r, "18/05/2026");
-    
+
     printf(CYAN " > Generazione stato finale su file...\n" RESET);
     fileTempOracolo = fopen("test/oracoli/output_5.txt", "w");
-    
+
     if (fileTempOracolo == NULL) {
         fprintf(stderr, RED BOLD "\n [ ERRORE ] Impossibile aprire file output_5.txt.\n" RESET);
         while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
@@ -648,77 +631,72 @@ void testCase5_AggiornamentoStato(void) {
         distruggiArchivioRichieste(arc);
         return;
     }
-    
+
     fprintf(fileTempOracolo, "Codice: %s | Stato Finale: %s | Data Chiusura: %s\n",
             getCodiceRichiesta(r),
             statoRichiestaToString(getStatoRichiesta(r)),
             getDataChiusuraRichiesta(r));
-            
+
     fclose(fileTempOracolo);
     fileTempOracolo = NULL;
-    
+
     printf(CYAN " > Confronto con il file 'oracolo_test_5.txt'...\n" RESET);
     int match = confrontaFileOracolo("test/oracoli/output_5.txt", "test/oracoli/oracolo_test_5.txt");
+
+    /* Blocca il test se le transizioni di stato non hanno prodotto la progressione attesa. */
     assert(match == 1);
-    
+
     printf(GREEN BOLD "\n [ SUCCESS ] Test N.5 superato con successo! Transizioni di stato corrette.\n" RESET);
-    
+
     remove("test/oracoli/output_5.txt");
-    
 
     while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
     distruggiCodaPriorita(coda);
     distruggiArchivioRichieste(arc);
 }
 
-
 /*
  * Funzione: testCase6_RicercaFiltri
  * ---------------------------------
- * Testa il motore di ricerca delle richieste. Effettua una ricerca
- * per un codice esistente verificandone l'esito positivo (non NULL) 
- * e una ricerca per un codice inesistente verificandone l'esito negativo.
- * I risultati formattati vengono scritti su un file temporaneo e confrontati
- * con l'Oracolo per validarne la correttezza assoluta.
- *
- * FIX applicati:
- * - Evitata la collisione del codice 'R999' usando 'R_INVAL'.
- * - Risolto ownership di svuotamento heap prima della distruzione archivio.
- * - Sostituito assert(file) con logica if + return.
+ * Verifica il motore di ricerca per codice dell'archivio. Testa sia il caso
+ * positivo (codice presente) sia quello negativo (codice assente), garantendo
+ * che la ricerca non alteri lo stato dell'archivio in nessuno dei due casi.
  *
  * Parametri:
  * Nessuno.
  *
  * Pre-condizione:
  * I file "test/data/richieste.txt" e "test/oracoli/oracolo_test_6.txt"
- * devono esistere e contenere i dati attesi.
+ * devono esistere. Il codice "R_INVAL" non deve essere presente nel
+ * file di dati (garantito per costruzione).
  *
  * Post-condizione:
- * Le ricerche vengono eseguite senza alterare lo stato dell'archivio.
- * Il file temporaneo "output_6.txt" viene eliminato.
+ * L'archivio non e' stato modificato. Il file temporaneo viene eliminato.
+ * La coda viene svuotata prima della distruzione dell'archivio.
  *
  * Ritorna:
- * Niente (void). L'esecuzione si interrompe (assert) se la logica fallisce.
+ * Niente (void). L'esecuzione si blocca (assert) se la ricerca restituisce
+ * un risultato inatteso o se l'Oracolo non combacia.
  */
 void testCase6_RicercaFiltri(void) {
     printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
     printf("|                                                                                        |\n");
     printf("|                 " MAGENTA BOLD "[ TEST 6 ] Verifica Ricerca e Filtri (Oracolo)                         |\n");
     printf("|________________________________________________________________________________________|\n" RESET);
-    
-    ArchivioRichieste* arc = creaArchivioRichieste();
+
+    ArchivioRichieste* arc  = creaArchivioRichieste();
     CodaPriorita* coda = creaCodaPriorita(50);
-    
+
     if (arc == NULL || coda == NULL) {
         fprintf(stderr, RED BOLD "\n [ ERRORE ] Allocazione strutture fallita.\n" RESET);
         if (coda) distruggiCodaPriorita(coda);
-        if (arc) distruggiArchivioRichieste(arc);
+        if (arc)  distruggiArchivioRichieste(arc);
         return;
     }
-    
+
     printf(CYAN "\n > Inizializzazione ambiente e caricamento dati...\n" RESET);
     caricaRichiesteDaFile(arc, coda, "test/data/richieste.txt");
-    
+
     printf(CYAN " > Esecuzione ricerche e generazione file di output...\n" RESET);
     fileTempOracolo = fopen("test/oracoli/output_6.txt", "w");
     if (fileTempOracolo == NULL) {
@@ -728,31 +706,248 @@ void testCase6_RicercaFiltri(void) {
         distruggiArchivioRichieste(arc);
         return;
     }
-    
-    /* Ricerca 1: Codice ESISTENTE */
+
     Richiesta* r1 = cercaRichiestaPerCodice(arc, "R002");
+
+    /* Positive test: verifica la corretta restituzione di una chiave presente nell'archivio. */
     assert(r1 != NULL);
     fprintf(fileTempOracolo, "Ricerca R002: TROVATA -> ");
     stampaRichiestaSuFile(r1);
-    
-    /* Ricerca 2: Codice INESISTENTE garantito */
+
     Richiesta* r2 = cercaRichiestaPerCodice(arc, "R_INVAL");
+
+    /* Negative test: verifica che una chiave assente restituisca NULL senza alterare l'archivio. */
     assert(r2 == NULL);
     fprintf(fileTempOracolo, "Ricerca R_INVAL: NON TROVATA\n");
-    
+
     fclose(fileTempOracolo);
     fileTempOracolo = NULL;
-    
+
     printf(CYAN " > Confronto con il file 'oracolo_test_6.txt'...\n" RESET);
     int match = confrontaFileOracolo("test/oracoli/output_6.txt", "test/oracoli/oracolo_test_6.txt");
-    
+
+    /* Blocca il test se il motore di ricerca produce risultati inattesi. */
     assert(match == 1);
-    
+
     printf(GREEN BOLD "\n [ SUCCESS ] Test N.6 superato con successo! Il motore di ricerca funziona perfettamente.\n" RESET);
-    
+
     remove("test/oracoli/output_6.txt");
-    
-    /* Pulizia memoria corretta (Ownership risolta) */
+
+    while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
+    distruggiCodaPriorita(coda);
+    distruggiArchivioRichieste(arc);
+}
+
+/*
+ * Funzione: testCase7_StoricoInterventi
+ * -------------------------------------
+ * Testa la corretta generazione dello storico degli interventi.
+ * Simula la chiusura di alcune pratiche, scorre l'Archivio tramite i getter
+ * filtrando solo le richieste CONCLUSE e scrive il report su un file
+ * temporaneo per il confronto con l'Oracolo.
+ *
+ * NOTA ARCHITETTURALE (Information Hiding):
+ * L'iterazione avviene tramite getTestaArchivio() e getNextNodoLista().
+ * Pur esponendo il concetto di "Nodo", questi sono getter pubblici dell'interfaccia
+ * dell'ADT, pensati appositamente per consentire l'iterazione esterna senza
+ * esporre la definizione concreta della struct (Opaque Pointer).
+ *
+ * Parametri:
+ * Nessuno.
+ *
+ * Pre-condizione:
+ * I file "test/data/richieste.txt" e "test/oracoli/oracolo_test_7.txt"
+ * devono essere disponibili e validi.
+ *
+ * Post-condizione:
+ * Lo stato di alcune richieste viene alterato per la simulazione. La memoria
+ * viene deallocata rigorosamente (heap svuotato prima dell'archivio).
+ *
+ * Ritorna:
+ * Niente (void). Interrompe l'esecuzione (assert) se l'oracolo fallisce.
+ */
+void testCase7_StoricoInterventi(void) {
+    printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                 " MAGENTA BOLD "[ TEST 7 ] Verifica Storico Interventi (Oracolo)                       |\n");
+    printf("|________________________________________________________________________________________|\n" RESET);
+
+    ArchivioRichieste* arc = creaArchivioRichieste();
+    CodaPriorita* coda = creaCodaPriorita(50);
+
+    if (arc == NULL || coda == NULL) {
+        fprintf(stderr, RED BOLD "\n [ ERRORE ] Allocazione strutture fallita.\n" RESET);
+        if (coda) distruggiCodaPriorita(coda);
+        if (arc) distruggiArchivioRichieste(arc);
+        return;
+    }
+
+    printf(CYAN "\n > Inizializzazione ambiente e caricamento dati...\n" RESET);
+    caricaRichiesteDaFile(arc, coda, "test/data/richieste.txt");
+
+    /* Forzatura di stato: predispone le richieste necessarie al subset "Storico". */
+    Richiesta* r1 = cercaRichiestaPerCodice(arc, "R001");
+    Richiesta* r2 = cercaRichiestaPerCodice(arc, "R003");
+    assert(r1 != NULL && r2 != NULL);
+
+    setCodiceTecnicoAssegnatoRichiesta(r1, "T001");
+    setStatoRichiesta(r1, CONCLUSA);
+    setDataChiusuraRichiesta(r1, "18/05/2026");
+
+    setCodiceTecnicoAssegnatoRichiesta(r2, "T003");
+    setStatoRichiesta(r2, CONCLUSA);
+    setDataChiusuraRichiesta(r2, "20/05/2026");
+
+    printf(CYAN " > Estrazione storico e generazione file di output...\n" RESET);
+    fileTempOracolo = fopen("test/oracoli/output_7.txt", "w");
+    if (fileTempOracolo == NULL) {
+        fprintf(stderr, RED BOLD "\n [ ERRORE ] Impossibile aprire file output_7.txt.\n" RESET);
+        while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
+        distruggiCodaPriorita(coda);
+        distruggiArchivioRichieste(arc);
+        return;
+    }
+
+    /* Iterazione tramite getter ADT: evita l'esposizione dei dettagli implementativi della lista. */
+    NodoLista* nodoCorrente = getTestaArchivio(arc);
+    int contatore = 0;
+    while (nodoCorrente != NULL) {
+        Richiesta* req = getRichiestaDalNodoLista(nodoCorrente);
+
+        /* Filtra le sole richieste CONCLUSE per costruire il report dello storico. */
+        if (req != NULL && getStatoRichiesta(req) == CONCLUSA) {
+            contatore++;
+            fprintf(fileTempOracolo, "Storico #%d | Codice: %s | Tecnico: %s | Data Chiusura: %s\n",
+                    contatore,
+                    getCodiceRichiesta(req),
+                    getCodiceTecnicoAssegnatoRichiesta(req) ? getCodiceTecnicoAssegnatoRichiesta(req) : "N/A",
+                    getDataChiusuraRichiesta(req) ? getDataChiusuraRichiesta(req) : "N/A");
+        }
+        nodoCorrente = getNextNodoLista(nodoCorrente);
+    }
+
+    fclose(fileTempOracolo);
+    fileTempOracolo = NULL;
+
+    printf(CYAN " > Confronto con il file 'oracolo_test_7.txt'...\n" RESET);
+    int match = confrontaFileOracolo("test/oracoli/output_7.txt", "test/oracoli/oracolo_test_7.txt");
+
+    /* Blocca il test se il filtro sullo storico produce un output non atteso. */
+    assert(match == 1);
+
+    printf(GREEN BOLD "\n [ SUCCESS ] Test N.7 superato con successo! Il filtro dello storico e' esatto.\n" RESET);
+
+    remove("test/oracoli/output_7.txt");
+
+    while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
+    distruggiCodaPriorita(coda);
+    distruggiArchivioRichieste(arc);
+}
+
+/*
+ * Funzione: testCase8_GenerazioneReport
+ * -------------------------------------
+ * Testa l'aggregazione dei dati statistici di sistema. Simula un ambiente
+ * eterogeneo, itera l'archivio tramite i getter e calcola le metriche.
+ * Il report generato viene scritto su un file temporaneo e confrontato
+ * con l'Oracolo per validarne l'esattezza matematica.
+ *
+ * Parametri:
+ * Nessuno.
+ *
+ * Pre-condizione:
+ * I file "test/data/richieste.txt" e "test/oracoli/oracolo_test_8.txt"
+ * devono esistere.
+ *
+ * Post-condizione:
+ * Viene generato e poi rimosso il file "output_8.txt". Memoria allocata
+ * liberata in ordine di ownership corretto senza memory leak.
+ *
+ * Ritorna:
+ * Niente (void). L'esecuzione si interrompe in caso di errore.
+ */
+void testCase8_GenerazioneReport(void) {
+    printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                 " MAGENTA BOLD "[ TEST 8 ] Verifica Statistiche e Report (Oracolo)                     |\n");
+    printf("|________________________________________________________________________________________|\n" RESET);
+
+    ArchivioRichieste* arc = creaArchivioRichieste();
+    CodaPriorita* coda = creaCodaPriorita(50);
+
+    if (arc == NULL || coda == NULL) {
+        fprintf(stderr, RED BOLD "\n [ ERRORE ] Allocazione strutture fallita.\n" RESET);
+        if (coda) distruggiCodaPriorita(coda);
+        if (arc) distruggiArchivioRichieste(arc);
+        return;
+    }
+
+    printf(CYAN "\n > Inizializzazione ambiente e caricamento dati...\n" RESET);
+    caricaRichiesteDaFile(arc, coda, "test/data/richieste.txt");
+
+    Richiesta* r1 = cercaRichiestaPerCodice(arc, "R001");
+
+    /* Forzatura di stato per coprire le label CONCLUSA, IN_LAVORAZIONE e APERTA nel calcolo. */
+    assert(r1 != NULL);
+    setStatoRichiesta(r1, CONCLUSA);
+    setCodiceTecnicoAssegnatoRichiesta(r1, "T001");
+
+    Richiesta* r2 = cercaRichiestaPerCodice(arc, "R002");
+    assert(r2 != NULL);
+    setStatoRichiesta(r2, IN_LAVORAZIONE);
+    setCodiceTecnicoAssegnatoRichiesta(r2, "T002");
+
+    printf(CYAN " > Calcolo delle metriche e generazione file di output...\n" RESET);
+    fileTempOracolo = fopen("test/oracoli/output_8.txt", "w");
+    if (fileTempOracolo == NULL) {
+        fprintf(stderr, RED BOLD "\n [ ERRORE ] Impossibile aprire file output_8.txt.\n" RESET);
+        while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
+        distruggiCodaPriorita(coda);
+        distruggiArchivioRichieste(arc);
+        return;
+    }
+
+    int totAperte = 0, totLavorazione = 0, totConcluse = 0;
+    int totIdraulico = 0, totElettrico = 0;
+
+    /* Singolo giro esplorativo per aggregare tutte le metriche in O(N). */
+    NodoLista* nodoCorrente = getTestaArchivio(arc);
+    while (nodoCorrente != NULL) {
+        Richiesta* req = getRichiestaDalNodoLista(nodoCorrente);
+        if (req != NULL) {
+            StatoRichiesta stato = getStatoRichiesta(req);
+            if (stato == APERTA) totAperte++;
+            else if (stato == IN_LAVORAZIONE) totLavorazione++;
+            else if (stato == CONCLUSA) totConcluse++;
+
+            const char* tipo = getTipologiaProblemaRichiesta(req);
+            if (strcmp(tipo, "Idraulico") == 0) totIdraulico++;
+            else if (strcmp(tipo, "Elettrico") == 0) totElettrico++;
+        }
+        nodoCorrente = getNextNodoLista(nodoCorrente);
+    }
+
+    fprintf(fileTempOracolo, "Statistiche Generali:\n");
+    fprintf(fileTempOracolo, "- Totale Pratiche: %d\n", getDimensioneArchivio(arc));
+    fprintf(fileTempOracolo, "- Aperte: %d\n", totAperte);
+    fprintf(fileTempOracolo, "- In Lavorazione: %d\n", totLavorazione);
+    fprintf(fileTempOracolo, "- Concluse: %d\n", totConcluse);
+    fprintf(fileTempOracolo, "- Problemi Idraulici: %d\n", totIdraulico);
+    fprintf(fileTempOracolo, "- Problemi Elettrici: %d\n", totElettrico);
+
+    fclose(fileTempOracolo);
+    fileTempOracolo = NULL;
+
+    printf(CYAN " > Confronto con il file 'oracolo_test_8.txt'...\n" RESET);
+    int match = confrontaFileOracolo("test/oracoli/output_8.txt", "test/oracoli/oracolo_test_8.txt");
+
+    /* Blocca il test se le statistiche aggregate non corrispondono all'Oracolo. */
+    assert(match == 1);
+
+    printf(GREEN BOLD "\n [ SUCCESS ] Test N.8 superato con successo! Le statistiche aggregate sono corrette.\n" RESET);
+
+    remove("test/oracoli/output_8.txt");
+
     while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
     distruggiCodaPriorita(coda);
     distruggiArchivioRichieste(arc);
