@@ -112,11 +112,22 @@ static NodoAgenda* inserisciNodoRicorsivo(NodoAgenda* radice, const char* data, 
             return NULL;
         }
         
-        nuovoNodo->data = malloc(strlen(data) + 1); 
+        nuovoNodo->data = (char*)malloc(strlen(data) + 1);
+        nuovoNodo->fasciaOraria = (char*)malloc(strlen(fasciaOraria) + 1);
+        nuovoNodo->codiceRichiesta = (char*)malloc(strlen(codiceRichiesta) + 1);
+        
+        if (nuovoNodo->data == NULL || nuovoNodo->fasciaOraria == NULL || nuovoNodo->codiceRichiesta == NULL) {
+            free(nuovoNodo->data);
+            free(nuovoNodo->fasciaOraria);
+            free(nuovoNodo->codiceRichiesta);
+            free(nuovoNodo);
+            
+            *successo = 0;
+            return NULL;
+        }
+                
         strcpy(nuovoNodo->data, data);
-        nuovoNodo->fasciaOraria = malloc(strlen(fasciaOraria) + 1); 
         strcpy(nuovoNodo->fasciaOraria, fasciaOraria);
-        nuovoNodo->codiceRichiesta = malloc(strlen(codiceRichiesta) + 1); 
         strcpy(nuovoNodo->codiceRichiesta, codiceRichiesta);
         
         nuovoNodo->sinistro = NULL;

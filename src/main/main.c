@@ -195,27 +195,33 @@ int main() {
                 Richiesta** tempArray = (Richiesta**)malloc(dimCoda * sizeof(Richiesta*));
                 int tempCount = 0;
 
+                /* Ciclo di matching tra richieste e tecnici disponibili */
                 while (isCodaPrioritaVuota(codaAttesa) == 0) {
                     rAssegnare = estraiMaxDaCodaPriorita(codaAttesa);
                     
-                    if (rAssegnare == NULL || isValidaInHeapRichiesta(rAssegnare) == 0) continue;
+                    /* FIX: Se l'estrazione restituisce NULL, interrompiamo subito il ciclo in sicurezza */
+                    if (rAssegnare == NULL) {
+                        break;
+                    }
 
                     tSelezionato = trovaTecnicoDisponibilePerSpecializzazione(databaseTecnici, getTipologiaProblemaRichiesta(rAssegnare));
                     
                     if (tSelezionato != NULL) {
-                        break; 
+                        break; /* Match trovato: usciamo dal ciclo mantenendo rAssegnare valido */
                     } else {
-                        tempArray[tempCount++] = rAssegnare; 
-                        rAssegnare = NULL; 
+                        tempArray[tempCount++] = rAssegnare; /* Parcheggiamo temporaneamente la richiesta */
+                        rAssegnare = NULL; /* Resettiamo il puntatore per la prossima estrazione */
                     }
                 }
 
+                /* Reinseriamo nello heap tutte le richieste scartate che non hanno trovato un tecnico */
                 for (int i = 0; i < tempCount; i++) {
                     inserisciInCodaPriorita(codaAttesa, tempArray[i]);
                 }
                 
                 free(tempArray); 
 
+                /* Gestione dell'esito del matching */
                 if (rAssegnare != NULL && tSelezionato != NULL) {
                     setCodiceTecnicoAssegnatoRichiesta(rAssegnare, getCodiceTecnico(tSelezionato));
                     setStatoRichiesta(rAssegnare, PIANIFICATA);
@@ -370,8 +376,17 @@ int main() {
                         stampaRichiesta(rPianif);
                         printf(CYAN "|________________________________________________________________________________________|\n\n" RESET);
                         
-                        do { acquisisciStringa("Data appuntamento (GG/MM/AAAA)  : ", bData, sizeof(bData)); } while (validaData(bData) == 0);
-                        acquisisciStringa("Fascia oraria (es. 09:00-11:00) : ", bFascia, sizeof(bFascia));
+                        do { 
+                            acquisisciStringa("Data appuntamento (GG/MM/AAAA)  : ", bData, sizeof(bData)); 
+                        } while (validaData(bData) == 0);
+
+                        do {
+                            acquisisciStringa("Fascia oraria (es. 09:00-11:00) : ", bFascia, sizeof(bFascia));
+                            if (validaFasciaOraria(bFascia) == 0) 
+                            {
+                                printf(RED BOLD "  [ ERRORE ] Formato non valido. Usa esattamente HH:MM-HH:MM (es. 09:00-11:00) con orari coerenti.\n" RESET);
+                            }
+                        } while (validaFasciaOraria(bFascia) == 0);
 
                         if (pianificaIntervento(rPianif, tAss, bData, bFascia)) {
                             printf(GREEN BOLD "\n [ OK ] Operazione completata. Slot prenotato nell'agenda del tecnico!\n" RESET);

@@ -263,5 +263,33 @@ int caricaRichiesteDaFile(ArchivioRichieste* archivio, CodaPriorita* coda, const
 /*Funzione per il confrontro oracoli*/
 int confrontaFileOracolo(const char* fileOutput, const char* fileOracolo);
 
+/*
+ * Funzione: validaFasciaOraria
+ * ----------------------------------------------------
+ * Verifica la validita' sintattica e logica di una stringa che
+ * rappresenta una fascia oraria. La funzione accerta che la stringa
+ * rispetti rigidamente il formato standardizzato "HH:MM-HH:MM" (lunghezza
+ * esatta di 11 caratteri), che i separatori siano posizionati correttamente,
+ * che ore e minuti rientrino nei range reali dell'orologio (0-23 e 0-59)
+ * e che l'orario di inizio sia strettamente precedente a quello di fine.
+ *
+ * Parametri:
+ * fascia - Stringa costante contenente la fascia oraria da convalidare
+ * (puo' essere NULL)
+ *
+ * Pre-condizione:
+ * Nessuna condizione particolare: la funzione gestisce internamente
+ * il caso fascia == NULL in modo sicuro senza causare crash.
+ *
+ * Post-condizione:
+ * Nessuna modifica alla stringa passata come parametro, trattandosi
+ * di un'operazione di sola lettura (funzione pura).
+ *
+ * Ritorna:
+ * 1 se la fascia oraria e' sintatticamente e logicamente valida;
+ * 0 se la stringa e' NULL, malformata, fuori range, oppure se
+ * l'orario di inizio non precede quello di fine.
+ */
+int validaFasciaOraria(const char* fascia);
 
 #endif

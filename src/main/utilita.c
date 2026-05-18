@@ -587,3 +587,41 @@ void stampaCaricoLavoroTecnico(Tecnico* t) {
                getCodiceTecnico(t), getNomeTecnico(t), getSpecializzazioneTecnico(t), statoStr);
     }
 }
+
+/*
+ * validaFasciaOraria - Controlla che la stringa rispetti il formato HH:MM-HH:MM.
+ *
+ * Verifica la lunghezza esatta (11 caratteri), la presenza dei separatori
+ * nelle posizioni attese, il corretto range numerico di ore (0-23) e
+ * minuti (0-59), e infine che l'orario di inizio preceda strettamente
+ * quello di fine per garantire la coerenza logica dell'appuntamento.
+ *
+ * Parametri:
+ * fascia - Stringa contenente la fascia oraria da validare (puo' essere NULL)
+ *
+ * Ritorna:
+ * 1 se la fascia oraria e' sintatticamente e logicamente valida,
+ * 0 in caso di formato errato, valori fuori limite, incongruenza
+ * logica o se il puntatore passato e' nullo.
+ */
+int validaFasciaOraria(const char* fascia) {
+    int h1, m1, h2, m2;
+
+    /* 1. Controllo base e lunghezza esatta per standardizzare il formato */
+    if (fascia == NULL || strlen(fascia) != 11) return 0;
+    
+    /* 2. Controllo posizione rigida dei separatori */
+    if (fascia[2] != ':' || fascia[5] != '-' || fascia[8] != ':') return 0;
+
+    /* 3. Estrazione dei numeri */
+    if (sscanf(fascia, "%2d:%2d-%2d:%2d", &h1, &m1, &h2, &m2) != 4) return 0;
+
+    /* 4. Validazione range orologio */
+    if (h1 < 0 || h1 > 23 || m1 < 0 || m1 > 59) return 0;
+    if (h2 < 0 || h2 > 23 || m2 < 0 || m2 > 59) return 0;
+
+    /* 5. Validazione coerenza (l'inizio deve venire prima della fine) */
+    if ((h1 * 60 + m1) >= (h2 * 60 + m2)) return 0;
+
+    return 1;
+}
