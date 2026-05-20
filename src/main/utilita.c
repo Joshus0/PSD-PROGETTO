@@ -340,11 +340,13 @@ int pianificaIntervento(Richiesta* richiesta, Tecnico* tecnico, const char* data
     AgendaTecnico* agendaTecnico = getAgendaTecnico(tecnico);
     if (agendaTecnico == NULL) return 0;
     
+    /* Inserisce nell'agenda e gestisce i conflitti standard */
     if (inserisciInterventoInAgenda(agendaTecnico, data, fasciaOraria, getCodiceRichiesta(richiesta)) == 0) return 0; 
     
     setCodiceTecnicoAssegnatoRichiesta(richiesta, getCodiceTecnico(tecnico));
     
-    setStatoRichiesta(richiesta, IN_LAVORAZIONE); 
+    /* CORREZIONE: Lo stato iniziale di pianificazione deve essere PIANIFICATA */
+    setStatoRichiesta(richiesta, PIANIFICATA); 
     
     setDataInizioLavorazioneRichiesta(richiesta, data);
     setFasciaOrariaRichiesta(richiesta, fasciaOraria);
