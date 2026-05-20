@@ -89,9 +89,18 @@ static int confrontaDate(const char* data1, const char* data2) {
     sscanf(data1, "%d/%d/%d", &g1, &m1, &a1);
     sscanf(data2, "%d/%d/%d", &g2, &m2, &a2);
     
-    if (a1 != a2) return a1 < a2 ? 1 : -1;
-    if (m1 != m2) return m1 < m2 ? 1 : -1;
-    if (g1 != g2) return g1 < g2 ? 1 : -1;
+    if (a1 != a2) {
+        if (a1 < a2) return 1;
+        else return -1;
+    }
+    if (m1 != m2) {
+        if (m1 < m2) return 1;
+        else return -1;
+    }
+    if (g1 != g2) {
+        if (g1 < g2) return 1;
+        else return -1;
+    }
     
     return 0; 
 }
@@ -217,11 +226,17 @@ const char* statoRichiestaToString(StatoRichiesta stato) {
 void stampaTecnico(Tecnico* tecnico) {
     if (tecnico == NULL) return;
     
+    const char* statoDisp;
+    if (isDisponibileTecnico(tecnico)) {
+        statoDisp = "Disponibile";
+    } else {
+        statoDisp = "Occupato";
+    }
     printf(CYAN "|" RESET " %-10s " CYAN "|" RESET " %-25s " CYAN "|" RESET " %-20s " CYAN "|" RESET " %-22s " CYAN "|\n" RESET,
            getCodiceTecnico(tecnico),
            getNomeTecnico(tecnico),
            getSpecializzazioneTecnico(tecnico),
-           isDisponibileTecnico(tecnico) ? "Disponibile" : "Occupato");
+           statoDisp);
 }
 
 /*
@@ -239,13 +254,19 @@ void stampaRichiesta(const Richiesta* richiesta) {
     
     const char* tecnicoAss = getCodiceTecnicoAssegnatoRichiesta(richiesta);
     
+    const char* tecnicoStampa;
+    if (tecnicoAss != NULL) {
+        tecnicoStampa = tecnicoAss;
+    } else {
+        tecnicoStampa = "N/A";
+    }
     printf(CYAN "|" RESET " %-8s " CYAN "|" RESET " %-14s " CYAN "|" RESET " %-15s " CYAN "|" RESET " %-7d " CYAN "|" RESET " %-14s " CYAN "|" RESET " %-13s " CYAN "|\n" RESET,
            getCodiceRichiesta(richiesta),
            getAppartamentoRichiesta(richiesta),
            getTipologiaProblemaRichiesta(richiesta),
            getLivelloUrgenzaRichiesta(richiesta),
            statoRichiestaToString(getStatoRichiesta(richiesta)),
-           tecnicoAss != NULL ? tecnicoAss : "N/A");
+           tecnicoStampa);
 }
 
 /*
@@ -322,7 +343,9 @@ int pianificaIntervento(Richiesta* richiesta, Tecnico* tecnico, const char* data
     if (inserisciInterventoInAgenda(agendaTecnico, data, fasciaOraria, getCodiceRichiesta(richiesta)) == 0) return 0; 
     
     setCodiceTecnicoAssegnatoRichiesta(richiesta, getCodiceTecnico(tecnico));
-    setStatoRichiesta(richiesta, PIANIFICATA);
+    
+    setStatoRichiesta(richiesta, IN_LAVORAZIONE); 
+    
     setDataInizioLavorazioneRichiesta(richiesta, data);
     setFasciaOrariaRichiesta(richiesta, fasciaOraria);
     
@@ -354,14 +377,26 @@ void stampaStoricoInterventi(const ArchivioRichieste* archivio) {
             const char* dataChiusura = getDataChiusuraRichiesta(richiesta);
             const char* tecnicoAss = getCodiceTecnicoAssegnatoRichiesta(richiesta);
             
+            const char* tecnicoStampa;
+            if (tecnicoAss != NULL) {
+                tecnicoStampa = tecnicoAss;
+            } else {
+                tecnicoStampa = "N/A";
+            }
+            const char* dataChiusuraStampa;
+            if (dataChiusura != NULL) {
+                dataChiusuraStampa = dataChiusura;
+            } else {
+                dataChiusuraStampa = "N/A";
+            }
             printf(CYAN "|" RESET " %-3d " CYAN "|" RESET " %-8s " CYAN "|" RESET " %-12s " CYAN "|" RESET " %-13s " CYAN "|" RESET " %-11s " CYAN "|" RESET " %-9s " CYAN "|" RESET " %-12s " CYAN " |\n" RESET, 
                    interventiConclusI,
                    getCodiceRichiesta(richiesta),
                    getAppartamentoRichiesta(richiesta),
                    getTipologiaProblemaRichiesta(richiesta),
                    statoRichiestaToString(getStatoRichiesta(richiesta)),
-                   tecnicoAss != NULL ? tecnicoAss : "N/A",
-                   dataChiusura != NULL ? dataChiusura : "N/A");
+                   tecnicoStampa,
+                   dataChiusuraStampa);
         }
         nodoCorrente = getNextNodoLista(nodoCorrente);
     }

@@ -47,6 +47,7 @@ void testCase5_AggiornamentoStato(void);
 void testCase6_RicercaFiltri(void);
 void testCase7_StoricoInterventi(void);
 void testCase8_GenerazioneReport(void);
+void testCase9_MultiSlotGiornoStesso(void);
 
 /*
  * Funzione: stampaRichiestaSuFile
@@ -135,8 +136,9 @@ int main(void) {
         printf("|" RESET " [2] Reg. Tecnici (da file)                " CYAN BOLD "|" RESET " [6] Ricerca e Filtri                       " CYAN BOLD "|\n");
         printf("|" RESET " [3] Assegnazione Corretta                 " CYAN BOLD "|" RESET " [7] Storico Interventi                     " CYAN BOLD "|\n");
         printf("|" RESET " [4] Pianificazione e Conflitti            " CYAN BOLD "|" RESET " [8] Generazione Report                     " CYAN BOLD "|\n");
+        printf("|" RESET " [9] Multi-slot Stesso Giorno              " CYAN BOLD "|" RESET " [0] Esci dalla Suite                       " CYAN BOLD "|\n");
         printf("|___________________________________________|____________________________________________|\n");
-        printf("|" RESET " [9] Esegui TUTTI i Test in Sequenza       " CYAN BOLD "|" YELLOW BOLD " [0] Esci dalla Suite                       " CYAN BOLD "|\n");
+        printf("|" RESET " [10] Esegui TUTTI i Test in Sequenza      " CYAN BOLD "|" YELLOW BOLD " " CYAN BOLD "                                          " CYAN BOLD "|\n");
         printf("|___________________________________________|____________________________________________|\n" RESET);
         printf(BOLD YELLOW "\n>> Seleziona il caso di test da avviare: " RESET);
 
@@ -156,7 +158,8 @@ int main(void) {
             case 6: pulisciSchermo(); testCase6_RicercaFiltri();          pausaSchermo(); break;
             case 7: pulisciSchermo(); testCase7_StoricoInterventi();      pausaSchermo(); break;
             case 8: pulisciSchermo(); testCase8_GenerazioneReport();      pausaSchermo(); break;
-            case 9:
+            case 9: pulisciSchermo(); testCase9_MultiSlotGiornoStesso();  pausaSchermo(); break;
+            case 10:
                 pulisciSchermo(); testCase1_RegistrazioneRichieste(); pausaSchermo();
                 pulisciSchermo(); testCase2_RegistrazioneTecnici();   pausaSchermo();
                 pulisciSchermo(); testCase3_AssegnazioneCorretta();   pausaSchermo();
@@ -165,6 +168,7 @@ int main(void) {
                 pulisciSchermo(); testCase6_RicercaFiltri();          pausaSchermo();
                 pulisciSchermo(); testCase7_StoricoInterventi();      pausaSchermo();
                 pulisciSchermo(); testCase8_GenerazioneReport();      pausaSchermo();
+                pulisciSchermo(); testCase9_MultiSlotGiornoStesso();  pausaSchermo();
                 break;
             case 0: break;
             default:
@@ -529,7 +533,7 @@ void testCase4_PianificazioneConflitti(void) {
 
     /* Positive test: lo slot e' libero, l'operazione deve avere successo. */
     assert(p1 == 1);
-    assert(getStatoRichiesta(r1) == PIANIFICATA);
+    assert(getStatoRichiesta(r1) == IN_LAVORAZIONE);
 
     fprintf(fileTempOracolo,
             "Tentativo 1 | Richiesta: %s | Tecnico: %s | Fascia: 10:00-12:00 | Esito: SUCCESSO\n",
@@ -950,5 +954,135 @@ void testCase8_GenerazioneReport(void) {
 
     while (!isCodaPrioritaVuota(coda)) estraiMaxDaCodaPriorita(coda);
     distruggiCodaPriorita(coda);
+    distruggiArchivioRichieste(arc);
+}
+
+/*
+ * Funzione: testCase9_MultiSlotGiornoStesso
+ * ------------------------------------------
+ * Verifica che un tecnico possa avere piu' interventi nello stesso giorno
+ * in fasce orarie differenti e non sovrapposte.
+ * Testa il flusso completo:
+ * 1. Assegnazione (APERTA -> PIANIFICATA, senza agenda)
+ * 2. Pianificazione primo slot (PIANIFICATA -> IN_LAVORAZIONE, aggiunge agenda)
+ * 3. Pianificazione secondo slot (stesso giorno, fascia diversa, IN_LAVORAZIONE)
+ * Verifica che non ci siano conflitti e che l'agenda contenga entrambi gli interventi.
+ *
+ * Parametri:
+ * Nessuno.
+ *
+ * Pre-condizione:
+ * Il file tecnici.txt deve contenere T001 (Idraulico).
+ *
+ * Post-condizione:
+ * Entrambe le richieste risultano IN_LAVORAZIONE e presenti nell'agenda del tecnico.
+ *
+ * Ritorna:
+ * Niente (void). L'esecuzione si blocca (assert) se il flusso non produce
+ * lo stato atteso.
+ */
+void testCase9_MultiSlotGiornoStesso(void) {
+    printf(MAGENTA BOLD "\n ________________________________________________________________________________________ \n");
+    printf("|                                                                                        |\n");
+    printf("|                 " MAGENTA BOLD "[ TEST 9 ] Verifica Multi-Slot Stesso Giorno                         |\n");
+    printf("|________________________________________________________________________________________|\n" RESET);
+
+    AlberoTecnici* db = creaAlberoTecnici();
+    ArchivioRichieste* arc = creaArchivioRichieste();
+
+    if (db == NULL || arc == NULL) {
+        fprintf(stderr, RED BOLD "\n [ ERRORE ] Allocazione strutture fallita.\n" RESET);
+        if (arc) distruggiArchivioRichieste(arc);
+        if (db)  distruggiAlberoTecnici(db);
+        return;
+    }
+
+    printf(CYAN "\n > Caricamento tecnici e creazione richieste di test...\n" RESET);
+    caricaTecniciDaFile(db, "test/data/tecnici.txt");
+
+    Tecnico* t = cercaTecnicoInAlbero(db, "T001");
+    if (t == NULL) {
+        fprintf(stderr, RED BOLD "\n [ ERRORE ] Tecnico T001 non trovato.\n" RESET);
+        distruggiArchivioRichieste(arc);
+        distruggiAlberoTecnici(db);
+        return;
+    }
+
+    /* Creazione di due richieste per lo stesso giorno in fasce diverse */
+    Richiesta* r1 = creaRichiesta("R_MULTI1", "App. A", "Idraulico", "Perdita mattina", "20/05/2026", 3);
+    Richiesta* r2 = creaRichiesta("R_MULTI2", "App. B", "Idraulico", "Perdita pomeriggio", "20/05/2026", 2);
+
+    if (r1 == NULL || r2 == NULL) {
+        fprintf(stderr, RED BOLD "\n [ ERRORE ] Allocazione richieste fallita.\n" RESET);
+        if (r1) distruggiRichiesta(r1);
+        if (r2) distruggiRichiesta(r2);
+        distruggiArchivioRichieste(arc);
+        distruggiAlberoTecnici(db);
+        return;
+    }
+
+    inserisciInCodaArchivio(arc, r1);
+    inserisciInCodaArchivio(arc, r2);
+
+    printf(CYAN " > Fase 1: Assegnazione delle richieste (senza pianificazione agenda)...\n" RESET);
+
+    /* Assegnazione r1 */
+    setCodiceTecnicoAssegnatoRichiesta(r1, getCodiceTecnico(t));
+    setStatoRichiesta(r1, PIANIFICATA);
+    assert(getStatoRichiesta(r1) == PIANIFICATA);
+    printf(GREEN "  [OK] R1 assegnata, stato: PIANIFICATA\n" RESET);
+
+    /* Assegnazione r2 */
+    setCodiceTecnicoAssegnatoRichiesta(r2, getCodiceTecnico(t));
+    setStatoRichiesta(r2, PIANIFICATA);
+    assert(getStatoRichiesta(r2) == PIANIFICATA);
+    printf(GREEN "  [OK] R2 assegnata, stato: PIANIFICATA\n" RESET);
+
+    printf(CYAN " > Fase 2: Pianificazione primo intervallo (mattina 09:00-12:00)...\n" RESET);
+
+    /* Pianificazione r1 - mattina */
+    int p1 = pianificaIntervento(r1, t, "20/05/2026", "09:00-12:00");
+    assert(p1 == 1);
+    assert(getStatoRichiesta(r1) == IN_LAVORAZIONE);
+    assert(getDataInizioLavorazioneRichiesta(r1) != NULL);
+    assert(getFasciaOrariaRichiesta(r1) != NULL);
+    printf(GREEN "  [OK] R1 pianificata, stato: IN_LAVORAZIONE, fascia: 09:00-12:00\n" RESET);
+
+    printf(CYAN " > Fase 3: Pianificazione secondo intervallo (pomeriggio 14:00-17:00 - STESSO GIORNO)...\n" RESET);
+
+    /* Pianificazione r2 - pomeriggio dello stesso giorno */
+    int p2 = pianificaIntervento(r2, t, "20/05/2026", "14:00-17:00");
+    assert(p2 == 1);
+    assert(getStatoRichiesta(r2) == IN_LAVORAZIONE);
+    assert(getDataInizioLavorazioneRichiesta(r2) != NULL);
+    assert(getFasciaOrariaRichiesta(r2) != NULL);
+    printf(GREEN "  [OK] R2 pianificata, stato: IN_LAVORAZIONE, fascia: 14:00-17:00\n" RESET);
+
+    printf(CYAN " > Fase 4: Verifica agenda tecnico (contiene entrambi gli interventi)...\n" RESET);
+
+    AgendaTecnico* agenda = getAgendaTecnico(t);
+    int numInterventi = getNumeroInterventiAgenda(agenda);
+    printf(CYAN "  Numero interventi in agenda: %d\n" RESET, numInterventi);
+    assert(numInterventi == 2);
+    printf(GREEN "  [OK] Agenda contiene esattamente 2 interventi\n" RESET);
+
+    printf(CYAN " > Fase 5: Verifica assenza di conflitti orari...\n" RESET);
+
+    /* Tentativo di pianificare su uno slot gia' occupato - dovrebbe fallire */
+    Richiesta* r3 = creaRichiesta("R_CONFLICT", "App. C", "Idraulico", "Conflitto", "20/05/2026", 1);
+    if (r3 != NULL) {
+        inserisciInCodaArchivio(arc, r3);
+        setCodiceTecnicoAssegnatoRichiesta(r3, getCodiceTecnico(t));
+        setStatoRichiesta(r3, PIANIFICATA);
+
+        int p3 = pianificaIntervento(r3, t, "20/05/2026", "09:00-12:00");  /* Conflitto con r1 */
+        assert(p3 == 0);  /* Deve fallire */
+        assert(getStatoRichiesta(r3) == PIANIFICATA);  /* Rimane PIANIFICATA */
+        printf(GREEN "  [OK] Conflitto rilevato e rifiutato correttamente\n" RESET);
+    }
+
+    printf(GREEN BOLD "\n [ SUCCESS ] Test N.9 superato con successo! Multi-slot stesso giorno funziona correttamente.\n" RESET);
+
+    distruggiAlberoTecnici(db);
     distruggiArchivioRichieste(arc);
 }

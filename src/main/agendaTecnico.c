@@ -62,28 +62,40 @@ static int confrontaAppuntamenti(const char* data1, const char* ora1, const char
     int g1, m1, a1;
     int g2, m2, a2;
 
-    /* Estraiamo giorno, mese e anno dalle due stringhe */
+    /* Estraiamo le date */
     sscanf(data1, "%d/%d/%d", &g1, &m1, &a1);
     sscanf(data2, "%d/%d/%d", &g2, &m2, &a2);
 
-    /* 1. Confrontiamo prima gli anni */
-    if (a1 != a2) {
-        return a1 - a2;
-    }
-    
-    /* 2. Se gli anni sono identici, confrontiamo i mesi */
-    if (m1 != m2) {
-        return m1 - m2;
-    }
-    
-    /* 3. Se anni e mesi sono identici, confrontiamo i giorni */
-    if (g1 != g2) {
-        return g1 - g2;
-    }
+    /* 1. Confronto Cronologico della Data */
+    if (a1 != a2) return a1 - a2;
+    if (m1 != m2) return m1 - m2;
+    if (g1 != g2) return g1 - g2;
 
-    /* 4. Se la data è esattamente la stessa, usiamo strcmp per l'orario 
-       (es. "09:00" vs "14:00" funziona perfettamente con strcmp) */
-    return strcmp(ora1, ora2);
+    /* 2. STESSA DATA: Controllo Matematico della Sovrapposizione Oraria */
+    int h1_start, m1_start, h1_end, m1_end;
+    int h2_start, m2_start, h2_end, m2_end;
+
+    sscanf(ora1, "%d:%d-%d:%d", &h1_start, &m1_start, &h1_end, &m1_end);
+    sscanf(ora2, "%d:%d-%d:%d", &h2_start, &m2_start, &h2_end, &m2_end);
+
+    /* Convertiamo tutto in minuti dalla mezzanotte per un confronto assoluto */
+    int start1 = h1_start * 60 + m1_start;
+    int end1   = h1_end * 60 + m1_end;
+    int start2 = h2_start * 60 + m2_start;
+    int end2   = h2_end * 60 + m2_end;
+
+    /* Se l'intervento 1 finisce prima o esattamente quando inizia il 2 */
+    if (end1 <= start2) {
+        return -1;
+    }
+    /* Se l'intervento 1 inizia dopo o esattamente quando finisce il 2 */
+    else if (start1 >= end2) {
+        return 1;
+    }
+    
+    /* Se arriviamo qui, gli orari si INCROCIANO! (Es. 09-11 e 10-12). 
+       Restituiamo 0. L'albero lo vedrà come "duplicato" e bloccherà l'inserimento. */
+    return 0;
 }
 
 /*

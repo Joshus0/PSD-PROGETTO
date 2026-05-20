@@ -221,27 +221,45 @@ int main() {
                 
                 free(tempArray); 
 
-                /* Gestione dell'esito del matching */
+               /* Gestione dell'esito del matching */
                 if (rAssegnare != NULL && tSelezionato != NULL) {
-                    setCodiceTecnicoAssegnatoRichiesta(rAssegnare, getCodiceTecnico(tSelezionato));
-                    setStatoRichiesta(rAssegnare, PIANIFICATA);
-                    setDisponibilitaTecnico(tSelezionato, 0);
-                    setValidaInHeapRichiesta(rAssegnare, 0);
-
                     printf(GREEN BOLD "\n [ OK ] Match Trovato!\n" RESET);
-                    printf(" Tecnico assegnato  : " CYAN "%s\n\n" RESET, getNomeTecnico(tSelezionato));
+                    printf(" Tecnico selezionato: " CYAN "%s\n\n" RESET, getNomeTecnico(tSelezionato));
                     
-                    printf(CYAN " ________________________________________________________________________________________ \n");
-                    printf("| %-8s | %-14s | %-15s | %-7s | %-14s | %-13s |\n", "CODICE", "APPARTAMENTO", "TIPOLOGIA", "URGENZA", "STATO", "TECNICO");
-                    printf("|----------|----------------|-----------------|---------|----------------|---------------|\n" RESET);
-                    stampaRichiesta(rAssegnare);
-                    printf(CYAN "|________________________________________________________________________________________|\n" RESET);
+                    /* Ora chiediamo i dati obbligatori per l'agenda! */
+                    do { 
+                        acquisisciStringa("Data intervento (GG/MM/AAAA)  : ", bData, sizeof(bData)); 
+                    } while (validaData(bData) == 0);
+
+                    do {
+                        acquisisciStringa("Fascia oraria (es. 09:00-11:00) : ", bFascia, sizeof(bFascia));
+                        if (validaFasciaOraria(bFascia) == 0) {
+                            printf(RED BOLD "  [ ERRORE ] Formato non valido o illogico.\n" RESET);
+                        }
+                    } while (validaFasciaOraria(bFascia) == 0);
+
+                    /* Tentiamo l'inserimento vero e proprio nell'agenda */
+                    if (pianificaIntervento(rAssegnare, tSelezionato, bData, bFascia)) {
+                        setValidaInHeapRichiesta(rAssegnare, 0); // Disattivata dall'heap delle emergenze
+                        
+                        printf(GREEN BOLD "\n [ OK ] Intervento programmato! Richiesta in lavorazione.\n" RESET);
+                        printf(CYAN " ________________________________________________________________________________________ \n");
+                        printf("| %-8s | %-14s | %-15s | %-7s | %-14s | %-13s |\n", "CODICE", "APPARTAMENTO", "TIPOLOGIA", "URGENZA", "STATO", "TECNICO");
+                        printf("|----------|----------------|-----------------|---------|----------------|---------------|\n" RESET);
+                        stampaRichiesta(rAssegnare);
+                        printf(CYAN "|________________________________________________________________________________________|\n" RESET);
+                    } else {
+                        printf(RED BOLD "\n [ ERRORE CONFLITTO ] Il tecnico ha gia' un intervento che si accavalla con questo orario!\n" RESET);
+                        printf(YELLOW " La richiesta e' stata reinserita in coda in attesa di nuova assegnazione.\n" RESET);
+                        inserisciInCodaPriorita(codaAttesa, rAssegnare);
+                    }
+
                 } else {
                     printf(YELLOW "\n [ AVVISO ] Nessuna richiesta in attesa puo' essere soddisfatta dai tecnici disponibili.\n" RESET);
+                    if (rAssegnare != NULL) {
+                        inserisciInCodaPriorita(codaAttesa, rAssegnare); /* Riavvolge se tecnico non trovato */
+                    }
                 }
-                
-                pausaSchermo();
-                break;
             }
 
             case 4: {
