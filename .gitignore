@@ -54,6 +54,3 @@ dkms.conf
 # debug information files
 *.dwo
 
-
-# NUL errore claen
-NUL
