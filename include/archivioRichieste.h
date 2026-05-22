@@ -44,14 +44,156 @@ void rimuoviNodoDaArchivio(ArchivioRichieste* archivioTarget, NodoLista* nodoDaR
 void stampaRichiesteArchivioPerStato(const ArchivioRichieste* archivio, StatoRichiesta stato);
 
 //Funzioni per accedere ai nodi e alle richieste nell'archivio
+
+/*
+ * Funzione: getTestaArchivio
+ * --------------------------
+ * Restituisce il puntatore al primo nodo della lista doppiamente concatenata,
+ * permettendo di iniziare l'iterazione lineare attraverso le richieste archiviate.
+ *
+ * Parametri:
+ *   archivioTarget - Puntatore all'archivio (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso archivioTarget == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Puntatore al primo nodo della lista, oppure NULL se l'archivio
+ *   e' vuoto o archivioTarget e' NULL.
+ */
 NodoLista* getTestaArchivio(const ArchivioRichieste* archivioTarget);
+
+/*
+ * Funzione: getCodaArchivio
+ * -------------------------
+ * Restituisce il puntatore all'ultimo nodo della lista doppiamente concatenata,
+ * permettendo di accedere efficientemente alla fine della lista.
+ *
+ * Parametri:
+ *   archivioTarget - Puntatore all'archivio (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso archivioTarget == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Puntatore all'ultimo nodo della lista, oppure NULL se l'archivio
+ *   e' vuoto o archivioTarget e' NULL.
+ */
 NodoLista* getCodaArchivio(const ArchivioRichieste* archivioTarget);
+
+/*
+ * Funzione: getNextNodoLista
+ * ---------------------------
+ * Restituisce il nodo successivo nella sequenza della lista doppiamente concatenata.
+ *
+ * Parametri:
+ *   nodoCorrente - Puntatore al nodo corrente (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso nodoCorrente == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Puntatore al nodo successivo, oppure NULL se nodoCorrente e' l'ultimo
+ *   nodo della lista o se nodoCorrente e' NULL.
+ */
 NodoLista* getNextNodoLista(const NodoLista* nodoCorrente);
+
+/*
+ * Funzione: getPrevNodoLista
+ * ---------------------------
+ * Restituisce il nodo precedente nella sequenza della lista doppiamente concatenata.
+ *
+ * Parametri:
+ *   nodoCorrente - Puntatore al nodo corrente (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso nodoCorrente == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Puntatore al nodo precedente, oppure NULL se nodoCorrente e' il primo
+ *   nodo della lista o se nodoCorrente e' NULL.
+ */
 NodoLista* getPrevNodoLista(const NodoLista* nodoCorrente);
+
+/*
+ * Funzione: getRichiestaDalNodoLista
+ * -----------------------------------
+ * Estrae il puntatore alla Richiesta contenuta nel nodo della lista.
+ *
+ * Parametri:
+ *   nodoCorrente - Puntatore al nodo dalla quale estrarre la richiesta (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso nodoCorrente == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Puntatore alla Richiesta ospitata dal nodo, oppure NULL se nodoCorrente e' NULL.
+ */
 Richiesta* getRichiestaDalNodoLista(const NodoLista* nodoCorrente);
+
+/*
+ * Funzione: getDimensioneArchivio
+ * --------------------------------
+ * Restituisce il numero totale di richieste attualmente salvate nell'archivio.
+ *
+ * Parametri:
+ *   archivioTarget - Puntatore all'archivio (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso archivioTarget == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Numero intero di richieste, oppure 0 se l'archivio e' vuoto
+ *   o archivioTarget e' NULL.
+ */
 int getDimensioneArchivio(const ArchivioRichieste* archivioTarget);
 
-// Funzione per cercare una richiesta specifica tramite il suo codice
+/*
+ * Funzione: cercaRichiestaPerCodice
+ * ----------------------------------
+ * Effettua una ricerca sequenziale lineare attraverso l'archivio
+ * per individuare la richiesta che possiede il codice identificativo
+ * specificato. Utile per recuperare una richiesta conoscendone il codice univoco.
+ *
+ * Parametri:
+ *   archivioTarget  - Puntatore all'archivio dove cercare (puo' essere NULL)
+ *   codiceDaCercare - Codice identificativo da cercare (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   i casi archivioTarget == NULL o codiceDaCercare == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato dell'archivio.
+ *
+ * Ritorna:
+ *   Puntatore alla Richiesta trovata, oppure NULL se nessuna richiesta
+ *   corrisponde al codice o se l'archivio e' vuoto.
+ */
 Richiesta* cercaRichiestaPerCodice(const ArchivioRichieste* archivioTarget, const char* codiceDaCercare);
 
 /*

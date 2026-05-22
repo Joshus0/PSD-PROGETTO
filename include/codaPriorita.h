@@ -15,8 +15,71 @@ void inserisciInCodaPriorita(CodaPriorita* codaTarget, Richiesta* richiestaDaAcc
 Richiesta* estraiMaxDaCodaPriorita(CodaPriorita* codaTarget);
 
 //Funzioni per accedere alle informazioni sulla coda di priorità
+
+/*
+ * Funzione: isCodaPrioritaVuota
+ * -----------------------------------------------
+ * Verifica se la coda di priorità non contiene alcuna richiesta attiva
+ * (escludendo le richieste marcate come non valide a causa della lazy deletion).
+ *
+ * Parametri:
+ *   codaTarget - Puntatore alla coda da verificare (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso codaTarget == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   1 se la coda e' vuota, 0 altrimenti (anche se codaTarget e' NULL).
+ */
 int isCodaPrioritaVuota(const CodaPriorita* codaTarget);
+
+/*
+ * Funzione: getDimensioneCodaPriorita
+ * ------------------------------------
+ * Restituisce il numero totale di richieste attualmente contenute nella coda,
+ * comprese quelle marcate come non valide dalla lazy deletion.
+ *
+ * Parametri:
+ *   codaTarget - Puntatore alla coda (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso codaTarget == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Numero intero di richieste, oppure 0 se la coda e' vuota
+ *   o codaTarget e' NULL.
+ */
 int getDimensioneCodaPriorita(const CodaPriorita* codaTarget);
+
+/*
+ * Funzione: stampaCodaPriorita
+ * ----------------------------
+ * Stampa su stdout il contenuto completo della coda di priorita', mostrando
+ * tutte le richieste in ordine di priorita' (urgenza decrescente). Ogni
+ * richiesta e' visualizzata con una riga formattata a tabella contenente
+ * i dati essenziali.
+ *
+ * Parametri:
+ *   codaTarget - Puntatore alla coda da stampare (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso codaTarget == NULL.
+ *
+ * Post-condizione:
+ *   L'output viene scritto su stdout. La coda non viene modificata.
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaCodaPriorita(const CodaPriorita* codaTarget);
 
 /* 

@@ -12,16 +12,158 @@ void distruggiAgendaTecnico(AgendaTecnico* agendaTarget);
 
 //Funzioni per la manipolazione dell'agenda del tecnico
 int inserisciInterventoInAgenda(AgendaTecnico* agendaTarget, const char* data, const char* fasciaOraria, const char* codiceRichiesta);
+
+/*
+ * Funzione: getNumeroInterventiAgenda
+ * ------------------------------------
+ * Conta il numero totale di interventi pianificati nell'agenda del tecnico.
+ *
+ * Parametri:
+ *   agenda - Puntatore all'agenda da conteggiare (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso agenda == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Numero intero di interventi, oppure 0 se l'agenda e' vuota
+ *   o agenda e' NULL.
+ */
 int getNumeroInterventiAgenda(AgendaTecnico* agenda);
 
 //Funzioni per accedere ai nodi e alle informazioni sugli interventi nell'agenda del tecnico
+
+/*
+ * Funzione: getRadiceAgenda
+ * -------------------------
+ * Restituisce il puntatore alla radice dell'albero binario di ricerca (BST)
+ * che organizza cronologicamente gli interventi dell'agenda.
+ *
+ * Parametri:
+ *   agendaTarget - Puntatore all'agenda (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso agendaTarget == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Puntatore al nodo radice del BST, oppure NULL se l'agenda e' vuota
+ *   o agendaTarget e' NULL.
+ */
 NodoAgenda* getRadiceAgenda(const AgendaTecnico* agendaTarget);
+
+/*
+ * Funzione: getFiglioSinistroAgenda
+ * ----------------------------------
+ * Restituisce il puntatore al figlio sinistro del nodo corrente nel BST.
+ * Il figlio sinistro contiene interventi cronologicamente precedenti.
+ *
+ * Parametri:
+ *   nodoCorrente - Puntatore al nodo corrente (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso nodoCorrente == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Puntatore al figlio sinistro, oppure NULL se il nodo non ha figlio
+ *   sinistro o se nodoCorrente e' NULL.
+ */
 NodoAgenda* getFiglioSinistroAgenda(const NodoAgenda* nodoCorrente);
+
+/*
+ * Funzione: getFiglioDestroAgenda
+ * --------------------------------
+ * Restituisce il puntatore al figlio destro del nodo corrente nel BST.
+ * Il figlio destro contiene interventi cronologicamente successivi.
+ *
+ * Parametri:
+ *   nodoCorrente - Puntatore al nodo corrente (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso nodoCorrente == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Puntatore al figlio destro, oppure NULL se il nodo non ha figlio
+ *   destro o se nodoCorrente e' NULL.
+ */
 NodoAgenda* getFiglioDestroAgenda(const NodoAgenda* nodoCorrente);
 
 //Funzioni getter per accedere alle informazioni sugli interventi pianificati nell'agenda del tecnico
+
+/*
+ * Funzione: getDataIntervento
+ * ----------------------------
+ * Restituisce la data dell'intervento nel formato "GG/MM/AAAA".
+ *
+ * Parametri:
+ *   nodoCorrente - Puntatore al nodo contenente l'intervento (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso nodoCorrente == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Stringa con la data, oppure NULL se nodoCorrente e' NULL.
+ */
 const char* getDataIntervento(const NodoAgenda* nodoCorrente);
+
+/*
+ * Funzione: getFasciaOrariaIntervento
+ * -----------------------------------
+ * Restituisce la fascia oraria pianificata per l'intervento,
+ * nel formato "HH:MM-HH:MM".
+ *
+ * Parametri:
+ *   nodoCorrente - Puntatore al nodo contenente l'intervento (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso nodoCorrente == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Stringa con la fascia oraria, oppure NULL se nodoCorrente e' NULL.
+ */
 const char* getFasciaOrariaIntervento(const NodoAgenda* nodoCorrente);
+
+/*
+ * Funzione: getCodiceRichiestaInAgenda
+ * ------------------------------------
+ * Restituisce il codice della richiesta di manutenzione associata
+ * all'intervento pianificato nel nodo.
+ *
+ * Parametri:
+ *   nodoCorrente - Puntatore al nodo contenente l'intervento (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso nodoCorrente == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   Stringa con il codice della richiesta, oppure NULL se nodoCorrente e' NULL.
+ */
 const char* getCodiceRichiestaInAgenda(const NodoAgenda* nodoCorrente);
 
 /*
