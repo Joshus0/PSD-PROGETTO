@@ -55,9 +55,13 @@ run: programma
 	./build/programma.exe
 
 # ── Pulizia ───────────────────────────────────────────────────────────────────
-clean:
+clean_w:
 	del /Q /F build\*.o build\entita\*.o build\main\*.o build\programma.exe 2>NUL || true
 
+clean_l:
+
+	rm -f build/*.o build/entita/*.o build/main/*.o build/programma 2>/dev/null || true
+	
 # ── Test ──────────────────────────────────────────────────────────────────────
 build/main_test.o: test/main_test.c
 	$(CC) $(CFLAGS) -c test/main_test.c -o build/main_test.o
