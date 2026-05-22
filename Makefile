@@ -1,5 +1,6 @@
 CC     = gcc
-CFLAGS = -Wall -Iinclude -Iinclude/entita -Iinclude/main
+
+CFLAGS = -Wall -Iinclude -Iinclude/entita -Iinclude/main -Itest/Funzioni
 
 # ── File oggetto ──────────────────────────────────────────────────────────────
 OBJ = build/codaPriorita.o        \
@@ -59,16 +60,20 @@ clean_w:
 	del /Q /F build\*.o build\entita\*.o build\main\*.o build\programma.exe 2>NUL || true
 
 clean_l:
-
 	rm -f build/*.o build/entita/*.o build/main/*.o build/programma 2>/dev/null || true
 	
 # ── Test ──────────────────────────────────────────────────────────────────────
+
+# Nuova regola per compilare il file delle funzioni di test
+build/Test.o: test/Funzioni/Test.c test/Funzioni/Test.h
+	$(CC) $(CFLAGS) -c test/Funzioni/Test.c -o build/Test.o
+
 build/main_test.o: test/main_test.c
 	$(CC) $(CFLAGS) -c test/main_test.c -o build/main_test.o
 
-test: build/codaPriorita.o build/archivioRichieste.o build/main/utilita.o \
+test: build/codaPriorita.o build/archivioRichieste.o build/report.o build/main/utilita.o \
       build/entita/richiesta.o build/entita/tecnico.o \
       build/main/agendaTecnico.o build/main/alberoTecnici.o \
-      build/main_test.o
+      build/Test.o build/main_test.o
 	$(CC) $^ -o build/test_runner.exe
 	./build/test_runner.exe
