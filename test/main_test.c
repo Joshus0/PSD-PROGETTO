@@ -68,7 +68,7 @@ int main(void) {
         printf("|" RESET " [4] Pianificazione e Conflitti            " CYAN BOLD "|" RESET " [8] Generazione Report                     " CYAN BOLD "|\n");
         printf("|" RESET " [9] Multi-slot Stesso Giorno              " CYAN BOLD "|" RESET " [0] Esci dalla Suite                       " CYAN BOLD "|\n");
         printf("|___________________________________________|____________________________________________|\n");
-        printf("|" RESET " [10] Esegui TUTTI i Test in Sequenza      " CYAN BOLD "|" YELLOW BOLD " " CYAN BOLD "                                          " CYAN BOLD "|\n");
+        printf("|" RESET " [10] Esegui TUTTI i Test in Sequenza      " CYAN BOLD "|" YELLOW BOLD " " CYAN BOLD "                                           " CYAN BOLD "|\n");
         printf("|___________________________________________|____________________________________________|\n" RESET);
         printf(BOLD YELLOW "\n>> Seleziona il caso di test da avviare: " RESET);
 
