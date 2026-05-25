@@ -51,6 +51,27 @@ char* duplicaStringa(const char* src) {
     return copia;
 }
 
+/*
+ * Funzione: validaData
+ * ---------------------
+ * Verifica che la stringa data rispetti il formato "GG/MM/AAAA" e che
+ * rappresenti una data valida del calendario, inclusi i controlli sui mesi
+ * e gli anni bisestili.
+ *
+ * Parametri:
+ *   data - Stringa contenente la data da validare (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso data == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   1 se la data e' valida, 0 se la stringa e' NULL, malformata o
+ *   rappresenta una data non valida.
+ */
 int validaData(const char* data) {
     int giorno, mese, anno;
     int bisestile;
@@ -80,6 +101,28 @@ int validaData(const char* data) {
     return 1; 
 }
 
+/*
+ * Funzione: confrontaDate
+ * ------------------------
+ * Confronta due date nel formato "GG/MM/AAAA" restituendo l'ordinamento
+ * cronologico tra le due stringhe. Se una delle due date e' NULL, la funzione
+ * restituisce 0.
+ *
+ * Parametri:
+ *   data1 - Prima data da confrontare (puo' essere NULL)
+ *   data2 - Seconda data da confrontare (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso data1 == NULL o data2 == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   1 se data1 precede data2, -1 se data1 segue data2, 0 se le date sono uguali
+ *   o se uno dei puntatori e' NULL.
+ */
 static int confrontaDate(const char* data1, const char* data2) {
     int g1, m1, a1;
     int g2, m2, a2;
@@ -105,6 +148,28 @@ static int confrontaDate(const char* data1, const char* data2) {
     return 0; 
 }
 
+/*
+ * Funzione: validaDataChiusuraRichiesta
+ * -------------------------------------
+ * Verifica che la data di chiusura fornita sia valida e coerente con le
+ * date della richiesta: non deve essere antecedente alla data di creazione
+ * e non deve precedere la data di inizio lavorazione se quest'ultima e' presente.
+ *
+ * Parametri:
+ *   dataChiusura - Data di chiusura nel formato "GG/MM/AAAA" (puo' essere NULL)
+ *   richiesta    - Richiesta a cui la data di chiusura si riferisce (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   i casi dataChiusura == NULL e richiesta == NULL.
+ *
+ * Post-condizione:
+ *   Nessuna modifica alla richiesta o allo stato del sistema.
+ *
+ * Ritorna:
+ *   1 se la data di chiusura e' valida rispetto alla richiesta;
+ *   0 altrimenti.
+ */
 int validaDataChiusuraRichiesta(const char* dataChiusura, const Richiesta* richiesta) {
     if (dataChiusura == NULL || richiesta == NULL) return 0;
     
@@ -334,6 +399,30 @@ Tecnico* trovaTecnicoDisponibilePerSpecializzazione(const AlberoTecnici* albero,
     return trovaTecnicoDisponibilePerSpecializzazioneRic(getRadiceAlberoTecnici(albero), specializzazione);
 }
 
+/*
+ * Funzione: pianificaIntervento
+ * -----------------------------
+ * Pianifica un intervento assegnandolo a un tecnico e inserendolo nell'agenda
+ * del tecnico alla data e fascia oraria indicate. Aggiorna lo stato della
+ * richiesta a PIANIFICATA e registra la fascia oraria e la data di inizio.
+ *
+ * Parametri:
+ *   richiesta   - Richiesta da pianificare (puo' essere NULL)
+ *   tecnico     - Tecnico a cui assegnare la richiesta (puo' essere NULL)
+ *   data        - Data dell'intervento nel formato "GG/MM/AAAA" (puo' essere NULL)
+ *   fasciaOraria - Fascia oraria dell'intervento nel formato "HH:MM-HH:MM" (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   i casi NULL, ma richiede un tecnico e una richiesta validi per avere successo.
+ *
+ * Post-condizione:
+ *   Se la pianificazione ha successo, la richiesta viene assegnata al tecnico,
+ *   la sua agenda viene aggiornata e lo stato viene impostato a PIANIFICATA.
+ *
+ * Ritorna:
+ *   1 se l'intervento e' stato pianificato con successo, 0 in caso di errore.
+ */
 int pianificaIntervento(Richiesta* richiesta, Tecnico* tecnico, const char* data, const char* fasciaOraria) {
     if (richiesta == NULL || tecnico == NULL || data == NULL || fasciaOraria == NULL) return 0;
     
@@ -354,6 +443,26 @@ int pianificaIntervento(Richiesta* richiesta, Tecnico* tecnico, const char* data
     return 1; 
 }
 
+/*
+ * Funzione: stampaStoricoInterventi
+ * ----------------------------------
+ * Scorre l'archivio delle richieste e stampa su stdout l'elenco delle
+ * richieste concluse, mostrando codice, appartamento, tipologia, stato,
+ * tecnico assegnato e data di chiusura.
+ *
+ * Parametri:
+ *   archivio - Archivio delle richieste da analizzare (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso archivio == NULL.
+ *
+ * Post-condizione:
+ *   L'output viene scritto su stdout. L'archivio non viene modificato.
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaStoricoInterventi(const ArchivioRichieste* archivio) {
     if (archivio == NULL) {
         printf(RED BOLD "\n [ ERRORE ] Archivio non inizializzato.\n" RESET);
@@ -410,6 +519,26 @@ void stampaStoricoInterventi(const ArchivioRichieste* archivio) {
     printf(BOLD "\n Totale interventi conclusi: %d\n" RESET, interventiConclusI);
 }
 
+/*
+ * Funzione: stampaReportStatistiche
+ * ----------------------------------
+ * Genera un report sintetico con statistiche generali di sistema basate
+ * sull'archivio delle richieste e sull'albero dei tecnici.
+ *
+ * Parametri:
+ *   archivio - Archivio delle richieste da analizzare (puo' essere NULL)
+ *   albero   - Albero dei tecnici da analizzare (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso archivio == NULL o albero == NULL.
+ *
+ * Post-condizione:
+ *   Il report viene scritto su stdout. Archivio e albero non vengono modificati.
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaReportStatistiche(const ArchivioRichieste* archivio, const AlberoTecnici* albero) {
     if (archivio == NULL || albero == NULL) {
         printf(RED BOLD "\n [ ERRORE ] Archivio o Albero non inizializzato.\n" RESET);
@@ -465,6 +594,27 @@ void stampaReportStatistiche(const ArchivioRichieste* archivio, const AlberoTecn
     printf(CYAN "|________________________________________________________________________________________|\n" RESET);
 }
 
+/*
+ * Funzione: visitaAgendaInOrder
+ * ------------------------------
+ * Visita ricorsivamente in ordine simmetrico i nodi dell'agenda del tecnico
+ * e stampa i dati di ogni intervento con un indice crescente.
+ *
+ * Parametri:
+ *   nodo   - Nodo corrente dell'agenda (puo' essere NULL)
+ *   numero - Puntatore al contatore numerico degli interventi riscontrati (non NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso nodo == NULL.
+ *
+ * Post-condizione:
+ *   Viene eseguita la stampa dei nodi dell'agenda in ordine cronologico.
+ *   Il contatore numero viene incrementato per ogni intervento stampato.
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 static void visitaAgendaInOrder(NodoAgenda* nodo, int* numero) {
     if (nodo != NULL) {
         visitaAgendaInOrder(getFiglioSinistroAgenda(nodo), numero);
@@ -478,6 +628,25 @@ static void visitaAgendaInOrder(NodoAgenda* nodo, int* numero) {
     }
 }
 
+/*
+ * Funzione: stampaAgendaTecnico
+ * -----------------------------
+ * Stampa su stdout l'agenda degli interventi pianificati di un tecnico,
+ * con data, fascia oraria e codice della richiesta.
+ *
+ * Parametri:
+ *   tecnico - Tecnico di cui stampare l'agenda (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso tecnico == NULL o agenda non inizializzata.
+ *
+ * Post-condizione:
+ *   L'output viene scritto su stdout. L'agenda del tecnico non viene modificata.
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaAgendaTecnico(Tecnico* tecnico) {
     if (tecnico == NULL) {
         printf(RED BOLD "\n [ ERRORE ] Tecnico non valido.\n" RESET);
@@ -510,6 +679,28 @@ void stampaAgendaTecnico(Tecnico* tecnico) {
     printf(CYAN "|________________________________________________________________________________________|\n" RESET);
 }
 
+/*
+ * Funzione: caricaTecniciDaFile
+ * -----------------------------
+ * Legge un file di testo contenente la lista dei tecnici e li inserisce
+ * nell'albero dei tecnici. Ogni riga del file deve contenere i campi
+ * separati da ";" nel formato: codice;nome;specializzazione.
+ *
+ * Parametri:
+ *   albero       - Albero dei tecnici in cui inserire i dati (non NULL)
+ *   percorsoFile - Percorso del file da leggere (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   albero deve essere un AlberoTecnici valido. Il percorso del file deve
+ *   essere leggibile dal filesystem.
+ *
+ * Post-condizione:
+ *   I tecnici validi vengono inseriti nell'albero. L'albero viene modificato.
+ *
+ * Ritorna:
+ *   Numero di tecnici caricati con successo, oppure 0 se il file non viene
+ *   aperto o non contiene righe valide.
+ */
 int caricaTecniciDaFile(AlberoTecnici* albero, const char* percorsoFile) {
     FILE* file = fopen(percorsoFile, "r");
     if (file == NULL) return 0;
@@ -538,6 +729,29 @@ int caricaTecniciDaFile(AlberoTecnici* albero, const char* percorsoFile) {
     return caricati;
 }
 
+/*
+ * Funzione: caricaRichiesteDaFile
+ * --------------------------------
+ * Legge un file di testo contenente la lista delle richieste e le inserisce
+ * nell'archivio e nella coda di priorita'. Ogni riga del file deve contenere
+ * i campi separati da ";" nel formato: codice;appartamento;tipologia;descrizione;data;urgenza.
+ *
+ * Parametri:
+ *   archivio      - Archivio delle richieste in cui inserire i dati (non NULL)
+ *   coda          - Coda di priorita' in cui inserire le richieste (non NULL)
+ *   percorsoFile  - Percorso del file da leggere (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   archivio e coda devono essere strutture validamente inizializzate.
+ *   Il file deve essere leggibile dal filesystem.
+ *
+ * Post-condizione:
+ *   Le richieste valide vengono aggiunte all'archivio e alla coda.
+ *
+ * Ritorna:
+ *   Numero di richieste caricate con successo, oppure 0 se il file non
+ *   viene aperto o non contiene righe valide.
+ */
 int caricaRichiesteDaFile(ArchivioRichieste* archivio, CodaPriorita* coda, const char* percorsoFile) {
     FILE* file = fopen(percorsoFile, "r");
     if (file == NULL) return 0;
@@ -569,6 +783,27 @@ int caricaRichiesteDaFile(ArchivioRichieste* archivio, CodaPriorita* coda, const
     return caricati;
 }
 
+/*
+ * Funzione: confrontaFileOracolo
+ * -------------------------------
+ * Confronta due file di testo riga per riga per verificare che l'output
+ * prodotto corrisponda esattamente al file oracolo di riferimento.
+ *
+ * Parametri:
+ *   fileOutput - Percorso del file prodotto dal sistema (puo' essere NULL)
+ *   fileOracolo - Percorso del file oracolo di riferimento (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso in cui uno dei file non possa essere aperto.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema.
+ *
+ * Ritorna:
+ *   1 se i file sono identici, 0 se differiscono, -1 se uno dei file non
+ *   puo' essere aperto.
+ */
 int confrontaFileOracolo(const char* fileOutput, const char* fileOracolo) {
     FILE* fOut = fopen(fileOutput, "r");
     FILE* fOra = fopen(fileOracolo, "r");
@@ -604,6 +839,26 @@ int confrontaFileOracolo(const char* fileOutput, const char* fileOracolo) {
     return uguali;
 }
 
+/*
+ * Funzione: stampaCaricoLavoroTecnico
+ * -----------------------------------
+ * Stampa su stdout una riga contenente il codice, il nome, la specializzazione
+ * e lo stato di carico del tecnico in base al numero di interventi pianificati.
+ * Lo stato viene evidenziato con colori diversi a seconda della saturazione.
+ *
+ * Parametri:
+ *   t - Puntatore al Tecnico da valutare (puo' essere NULL)
+ *
+ * Pre-condizione:
+ *   Nessuna condizione particolare: la funzione gestisce internamente
+ *   il caso t == NULL.
+ *
+ * Post-condizione:
+ *   Una riga viene scritta su stdout. Il Tecnico non viene modificato.
+ *
+ * Ritorna:
+ *   Niente (void).
+ */
 void stampaCaricoLavoroTecnico(Tecnico* t) {
     if (t == NULL) return;
     

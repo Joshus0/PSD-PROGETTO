@@ -1,3 +1,12 @@
+/*
+ * File: main.c
+ * Autore: Joshua Sarnelli
+ * * Descrizione: Entry point del Sistema di Gestione degli Interventi.
+ * Coordina l'interfaccia utente a riga di comando per la gestione di 
+ * tecnici, richieste di intervento e la relativa pianificazione,
+ * mantenendo la coerenza degli stati e l'integrità dell'agenda.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,38 +30,73 @@
 #define CYAN    "\033[36m"
 #define MAGENTA "\033[35m"
 
-/* --- FUNZIONI AUSILIARIE DI CONTROLLO OCCUPAZIONE --- */
-
-/* Controlla matematicamente se due fasce orarie HH:MM-HH:MM si sovrappongono */
+/*
+ * Funzione: controllaIncrocioOrari
+ * Verifica matematicamente se due fasce orarie si sovrappongono.
+ * Utilizzata in fase di pianificazione per garantire che non vengano 
+ * generati conflitti nell'agenda strutturata dei tecnici.
+ * * Parametri:
+ * ora1: stringa della prima fascia oraria (formato "HH:MM-HH:MM")
+ * ora2: stringa della seconda fascia oraria (formato "HH:MM-HH:MM")
+ * * Pre-condizione:
+ * Le stringhe in input devono rispettare strettamente il formato atteso.
+ * * Ritorna:
+ * 1 in caso di sovrapposizione rilevata, 0 altrimenti.
+ */
 static int controllaIncrocioOrari(const char* ora1, const char* ora2) {
     int h1_start, m1_start, h1_end, m1_end;
     int h2_start, m2_start, h2_end, m2_end;
+    
     if (sscanf(ora1, "%d:%d-%d:%d", &h1_start, &m1_start, &h1_end, &m1_end) != 4) return 0;
     if (sscanf(ora2, "%d:%d-%d:%d", &h2_start, &m2_start, &h2_end, &m2_end) != 4) return 0;
     
+    // Convertiamo l'orario in minuti assoluti trascorsi dalla mezzanotte.
+    // Questo trucco semplifica enormemente il confronto tra le fasce orarie
+    // evitando complessi check incrociati su ore e minuti separati.
     int start1 = h1_start * 60 + m1_start;
     int end1   = h1_end * 60 + m1_end;
     int start2 = h2_start * 60 + m2_start;
     int end2   = h2_end * 60 + m2_end;
     
-    if (end1 <= start2 || start1 >= end2) return 0; /* Nessuna sovrapposizione */
-    return 1; /* Si sovrappongono! */
+    // Condizione di NON sovrapposizione:
+    // Se l'evento 1 finisce prima (o nello stesso momento) che inizi il 2,
+    // OPPURE se l'evento 1 inizia dopo che è finito il 2, non c'è incrocio.
+    if (end1 <= start2 || start1 >= end2) return 0;
+    return 1; 
 }
 
-/* Scorre l'archivio storico alla ricerca di interventi IN_LAVORAZIONE che si sovrappongono */
+/*
+ * Funzione: isTecnicoStaLavorando
+ * Scansiona l'archivio storico per determinare se un tecnico risulta
+ * attivamente impegnato sul campo in una determinata data e ora.
+ * Previene l'errore logico di avviare due interventi simultanei per 
+ * la stessa risorsa.
+ * * Parametri:
+ * archivio: puntatore alla struttura ArchivioRichieste
+ * codiceTecnico: identificativo univoco del tecnico da validare
+ * data: data di interesse (formato "GG/MM/AAAA")
+ * fascia: orario di interesse (formato "HH:MM-HH:MM")
+ * * Ritorna:
+ * 1 se il tecnico è nello stato IN_LAVORAZIONE con orari conflittuali,
+ * 0 se risulta disponibile.
+ */
 static int isTecnicoStaLavorando(const ArchivioRichieste* archivio, const char* codiceTecnico, const char* data, const char* fascia) {
     NodoLista* nodo = getTestaArchivio(archivio);
     while (nodo != NULL) {
         Richiesta* r = getRichiestaDalNodoLista(nodo);
+        
+        // Filtriamo solo le richieste attualmente in esecuzione.
+        // Se un intervento è già CONCLUSO, anche se nella stessa fascia, 
+        // non costituisce più un ostacolo in tempo reale.
         if (r != NULL && getStatoRichiesta(r) == IN_LAVORAZIONE) {
             const char* tec = getCodiceTecnicoAssegnatoRichiesta(r);
             if (tec != NULL && strcmp(tec, codiceTecnico) == 0) {
-                /* CORRETTO: Modificato il typo da getDataIninizioLavorazioneRichiesta a getDataInizioLavorazioneRichiesta */
                 const char* dRich = getDataInizioLavorazioneRichiesta(r);
                 const char* fRich = getFasciaOrariaRichiesta(r);
+                
                 if (dRich != NULL && fRich != NULL && strcmp(dRich, data) == 0) {
                     if (controllaIncrocioOrari(fRich, fascia)) {
-                        return 1; /* Il tecnico sta effettivamente lavorando in questo esatto momento */
+                        return 1;
                     }
                 }
             }
@@ -62,6 +106,22 @@ static int isTecnicoStaLavorando(const ArchivioRichieste* archivio, const char* 
     return 0;
 }
 
+/*
+ * Funzione: main
+ * Punto di ingresso del programma. 
+ * Inizializza le strutture dati principali (albero, coda, archivio), 
+ * gestisce il routing dei comandi utente tramite menu testuale e coordina 
+ * il ciclo di vita delle operazioni sui ticket.
+ *
+ * Pre-condizione:
+ * Disponibilità dei file sorgente delle ADT necessarie al linking.
+ *
+ * Post-condizione:
+ * Rilascio completo della memoria allocata nello heap alla chiusura.
+ *
+ * Ritorna:
+ * 0 in caso di terminazione corretta.
+ */
 int main() {
     /* 1. Inizializzazione delle strutture ADT */
     AlberoTecnici* databaseTecnici = creaAlberoTecnici();
@@ -238,6 +298,10 @@ int main() {
                         break;
                     }
 
+                    // Creiamo un array temporaneo per "parcheggiare" le richieste.
+                    // Dato che lavoriamo con un Max-Heap, estraiamo l'elemento più urgente.
+                    // Se non c'è un tecnico adatto per QUEL problema specifico, dobbiamo 
+                    // metterlo da parte e controllare la prossima richiesta urgente.
                     int dimCoda = getDimensioneCodaPriorita(codaAttesa);
                     Richiesta** tempArray = (Richiesta**)malloc(dimCoda * sizeof(Richiesta*));
                     int tempCount = 0;
@@ -248,13 +312,18 @@ int main() {
 
                         tSelezionato = trovaTecnicoDisponibilePerSpecializzazione(databaseTecnici, getTipologiaProblemaRichiesta(rAssegnare));
                         if (tSelezionato != NULL) {
+                            // Trovato un match valido! Interrompiamo il ciclo.
                             break; 
                         } else {
+                            // Nessun tecnico per questa richiesta. La salviamo nell'array
+                            // per non perderla e liberiamo rAssegnare per il prossimo ciclo.
                             tempArray[tempCount++] = rAssegnare;
                             rAssegnare = NULL; 
                         }
                     }
 
+                    // FONDAMENTALE: Re-inseriamo nello Heap tutte le richieste scartate
+                    // temporaneamente, affinché mantengano la loro priorità per il futuro.
                     for (int i = 0; i < tempCount; i++) {
                         inserisciInCodaPriorita(codaAttesa, tempArray[i]);
                     }
@@ -309,7 +378,6 @@ int main() {
                     if (validaFasciaOraria(bFascia) == 0) printf(RED BOLD "  [ ERRORE ] Formato errato.\n" RESET);
                 } while (validaFasciaOraria(bFascia) == 0);
 
-                /* REGOLA CRITICA: Verifica se il tecnico sta LAVORANDO sul campo in quel momento */
                 if (isTecnicoStaLavorando(archivioStorico, getCodiceTecnico(tSelezionato), bData, bFascia)) {
                     printf(RED BOLD "\n [ ERRORE DI PIANIFICAZIONE ] Il tecnico %s e' occupato perche' sta gia' lavorando sul posto ad un altro intervento in questa fascia oraria!\n" RESET, getNomeTecnico(tSelezionato));
                     if (subScelta == 1) {
@@ -318,10 +386,14 @@ int main() {
                     }
                 } else {
                     if (pianificaIntervento(rAssegnare, tSelezionato, bData, bFascia)) {
-                        setValidaInHeapRichiesta(rAssegnare, 0); /* Rimozione logica dallo Heap */
+                        // Rimuoviamo logicamente la richiesta dallo Heap (invalidandola)
+                        // poiché ora è stata gestita ed è passata nello stato PIANIFICATA.
+                        setValidaInHeapRichiesta(rAssegnare, 0); 
                         printf(GREEN BOLD "\n [ OK ] Intervento pianificato con successo! Stato impostato su PIANIFICATA.\n" RESET);
                     } else {
                         printf(RED BOLD "\n [ ERRORE ] Conflitto orario nell'agenda strutturata del tecnico.\n" RESET);
+                        // Se fallisce l'inserimento nell'agenda, la richiesta non va persa
+                        // ma ripristinata nello Heap.
                         if (subScelta == 1) inserisciInCodaPriorita(codaAttesa, rAssegnare);
                     }
                 }
@@ -426,7 +498,10 @@ int main() {
                             setDataChiusuraRichiesta(rTrovata, bData);
                             setStatoRichiesta(rTrovata, CONCLUSA);
 
-                            /* Libera l'agenda attiva del tecnico poiche' l'intervento e' concluso */
+                            // RECUPERO SLOT IN AGENDA
+                            // Quando un intervento viene chiuso, dobbiamo rimuoverlo fisicamente
+                            // dall'agenda del tecnico. In questo modo quello slot orario torna
+                            // disponibile per pianificare future manutenzioni.
                             const char* codiceTecnico = getCodiceTecnicoAssegnatoRichiesta(rTrovata);
                             if (codiceTecnico != NULL) {
                                 Tecnico* tConcluso = cercaTecnicoInAlbero(databaseTecnici, codiceTecnico);
