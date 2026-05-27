@@ -221,7 +221,7 @@ static void raccogliTipologie(const ArchivioRichieste* archivio, RiportoTipologi
         if (richiesta != NULL) {
             const char* tipologia = getTipologiaProblemaRichiesta(richiesta);
             
-            /* Verifica se la tipologia è già stata aggiunta */
+            /* Verifica se la tipologia e' gia' stata aggiunta */
             int trovata = 0;
             for (int i = 0; i < count; i++) {
                 if (strcmp(temp[i].tipologia, tipologia) == 0) {
@@ -271,7 +271,7 @@ static void raccogliAree(const ArchivioRichieste* archivio, RiportoArea** aree, 
         if (richiesta != NULL) {
             const char* appartamento = getAppartamentoRichiesta(richiesta);
             
-            /* Verifica se l'area è già stata aggiunta */
+            /* Verifica se l'area e' gia' stata aggiunta */
             int trovata = 0;
             for (int i = 0; i < count; i++) {
                 if (strcmp(temp[i].appartamento, appartamento) == 0) {

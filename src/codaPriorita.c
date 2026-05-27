@@ -203,7 +203,7 @@ Richiesta* estraiMaxDaCodaPriorita(CodaPriorita* codaTarget) {
         if (maxRichiesta != NULL && isValidaInHeapRichiesta(maxRichiesta) != 0) {
             return maxRichiesta;
         }
-        /* Se la richiesta estratta non è più valida, continua a cercare la successiva. */
+        /* Se la richiesta estratta non e' piu' valida, continua a cercare la successiva. */
     }
 
     return NULL;

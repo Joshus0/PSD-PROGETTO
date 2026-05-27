@@ -147,7 +147,7 @@ void generaReportTempoMedio(const ArchivioRichieste* archivio);
  *   il caso archivio == NULL o mancanza di interventi assegnati.
  *
  * Post-condizione:
- *   Un report sul tecnico più attivo viene scritto su stdout. L'archivio
+ *   Un report sul tecnico piu' attivo viene scritto su stdout. L'archivio
  *   non viene modificato.
  *
  * Ritorna:
@@ -160,7 +160,7 @@ void generaReportTecnicoPiuAttivo(const ArchivioRichieste* archivio);
  * ----------------------------------------
  * Analizza l'archivio e raggruppa gli interventi per appartamento/area
  * di provenienza, ordinando le aree per numero di problemi riscontrati
- * in ordine decrescente. Stampa un elenco delle aree più critiche.
+ * in ordine decrescente. Stampa un elenco delle aree piu' critiche.
  *
  * Parametri:
  *   archivio - Archivio delle richieste da analizzare (puo' essere NULL)

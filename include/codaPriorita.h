@@ -1,25 +1,25 @@
 #ifndef CODA_PRIORITA_H //Guardia di inclusione per evitare inclusioni multiple
 #define CODA_PRIORITA_H
 
-#include "entita/richiesta.h"   //Inclusione dell'header per la definizione della struttura Richiesta e delle funzioni correlate, necessaria per gestire le richieste nella coda di priorità
+#include "entita/richiesta.h"   //Inclusione dell'header per la definizione della struttura Richiesta e delle funzioni correlate, necessaria per gestire le richieste nella coda di priorita'
 #include "archivioRichieste.h" //Inclusione dell'header per la definizione della struttura ArchivioRichieste e delle funzioni correlate, utile per accedere alle richi
 
-typedef struct CodaPriorita CodaPriorita; //Forward declaration della struttura CodaPriorita presente in codaPriorita.c, utilizzata per implementare la coda di priorità basata su un heap di richieste
+typedef struct CodaPriorita CodaPriorita; //Forward declaration della struttura CodaPriorita presente in codaPriorita.c, utilizzata per implementare la coda di priorita' basata su un heap di richieste
 
-//Dichiarazione delle funzioni per la gestione della coda di priorità
+//Dichiarazione delle funzioni per la gestione della coda di priorita'
 CodaPriorita* creaCodaPriorita(int capacitaIniziale);
 void distruggiCodaPriorita(CodaPriorita* codaTarget);
 
-//Funzioni per la manipolazione della coda di priorità
+//Funzioni per la manipolazione della coda di priorita'
 void inserisciInCodaPriorita(CodaPriorita* codaTarget, Richiesta* richiestaDaAccodare);
 Richiesta* estraiMaxDaCodaPriorita(CodaPriorita* codaTarget);
 
-//Funzioni per accedere alle informazioni sulla coda di priorità
+//Funzioni per accedere alle informazioni sulla coda di priorita'
 
 /*
  * Funzione: isCodaPrioritaVuota
  * -----------------------------------------------
- * Verifica se la coda di priorità non contiene alcuna richiesta attiva
+ * Verifica se la coda di priorita' non contiene alcuna richiesta attiva
  * (escludendo le richieste marcate come non valide a causa della lazy deletion).
  *
  * Parametri:

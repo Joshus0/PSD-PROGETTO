@@ -2,7 +2,7 @@
 #define TECNICO_H
 
 #include "agendaTecnico.h"
-typedef struct Tecnico Tecnico; //Forward declaration della struttura Tecnico presente in tecnico.c, utilizzata per rappresentare un tecnico con le sue informazioni e disponibilità
+typedef struct Tecnico Tecnico; //Forward declaration della struttura Tecnico presente in tecnico.c, utilizzata per rappresentare un tecnico con le sue informazioni e disponibilita'
 
 //Dichiarazione delle funzioni per la gestione dei tecnici
 

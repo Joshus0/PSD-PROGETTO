@@ -4,7 +4,7 @@
  * * Descrizione: Entry point del Sistema di Gestione degli Interventi.
  * Coordina l'interfaccia utente a riga di comando per la gestione di 
  * tecnici, richieste di intervento e la relativa pianificazione,
- * mantenendo la coerenza degli stati e l'integrità dell'agenda.
+ * mantenendo la coerenza degli stati e l'integrita' dell'agenda.
  */
 
 #include <stdio.h>
@@ -32,16 +32,23 @@
 
 /*
  * Funzione: controllaIncrocioOrari
+ * --------------------------------
  * Verifica matematicamente se due fasce orarie si sovrappongono.
- * Utilizzata in fase di pianificazione per garantire che non vengano 
+ * Utilizzata in fase di pianificazione per garantire che non vengano
  * generati conflitti nell'agenda strutturata dei tecnici.
- * * Parametri:
- * ora1: stringa della prima fascia oraria (formato "HH:MM-HH:MM")
- * ora2: stringa della seconda fascia oraria (formato "HH:MM-HH:MM")
- * * Pre-condizione:
- * Le stringhe in input devono rispettare strettamente il formato atteso.
- * * Ritorna:
- * 1 in caso di sovrapposizione rilevata, 0 altrimenti.
+ *
+ * Parametri:
+ *   ora1 - Stringa della prima fascia oraria (formato "HH:MM-HH:MM")
+ *   ora2 - Stringa della seconda fascia oraria (formato "HH:MM-HH:MM")
+ *
+ * Pre-condizione:
+ *   Le stringhe in input devono rispettare strettamente il formato atteso.
+ *
+ * Post-condizione:
+ *   Nessuna modifica allo stato del sistema; funzione di sola lettura.
+ *
+ * Ritorna:
+ *   1 in caso di sovrapposizione rilevata, 0 altrimenti.
  */
 static int controllaIncrocioOrari(const char* ora1, const char* ora2) {
     int h1_start, m1_start, h1_end, m1_end;
@@ -60,25 +67,34 @@ static int controllaIncrocioOrari(const char* ora1, const char* ora2) {
     
     // Condizione di NON sovrapposizione:
     // Se l'evento 1 finisce prima (o nello stesso momento) che inizi il 2,
-    // OPPURE se l'evento 1 inizia dopo che è finito il 2, non c'è incrocio.
+    // OPPURE se l'evento 1 inizia dopo che e' finito il 2, non c'e' incrocio.
     if (end1 <= start2 || start1 >= end2) return 0;
     return 1; 
 }
 
 /*
  * Funzione: isTecnicoStaLavorando
+ * --------------------------------
  * Scansiona l'archivio storico per determinare se un tecnico risulta
  * attivamente impegnato sul campo in una determinata data e ora.
- * Previene l'errore logico di avviare due interventi simultanei per 
+ * Previene l'errore logico di avviare due interventi simultanei per
  * la stessa risorsa.
- * * Parametri:
- * archivio: puntatore alla struttura ArchivioRichieste
- * codiceTecnico: identificativo univoco del tecnico da validare
- * data: data di interesse (formato "GG/MM/AAAA")
- * fascia: orario di interesse (formato "HH:MM-HH:MM")
- * * Ritorna:
- * 1 se il tecnico è nello stato IN_LAVORAZIONE con orari conflittuali,
- * 0 se risulta disponibile.
+ *
+ * Parametri:
+ *   archivio      - Puntatore alla struttura ArchivioRichieste
+ *   codiceTecnico - Identificativo univoco del tecnico da validare
+ *   data          - Data di interesse (formato "GG/MM/AAAA")
+ *   fascia        - Orario di interesse (formato "HH:MM-HH:MM")
+ *
+ * Pre-condizione:
+ *   L'archivio deve essere validamente inizializzato.
+ *
+ * Post-condizione:
+ *   Nessuna modifica all'archivio; funzione di sola lettura.
+ *
+ * Ritorna:
+ *   1 se il tecnico e' nello stato IN_LAVORAZIONE con orari conflittuali,
+ *   0 se risulta disponibile.
  */
 static int isTecnicoStaLavorando(const ArchivioRichieste* archivio, const char* codiceTecnico, const char* data, const char* fascia) {
     NodoLista* nodo = getTestaArchivio(archivio);
@@ -86,8 +102,8 @@ static int isTecnicoStaLavorando(const ArchivioRichieste* archivio, const char* 
         Richiesta* r = getRichiestaDalNodoLista(nodo);
         
         // Filtriamo solo le richieste attualmente in esecuzione.
-        // Se un intervento è già CONCLUSO, anche se nella stessa fascia, 
-        // non costituisce più un ostacolo in tempo reale.
+        // Se un intervento e' gia' CONCLUSO, anche se nella stessa fascia, 
+        // non costituisce piu' un ostacolo in tempo reale.
         if (r != NULL && getStatoRichiesta(r) == IN_LAVORAZIONE) {
             const char* tec = getCodiceTecnicoAssegnatoRichiesta(r);
             if (tec != NULL && strcmp(tec, codiceTecnico) == 0) {
@@ -114,7 +130,7 @@ static int isTecnicoStaLavorando(const ArchivioRichieste* archivio, const char* 
  * il ciclo di vita delle operazioni sui ticket.
  *
  * Pre-condizione:
- * Disponibilità dei file sorgente delle ADT necessarie al linking.
+ * Disponibilita' dei file sorgente delle ADT necessarie al linking.
  *
  * Post-condizione:
  * Rilascio completo della memoria allocata nello heap alla chiusura.
@@ -284,7 +300,7 @@ int main() {
                 int subScelta = -1;
                 printf("[1] Assegnazione Automatica (Estrai Massima Urgenza da Heap)\n");
                 printf("[2] Assegnazione Manuale (Seleziona Richiesta Aperta specifica)\n");
-                printf(BOLD "\n>> Seleziona modalità: " RESET);
+                printf(BOLD "\n>> Seleziona modalita': " RESET);
                 if (scanf("%d", &subScelta) != 1) { pulisciBuffer(); pausaSchermo(); break; }
                 pulisciBuffer();
 
@@ -299,8 +315,8 @@ int main() {
                     }
 
                     // Creiamo un array temporaneo per "parcheggiare" le richieste.
-                    // Dato che lavoriamo con un Max-Heap, estraiamo l'elemento più urgente.
-                    // Se non c'è un tecnico adatto per QUEL problema specifico, dobbiamo 
+                    // Dato che lavoriamo con un Max-Heap, estraiamo l'elemento piu' urgente.
+                    // Se non c'e' un tecnico adatto per QUEL problema specifico, dobbiamo 
                     // metterlo da parte e controllare la prossima richiesta urgente.
                     int dimCoda = getDimensioneCodaPriorita(codaAttesa);
                     Richiesta** tempArray = (Richiesta**)malloc(dimCoda * sizeof(Richiesta*));
@@ -323,7 +339,7 @@ int main() {
                     }
 
                     // FONDAMENTALE: Re-inseriamo nello Heap tutte le richieste scartate
-                    // temporaneamente, affinché mantengano la loro priorità per il futuro.
+                    // temporaneamente, affinche' mantengano la loro priorita' per il futuro.
                     for (int i = 0; i < tempCount; i++) {
                         inserisciInCodaPriorita(codaAttesa, tempArray[i]);
                     }
@@ -347,7 +363,7 @@ int main() {
                         pausaSchermo(); break;
                     }
                     if (getStatoRichiesta(rAssegnare) != APERTA) {
-                        printf(RED BOLD "\n [ ERRORE ] La richiesta selezionata non è in stato APERTA.\n" RESET);
+                        printf(RED BOLD "\n [ ERRORE ] La richiesta selezionata non e' in stato APERTA.\n" RESET);
                         pausaSchermo(); break;
                     }
 
@@ -387,7 +403,7 @@ int main() {
                 } else {
                     if (pianificaIntervento(rAssegnare, tSelezionato, bData, bFascia)) {
                         // Rimuoviamo logicamente la richiesta dallo Heap (invalidandola)
-                        // poiché ora è stata gestita ed è passata nello stato PIANIFICATA.
+                        // poiche' ora e' stata gestita ed e' passata nello stato PIANIFICATA.
                         setValidaInHeapRichiesta(rAssegnare, 0); 
                         printf(GREEN BOLD "\n [ OK ] Intervento pianificato con successo! Stato impostato su PIANIFICATA.\n" RESET);
                     } else {
@@ -465,7 +481,7 @@ int main() {
                         }
                         pulisciBuffer();
                     } else if (sAttuale == PIANIFICATA) {
-                        printf(YELLOW BOLD "\n [ INFO ] L'intervento è PIANIFICATO. Per avviarlo sul posto usa l'Opzione 7.\n" RESET);
+                        printf(YELLOW BOLD "\n [ INFO ] L'intervento e' PIANIFICATO. Per avviarlo sul posto usa l'Opzione 7.\n" RESET);
                         printf(">> Inserisci 4 per ANNULLARE l'appuntamento in agenda o 0 per uscire: ");
                         int op = 0;
                         if (scanf("%d", &op) == 1 && op == 4) {

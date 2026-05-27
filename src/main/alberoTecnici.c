@@ -82,11 +82,11 @@ static NodoAlberoTecnici* inserisciNodoRicorsivo(NodoAlberoTecnici* nodoCorrente
     /* Confronto alfanumerico tra i codici per determinare il percorso */
     confronto = strcmp(getCodiceTecnico(nuovoTecnico), getCodiceTecnico(nodoCorrente->dato));
     
-    /* Se l'elemento è minore della radice, lo inserisce nel sottoalbero sinistro */
+    /* Se l'elemento e' minore della radice, lo inserisce nel sottoalbero sinistro */
     if (confronto < 0) {
         nodoCorrente->sinistro = inserisciNodoRicorsivo(nodoCorrente->sinistro, nuovoTecnico);
     } 
-    /* Se l'elemento è maggiore della radice, lo inserisce nel sottoalbero destro */
+    /* Se l'elemento e' maggiore della radice, lo inserisce nel sottoalbero destro */
     else if (confronto > 0) {
         nodoCorrente->destro = inserisciNodoRicorsivo(nodoCorrente->destro, nuovoTecnico);
     }
@@ -121,11 +121,11 @@ static Tecnico* cercaTecnicoRicorsivo(NodoAlberoTecnici* nodoCorrente, const cha
     if (confronto == 0) {
         return nodoCorrente->dato; 
     } 
-    /* Se l'elemento cercato è minore, restituisce il risultato della ricerca nel sottoalbero sinistro */
+    /* Se l'elemento cercato e' minore, restituisce il risultato della ricerca nel sottoalbero sinistro */
     else if (confronto < 0) {
         return cercaTecnicoRicorsivo(nodoCorrente->sinistro, codiceDaCercare);
     } 
-    /* Se l'elemento cercato è maggiore, restituisce il risultato della ricerca nel sottoalbero destro */
+    /* Se l'elemento cercato e' maggiore, restituisce il risultato della ricerca nel sottoalbero destro */
     else {
         return cercaTecnicoRicorsivo(nodoCorrente->destro, codiceDaCercare);
     }
@@ -148,7 +148,7 @@ static void distruggiNodiRicorsivo(NodoAlberoTecnici* nodoCorrente) {
         distruggiNodiRicorsivo(nodoCorrente->sinistro);
         distruggiNodiRicorsivo(nodoCorrente->destro);
         
-        /* Libera la memoria allocata per l'entità Tecnico e per il nodo stesso */
+        /* Libera la memoria allocata per l'entita' Tecnico e per il nodo stesso */
         distruggiTecnico(nodoCorrente->dato); 
         free(nodoCorrente);                   
     }

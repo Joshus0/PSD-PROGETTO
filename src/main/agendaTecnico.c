@@ -94,7 +94,7 @@ static int confrontaAppuntamenti(const char* data1, const char* ora1, const char
     }
     
     /* Se arriviamo qui, gli orari si INCROCIANO! (Es. 09-11 e 10-12). 
-       Restituiamo 0. L'albero lo vedrà come "duplicato" e bloccherà l'inserimento. */
+       Restituiamo 0. L'albero lo vedra' come \"duplicato\" e blocchera' l'inserimento. */
     return 0;
 }
 
