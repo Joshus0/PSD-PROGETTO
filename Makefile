@@ -1,6 +1,7 @@
 CC     = gcc
 
-CFLAGS = -Wall -Iinclude -Iinclude/entita -Iinclude/main -Itest/Funzioni
+# Aggiunto il flag -g per includere le informazioni di debug per Valgrind
+CFLAGS = -Wall -g -Iinclude -Iinclude/entita -Iinclude/main -Itest/Funzioni
 
 # ── File oggetto ──────────────────────────────────────────────────────────────
 OBJ = build/codaPriorita.o        \
@@ -60,8 +61,8 @@ clean_w:
 	del /Q /F build\*.o build\entita\*.o build\main\*.o build\programma.exe 2>NUL || true
 
 clean_l:
-	rm -f build/*.o build/entita/*.o build/main/*.o build/programma 2>/dev/null || true
-	
+	rm -f build/*.o build/entita/*.o build/main/*.o build/programma.exe 2>/dev/null || true
+    
 # ── Test ──────────────────────────────────────────────────────────────────────
 
 # Nuova regola per compilare il file delle funzioni di test
