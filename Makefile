@@ -16,33 +16,48 @@ OBJ = build/codaPriorita.o        \
 
 # ── Eseguibile finale ─────────────────────────────────────────────────────────
 programma: $(OBJ)
+	@if not exist build mkdir build
 	$(CC) $(OBJ) -o build/programma.exe
 
 # ── build/ ────────────────────────────────────────────────────────────────────
+
 build/codaPriorita.o: src/codaPriorita.c include/codaPriorita.h
+	@if not exist build mkdir build
 	$(CC) $(CFLAGS) -c src/codaPriorita.c -o build/codaPriorita.o
 
 build/archivioRichieste.o: src/archivioRichieste.c include/archivioRichieste.h
+	@if not exist build mkdir build
 	$(CC) $(CFLAGS) -c src/archivioRichieste.c -o build/archivioRichieste.o
 
 build/report.o: src/report.c include/report.h
+	@if not exist build mkdir build
 	$(CC) $(CFLAGS) -c src/report.c -o build/report.o
 
 # ── build/entita/ ─────────────────────────────────────────────────────────────
 build/entita/richiesta.o: src/entita/richiesta.c include/entita/richiesta.h include/main/utilita.h
+	@if not exist build mkdir build
+	@if not exist build\entita mkdir build\entita
 	$(CC) $(CFLAGS) -c src/entita/richiesta.c -o build/entita/richiesta.o
 
 build/entita/tecnico.o: src/entita/tecnico.c include/entita/tecnico.h include/main/utilita.h
+	@if not exist build mkdir build
+	@if not exist build\entita mkdir build\entita
 	$(CC) $(CFLAGS) -c src/entita/tecnico.c -o build/entita/tecnico.o
 
 # ── build/main/ ───────────────────────────────────────────────────────────────
 build/main/utilita.o: src/main/utilita.c include/main/utilita.h
+	@if not exist build mkdir build
+	@if not exist build\main mkdir build\main
 	$(CC) $(CFLAGS) -c src/main/utilita.c -o build/main/utilita.o
 
 build/main/agendaTecnico.o: src/main/agendaTecnico.c include/agendaTecnico.h include/main/utilita.h
+	@if not exist build mkdir build
+	@if not exist build\main mkdir build\main
 	$(CC) $(CFLAGS) -c src/main/agendaTecnico.c -o build/main/agendaTecnico.o
 
 build/main/alberoTecnici.o: src/main/alberoTecnici.c include/alberoTecnici.h include/entita/tecnico.h
+	@if not exist build mkdir build
+	@if not exist build\main mkdir build\main
 	$(CC) $(CFLAGS) -c src/main/alberoTecnici.c -o build/main/alberoTecnici.o
 
 build/main/main.o: src/main/main.c \
@@ -50,6 +65,8 @@ build/main/main.o: src/main/main.c \
                    include/main/utilita.h include/agendaTecnico.h \
                    include/alberoTecnici.h include/archivioRichieste.h \
                    include/codaPriorita.h include/report.h
+	@if not exist build mkdir build
+	@if not exist build\main mkdir build\main
 	$(CC) $(CFLAGS) -c src/main/main.c -o build/main/main.o
 
 # ── Esecuzione ────────────────────────────────────────────────────────────────
@@ -58,23 +75,26 @@ run: programma
 
 # ── Pulizia ───────────────────────────────────────────────────────────────────
 clean_w:
-	del /Q /F build\*.o build\entita\*.o build\main\*.o build\programma.exe 2>NUL || true
+	del /Q /F build\*.o build\entita\*.o build\main\*.o build\programma.exe build\test_runner.exe 2>NUL || true
 
 clean_l:
-	rm -f build/*.o build/entita/*.o build/main/*.o build/programma.exe 2>/dev/null || true
+	rm -f build/*.o build/entita/*.o build/main/*.o build/programma.exe build/test_runner.exe 2>/dev/null || true
     
 # ── Test ──────────────────────────────────────────────────────────────────────
 
 # Nuova regola per compilare il file delle funzioni di test
 build/Test.o: test/Funzioni/Test.c test/Funzioni/Test.h
+	@if not exist build mkdir build
 	$(CC) $(CFLAGS) -c test/Funzioni/Test.c -o build/Test.o
 
 build/main_test.o: test/main_test.c
+	@if not exist build mkdir build
 	$(CC) $(CFLAGS) -c test/main_test.c -o build/main_test.o
 
 test: build/codaPriorita.o build/archivioRichieste.o build/report.o build/main/utilita.o \
       build/entita/richiesta.o build/entita/tecnico.o \
       build/main/agendaTecnico.o build/main/alberoTecnici.o \
       build/Test.o build/main_test.o
+	@if not exist build mkdir build
 	$(CC) $^ -o build/test_runner.exe
 	./build/test_runner.exe
